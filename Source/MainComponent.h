@@ -1,10 +1,3 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-  ==============================================================================
-*/
 
 #ifndef MAINCOMPONENT_H_INCLUDED
 #define MAINCOMPONENT_H_INCLUDED
@@ -13,15 +6,14 @@
 #include "AudioApp.h"
 
 
-//==============================================================================
+
 /*
-    This component lives inside our window, and this is where you should put all
-    your controls and content.
+    put Controls and Content here
 */
 class MainContentComponent   : public Component
 {
 public:
-    //==============================================================================
+  
     MainContentComponent();
     ~MainContentComponent();
 
@@ -32,7 +24,7 @@ public:
 
 private:
     AudioApp app;
-    //==============================================================================
+ 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 

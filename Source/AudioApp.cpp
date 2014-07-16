@@ -1,23 +1,12 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Introjucer version: 3.1.0
-
-  ------------------------------------------------------------------------------
-
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+Main App Functions
 
   ==============================================================================
 */
 
-//[Headers] You can add your own extra header files here...
+//[Headers]
 #include "MainComponent.h"
 #include "FeatureExtractor.h"
 #include "essentia/essentia.h"
@@ -27,7 +16,7 @@
 #include "AudioApp.h"
 
 
-//[MiscUserDefs] You can add your own user definitions and misc code here...
+//[MiscUserDefs]
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -141,7 +130,7 @@ AudioApp::AudioApp () : APP_WIDTH(900), APP_HEIGHT(400)
     //setSize (600, 400);
 
 
-    //[Constructor] You can add your own custom stuff here..
+    //[Constructor]
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     formatManager.registerBasicFormats();
@@ -160,7 +149,7 @@ AudioApp::AudioApp () : APP_WIDTH(900), APP_HEIGHT(400)
 
 AudioApp::~AudioApp()
 {
-    //[Destructor_pre]. You can add your own custom destruction code here..
+    //[Destructor_pre].
     //[/Destructor_pre]
 
     infoLabel = nullptr;
@@ -178,14 +167,14 @@ AudioApp::~AudioApp()
     shiftButton = nullptr;
 
 
-    //[Destructor]. You can add your own custom destruction code here..
+    //[Destructor].
     //[/Destructor]
 }
 
 //==============================================================================
 void AudioApp::paint (Graphics& g)
 {
-    //[UserPrePaint] Add your own custom painting code here..
+    //[UserPrePaint]
     //[/UserPrePaint]
 
     g.fillAll (Colour (0xff0f0f0f));
@@ -197,7 +186,7 @@ void AudioApp::paint (Graphics& g)
                                        false));
     g.fillRoundedRectangle (20.0f, 12.0f, 708.0f, 668.0f, 10.000f);
 
-    //[UserPaint] Add your own custom painting code here..
+    //[UserPaint]
     //[/UserPaint]
 }
 
@@ -216,7 +205,7 @@ void AudioApp::resized()
     delaySlider->setBounds (592, 128, 112, 160);
     delayLabel->setBounds (576, 296, 150, 24);
     shiftButton->setBounds (472, 136, 72, 88);
-    //[UserResized] Add your own custom resize handling here..
+    //[UserResized]
     //[/UserResized]
 }
 
@@ -227,7 +216,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 
     if (buttonThatWasClicked == loadButton)
     {
-        //[UserButtonCode_loadButton] -- add your button handler code here..
+        //[UserButtonCode_loadButton]
         FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
@@ -240,7 +229,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == playButton)
     {
-        //[UserButtonCode_playButton] -- add your button handler code here..
+        //[UserButtonCode_playButton]
         if (Stopped == state || Paused == state) {
             changeState(Starting);
         } else if (Playing == state) changeState(Pausing);
@@ -248,7 +237,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == stopButton)
     {
-        //[UserButtonCode_stopButton] -- add your button handler code here..
+        //[UserButtonCode_stopButton]
         if (Paused == state) {
             changeState(Stopped);
         } else
@@ -257,7 +246,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == settingsButton)
     {
-        //[UserButtonCode_settingsButton] -- add your button handler code here..
+        //[UserButtonCode_settingsButton]
         bool showMidiInputOptions = false;
         bool showMidiOutputSelector = false;
         bool showChnlsAsStereoPairs =true;
@@ -274,7 +263,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == loopButton)
     {
-        //[UserButtonCode_loopButton] -- add your button handler code here..
+        //[UserButtonCode_loopButton]
         if (readerSource->isLooping()) {
             readerSource->setLooping(false);
         } else
@@ -283,7 +272,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == shiftButton)
     {
-        //[UserButtonCode_shiftButton] -- add your button handler code here..
+        //[UserButtonCode_shiftButton]
 
         if (shiftButton->getToggleState()) {
             transportSource.setPosition(drand48() * static_cast<float>(transportSource.getTotalLength()));
@@ -302,14 +291,14 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
     if (sliderThatWasMoved == gainSlider)
     {
-        //[UserSliderCode_gainSlider] -- add your slider handling code here..
+        //[UserSliderCode_gainSlider]
         gain = static_cast<float>(gainSlider->getValue());
         transportSource.setGain(gain);
         //[/UserSliderCode_gainSlider]
     }
     else if (sliderThatWasMoved == delaySlider)
     {
-        //[UserSliderCode_delaySlider] -- add your slider handling code here..
+        //[UserSliderCode_delaySlider]
         //[/UserSliderCode_delaySlider]
     }
 
@@ -319,7 +308,7 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 
-//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+//[MiscUserCode] 
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 
     if (&deviceManager == src) {
