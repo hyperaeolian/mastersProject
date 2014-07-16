@@ -5,9 +5,8 @@
               jucerVersion="3.1.0" companyName="Phases">
   <MAINGROUP id="E0wmuP" name="PhaseTwo">
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
-      <FILE id="wYfBM0" name="LoopGenerator.cpp" compile="1" resource="0"
-            file="Source/LoopGenerator.cpp"/>
-      <FILE id="hwv9cS" name="LoopGenerator.h" compile="0" resource="0" file="Source/LoopGenerator.h"/>
+      <FILE id="d4Rdnk" name="LoopGen.cpp" compile="1" resource="0" file="Source/LoopGen.cpp"/>
+      <FILE id="YPZoLc" name="LoopGen.h" compile="0" resource="0" file="Source/LoopGen.h"/>
       <GROUP id="{BA030AEE-B583-ADA7-433E-0F4ED845CCEE}" name="essentia">
         <FILE id="ybXtkJ" name="algorithm.h" compile="0" resource="0" file="/usr/local/include/essentia/algorithm.h"/>
         <FILE id="q1Ihzo" name="algorithmfactory.h" compile="0" resource="0"
@@ -147,28 +146,28 @@
     <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="-lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lswresample -lfftw3f -lz"
                extraCompilerFlags="" externalLibraries="">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="default"
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="Native"
                        isDebug="1" optimisation="1" targetName="PhaseTwo" libraryPath="/usr/local/lib"
-                       headerPath="/usr/local/include" cppLibType="libc++"/>
-        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="default"
+                       headerPath="/usr/local/include&#10;../../Source" cppLibType="libc++"/>
+        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="Native"
                        isDebug="0" optimisation="2" targetName="PhaseTwo" libraryPath="/usr/local/lib"
-                       headerPath="/usr/local/include"/>
+                       headerPath="/usr/local/include&#10;../../Source"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_events" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_video" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>

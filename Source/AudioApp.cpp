@@ -8,9 +8,9 @@ Main App Functions
 
 //[Headers]
 #include "MainComponent.h"
-#include "FeatureExtractor.h"
-#include "essentia/essentia.h"
-#include "LoopGenerator.h"
+#include "LoopGen.h"
+//#include "LoopGenerator.h"
+//#include "LoopGenerator.cpp"
 //[/Headers]
 
 #include "AudioApp.h"
@@ -133,6 +133,7 @@ AudioApp::AudioApp () : APP_WIDTH(900), APP_HEIGHT(400)
     //[Constructor]
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
+    shiftButton->setEnabled(false);
     formatManager.registerBasicFormats();
     sourcePlayer.setSource(&transportSource);
     deviceManager.addAudioCallback(&sourcePlayer);
@@ -223,7 +224,9 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
             readerSource = new AudioFormatReaderSource(formatManager.createReaderFor(file),true);
             transportSource.setSource(readerSource);
+            LOOPS = computeLoops(AUDIO_FILENAME);
             playButton->setEnabled(true);
+            shiftButton->setEnabled(true);
         }
         //[/UserButtonCode_loadButton]
     }
@@ -273,8 +276,8 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == shiftButton)
     {
         //[UserButtonCode_shiftButton]
-
         if (shiftButton->getToggleState()) {
+            shifting = true;
             transportSource.setPosition(drand48() * static_cast<float>(transportSource.getTotalLength()));
         }
         //[/UserButtonCode_shiftButton]
@@ -314,15 +317,12 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
     if (&deviceManager == src) {
         AudioDeviceManager::AudioDeviceSetup setup;
         deviceManager.getAudioDeviceSetup(setup);
-        if (setup.outputChannels.isZero())
-            sourcePlayer.setSource(nullptr);
-        else {
-            sourcePlayer.setSource(&transportSource);
-        }
+        setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr) :
+                                        sourcePlayer.setSource(&transportSource);
     } else if (&transportSource == src){
 
         if (transportSource.isPlaying()) {
-            changeState(Playing);
+            Looping == state ? changeState(Looping) : changeState(Playing);
         } else {
             if (Stopping == state || Playing == state) {
                 changeState(Stopped);
@@ -363,17 +363,19 @@ void AudioApp::changeState(TransportState newState){
                 break;
             case Looping:
                 transportSource.setLooping(true);
+                playButton->setButtonText("Pause");
+                stopButton->setButtonText("Stop");
+                stopButton->setEnabled(true);
                 break;
-            case Shifting:
-                shiftyLooping();
-                break;
+           // case Shifting:
+             //   shiftyLooping();
+              //  break;
         }
     }
 }
 
 void AudioApp::shiftyLooping(){
-    //Compute our Loops
-    LOOPS = computeLoops(AUDIO_FILENAME);
+
     
 }
 

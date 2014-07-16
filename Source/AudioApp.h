@@ -11,7 +11,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "LoopGenerator.h"
+#include "LoopGen.h"
 //[/Headers]
 
 
@@ -21,8 +21,6 @@
 
 //[/Comments]
 
-
-extern std::string AUDIO_FILENAME;
 
 class AudioApp  : public Component,
                   public ChangeListener,
@@ -44,7 +42,6 @@ public:
         Paused,
         Stopping,
         Looping,
-        Shifting
     };
 
     enum Parameters{
@@ -54,7 +51,7 @@ public:
     };
     
     float gain, delay;
-    bool forward;
+    bool shifting, forward;
     void changeState(TransportState newState);
     void changeListenerCallback(ChangeBroadcaster* source);
     static std::vector<float> ONSETS;
@@ -78,6 +75,7 @@ private:
     AudioTransportSource transportSource;
     TransportState state;
     vector<Loop> LOOPS;
+    std::string AUDIO_FILENAME;
     //[/UserVariables]
 
     //==============================================================================
