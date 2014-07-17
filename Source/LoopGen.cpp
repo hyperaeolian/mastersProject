@@ -21,25 +21,41 @@ vector<Loop> computeLoops(const std::string audiofilename) {
     
     std::pair<vector<float>, float> onset_times_rate(computeOnsets(audiofilename));
     vector<float> onsets(onset_times_rate.first);
-    LAST_ONSET = onsets[onsets.size()-1];
+//Temporary
+
+//--Temporary
+    LAST_ONSET = onsets.back();
     createLoops(onsets);
     vector<Loop> loops(LOOP_REPO);
+    
+    int itr = 0;
+    for (const auto& lp : LOOP_REPO){
+        std::cout << "Loop " << itr << " is from " << lp.start << " to " << lp.end << std::endl;
+        itr++;
+    }
+    
     return loops;
 }
 
 inline void createLoops(const vector<float>& onsets){
+    int itr = 0;
+    for (const auto& lp : onsets){
+        std::cout << "Onset " << itr << " is " << lp << std::endl;
+        itr++;
+    }
     float lPoint;
-    Loop loop;
+    Loop curLoop;
     for (int i = 0; i < onsets.size(); ++i) {
-        if (onsets[i] + BAR_SIZE > LAST_ONSET) {
+        if (onsets[i] + BAR_SIZE <= LAST_ONSET) {
             //loop.start = static_cast<int>(onsets[i] * SR);
-            loop.start = onsets[i];
+            curLoop.start = onsets[i];
             lPoint = onsets[i] + BAR_SIZE;
             //loop.end = static_cast<int>(quantizeToOnset(onsets, lPoint) * SR);
-            loop.end = quantizeToOnset(onsets, lPoint);
-            LOOP_REPO.push_back(loop);
+            curLoop.end = quantizeToOnset(onsets, lPoint);
+            LOOP_REPO.push_back(curLoop);
         }
     }
+
 }
 
 inline void connectLoops(){
@@ -63,7 +79,8 @@ inline void connectLoops(){
 
 inline float quantizeToOnset(const vector<float>& onsets, float value){
     if (value > LAST_ONSET) {
-        value /= LAST_ONSET;
+        value = LAST_ONSET;
+        return value;
     }
     auto limit = std::equal_range(onsets.begin(), onsets.end(), value);
     float diff1 = abs(value - onsets[limit.first - onsets.begin()]);

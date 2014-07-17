@@ -142,6 +142,7 @@ AudioApp::AudioApp () : APP_WIDTH(800), APP_HEIGHT(700)
 
 
     //[Constructor] You can add your own custom stuff here..
+    current = new Loop;
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftButton->setEnabled(false);
@@ -175,10 +176,14 @@ AudioApp::~AudioApp()
     delaySlider = nullptr;
     delayLabel = nullptr;
     shiftButton = nullptr;
-
+    
 
     //[Destructor]. You can add your own custom destruction code here..
-
+    for (auto l : LOOPS) {
+        delete l.next;
+        delete l.prev;
+    }
+    delete current;
     //[/Destructor]
 }
 
@@ -220,29 +225,26 @@ void AudioApp::resized()
     //[/UserResized]
 }
 
-void AudioApp::buttonClicked (Button* buttonThatWasClicked)
-{
+void AudioApp::buttonClicked (Button* buttonThatWasClicked){
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == loadButton)
-    {
-        //[UserButtonCode_loadButton] -- add your button handler code here..
+    if (buttonThatWasClicked == loadButton){
+        //[UserButtonCode_loadButton]
         FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
             readerSource = new AudioFormatReaderSource(formatManager.createReaderFor(file),true);
             transportSource.setSource(readerSource);
-            //LOOPS = computeLoops(AUDIO_FILENAME);
-            //current = &LOOPS[rand() % LOOPS.size()];
+            LOOPS = computeLoops(AUDIO_FILENAME);
+            current = &LOOPS[rand() % LOOPS.size()];
             playButton->setEnabled(true);
         }
         //[/UserButtonCode_loadButton]
     }
-    else if (buttonThatWasClicked == playButton)
-    {
-        //[UserButtonCode_playButton] -- add your button handler code here..
+    else if (buttonThatWasClicked == playButton){
+        //[UserButtonCode_playButton]
         if (Stopped == state || Paused == state) {
             changeState(Starting);
         } else if (Playing == state) {
@@ -252,15 +254,13 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         }
         //[/UserButtonCode_playButton]
     }
-    else if (buttonThatWasClicked == stopButton)
-    {
-        //[UserButtonCode_stopButton] -- add your button handler code here..
+    else if (buttonThatWasClicked == stopButton){
+        //[UserButtonCode_stopButton]
         Paused == state ? changeState(Stopped) : changeState(Stopping);
         //[/UserButtonCode_stopButton]
     }
-    else if (buttonThatWasClicked == settingsButton)
-    {
-        //[UserButtonCode_settingsButton] -- add your button handler code here..
+    else if (buttonThatWasClicked == settingsButton){
+        //[UserButtonCode_settingsButton]
         bool showMidiInputOptions = false;
         bool showMidiOutputSelector = false;
         bool showChnlsAsStereoPairs =true;
@@ -355,6 +355,7 @@ void AudioApp::changeState(TransportState newState){
                 transportSource.setPosition(0.0);
                 break;
             case Starting:
+                transportSource.setPosition(current->start);
                 transportSource.start();
                 break;
             case Playing:
@@ -363,6 +364,9 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 shiftButton->setEnabled(true);
                 loopButton->setEnabled(true);
+                if (transportSource.getCurrentPosition() >= current->end) {
+                    transportSource.stop();
+                }
                 break;
             case Pausing:
                 transportSource.stop();
@@ -379,7 +383,11 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(true);
                 //loopButton->setEnabled(false);
+                transportSource.setPosition(current->start);
                 transportSource.setLooping(true);
+                if (transportSource.getCurrentPosition() >= current->end) {
+                    transportSource.stop();
+                }
                 break;
         }
     }

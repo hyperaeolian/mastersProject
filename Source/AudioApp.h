@@ -78,15 +78,16 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    const int APP_WIDTH, APP_HEIGHT;
     AudioDeviceManager deviceManager;
     AudioFormatManager formatManager;
     ScopedPointer<AudioFormatReaderSource> readerSource;
     AudioSourcePlayer sourcePlayer;
     AudioTransportSource transportSource;
     TransportState state;
-    //vector<Loop> LOOPS;
+    vector<Loop> LOOPS;
     std::string AUDIO_FILENAME;
-    const int APP_WIDTH, APP_HEIGHT;
+    Loop* current;
     //[/UserVariables]
 
     //==============================================================================
