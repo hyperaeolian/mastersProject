@@ -19,7 +19,7 @@ const int SR = 44100;
 const float BAR_SIZE = 3.0;
 
 struct Loop {
-    int start, end;
+    float start, end;
     Loop* prev;
     Loop* next;
 };

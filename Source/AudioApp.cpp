@@ -1,12 +1,23 @@
 /*
   ==============================================================================
 
-Main App Functions
+  This is an automatically generated GUI class created by the Introjucer!
+
+  Be careful when adding custom code to these files, as only the code within
+  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
+  and re-saved.
+
+  Created with Introjucer version: 3.1.0
+
+  ------------------------------------------------------------------------------
+
+  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
+  Copyright 2004-13 by Raw Material Software Ltd.
 
   ==============================================================================
 */
 
-//[Headers]
+//[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
 #include "LoopGen.h"
 //#include "LoopGenerator.h"
@@ -16,11 +27,11 @@ Main App Functions
 #include "AudioApp.h"
 
 
-//[MiscUserDefs]
+//[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp () : APP_WIDTH(900), APP_HEIGHT(400)
+AudioApp::AudioApp () : APP_WIDTH(800), APP_HEIGHT(700)
 {
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
@@ -78,11 +89,11 @@ AudioApp::AudioApp () : APP_WIDTH(900), APP_HEIGHT(400)
     loopButton->setColour (ToggleButton::textColourId, Colour (0xffe8d8d8));
 
     addAndMakeVisible (gainSlider = new Slider ("Gain Slider"));
-    gainSlider->setRange (0, 1, 0.2);
+    gainSlider->setRange (0, 1, 0.1);
     gainSlider->setSliderStyle (Slider::LinearVertical);
     gainSlider->setTextBoxStyle (Slider::TextBoxBelow, false, 80, 20);
     gainSlider->setColour (Slider::thumbColourId, Colours::aquamarine);
-    gainSlider->setColour (Slider::trackColourId, Colours::white);
+    gainSlider->setColour (Slider::trackColourId, Colours::aquamarine);
     gainSlider->setColour (Slider::rotarySliderOutlineColourId, Colours::blue);
     gainSlider->addListener (this);
     gainSlider->setSkewFactor (2);
@@ -130,7 +141,7 @@ AudioApp::AudioApp () : APP_WIDTH(900), APP_HEIGHT(400)
     //setSize (600, 400);
 
 
-    //[Constructor]
+    //[Constructor] You can add your own custom stuff here..
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftButton->setEnabled(false);
@@ -141,16 +152,14 @@ AudioApp::AudioApp () : APP_WIDTH(900), APP_HEIGHT(400)
     deviceManager.addChangeListener(this);
     transportSource.addChangeListener(this);
     state = Stopped;
-    gain = 0.0f;
+    gain = 1.0f;
     forward = false;
-    
-    
     //[/Constructor]
 }
 
 AudioApp::~AudioApp()
 {
-    //[Destructor_pre].
+    //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
     infoLabel = nullptr;
@@ -168,14 +177,15 @@ AudioApp::~AudioApp()
     shiftButton = nullptr;
 
 
-    //[Destructor].
+    //[Destructor]. You can add your own custom destruction code here..
+
     //[/Destructor]
 }
 
 //==============================================================================
 void AudioApp::paint (Graphics& g)
 {
-    //[UserPrePaint]
+    //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
     g.fillAll (Colour (0xff0f0f0f));
@@ -187,7 +197,7 @@ void AudioApp::paint (Graphics& g)
                                        false));
     g.fillRoundedRectangle (20.0f, 12.0f, 708.0f, 668.0f, 10.000f);
 
-    //[UserPaint]
+    //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
 
@@ -201,12 +211,12 @@ void AudioApp::resized()
     stopButton->setBounds (320, 384, 96, 56);
     settingsButton->setBounds (440, 384, 96, 56);
     loopButton->setBounds (600, 96, 120, 40);
-    gainSlider->setBounds (592, 328, 112, 160);
+    gainSlider->setBounds (592, 320, 112, 160);
     gainLabel->setBounds (568, 496, 150, 24);
     delaySlider->setBounds (592, 128, 112, 160);
     delayLabel->setBounds (576, 296, 150, 24);
     shiftButton->setBounds (472, 136, 72, 88);
-    //[UserResized]
+    //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
@@ -217,39 +227,40 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 
     if (buttonThatWasClicked == loadButton)
     {
-        //[UserButtonCode_loadButton]
+        //[UserButtonCode_loadButton] -- add your button handler code here..
         FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
             readerSource = new AudioFormatReaderSource(formatManager.createReaderFor(file),true);
             transportSource.setSource(readerSource);
-            LOOPS = computeLoops(AUDIO_FILENAME);
+            //LOOPS = computeLoops(AUDIO_FILENAME);
+            //current = &LOOPS[rand() % LOOPS.size()];
             playButton->setEnabled(true);
-            shiftButton->setEnabled(true);
         }
         //[/UserButtonCode_loadButton]
     }
     else if (buttonThatWasClicked == playButton)
     {
-        //[UserButtonCode_playButton]
+        //[UserButtonCode_playButton] -- add your button handler code here..
         if (Stopped == state || Paused == state) {
             changeState(Starting);
-        } else if (Playing == state) changeState(Pausing);
+        } else if (Playing == state) {
+            changeState(Pausing);
+        } else if (Looping == state){
+            changeState(Looping);
+        }
         //[/UserButtonCode_playButton]
     }
     else if (buttonThatWasClicked == stopButton)
     {
-        //[UserButtonCode_stopButton]
-        if (Paused == state) {
-            changeState(Stopped);
-        } else
-            changeState(Stopping);
+        //[UserButtonCode_stopButton] -- add your button handler code here..
+        Paused == state ? changeState(Stopped) : changeState(Stopping);
         //[/UserButtonCode_stopButton]
     }
     else if (buttonThatWasClicked == settingsButton)
     {
-        //[UserButtonCode_settingsButton]
+        //[UserButtonCode_settingsButton] -- add your button handler code here..
         bool showMidiInputOptions = false;
         bool showMidiOutputSelector = false;
         bool showChnlsAsStereoPairs =true;
@@ -266,7 +277,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == loopButton)
     {
-        //[UserButtonCode_loopButton]
+        //[UserButtonCode_loopButton] -- add your button handler code here..
         if (readerSource->isLooping()) {
             readerSource->setLooping(false);
         } else
@@ -275,10 +286,9 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == shiftButton)
     {
-        //[UserButtonCode_shiftButton]
+        //[UserButtonCode_shiftButton] -- add your button handler code here..
         if (shiftButton->getToggleState()) {
-            shifting = true;
-            transportSource.setPosition(drand48() * static_cast<float>(transportSource.getTotalLength()));
+            //transportSource.setPosition(drand48() * static_cast<float>(transportSource.getTotalLength()));
         }
         //[/UserButtonCode_shiftButton]
     }
@@ -294,14 +304,14 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
     if (sliderThatWasMoved == gainSlider)
     {
-        //[UserSliderCode_gainSlider]
+        //[UserSliderCode_gainSlider] -- add your slider handling code here..
         gain = static_cast<float>(gainSlider->getValue());
         transportSource.setGain(gain);
         //[/UserSliderCode_gainSlider]
     }
     else if (sliderThatWasMoved == delaySlider)
     {
-        //[UserSliderCode_delaySlider]
+        //[UserSliderCode_delaySlider] -- add your slider handling code here..
         //[/UserSliderCode_delaySlider]
     }
 
@@ -311,7 +321,7 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 
-//[MiscUserCode] 
+//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 
     if (&deviceManager == src) {
@@ -319,10 +329,10 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
         deviceManager.getAudioDeviceSetup(setup);
         setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr) :
                                         sourcePlayer.setSource(&transportSource);
+        gainSlider->setValue(static_cast<double>(transportSource.getGain()));
     } else if (&transportSource == src){
-
         if (transportSource.isPlaying()) {
-            Looping == state ? changeState(Looping) : changeState(Playing);
+                changeState(Playing);
         } else {
             if (Stopping == state || Playing == state) {
                 changeState(Stopped);
@@ -341,6 +351,7 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Play");
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(false);
+                loopButton->setEnabled(true);
                 transportSource.setPosition(0.0);
                 break;
             case Starting:
@@ -350,6 +361,8 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(true);
+                shiftButton->setEnabled(true);
+                loopButton->setEnabled(true);
                 break;
             case Pausing:
                 transportSource.stop();
@@ -362,21 +375,36 @@ void AudioApp::changeState(TransportState newState){
                 transportSource.stop();
                 break;
             case Looping:
-                transportSource.setLooping(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(true);
+                //loopButton->setEnabled(false);
+                transportSource.setLooping(true);
                 break;
-           // case Shifting:
-             //   shiftyLooping();
-              //  break;
         }
     }
 }
 
 void AudioApp::shiftyLooping(){
-
-    
+    if ((transportSource.getCurrentPosition()*44100)/60 >= transportSource.getLengthInSeconds()) {
+        infoLabel->setText("True", sendNotification);
+    }
+    /* if (transportSource.hasStreamFinished()) {
+     if (forward) {
+     if (state != Playing) state = Playing;
+     current = current->next;
+     double startPos = current->prev->end;
+     double endPos = current->end;
+     transportSource.setPosition(startPos);
+     if (transportSource.getCurrentPosition() >= endPos){
+     startPos = current->start;
+     transportSource.setPosition(startPos);
+     }
+     
+     
+     }
+     }
+     */
 }
 
 //[/MiscUserCode]
@@ -434,9 +462,9 @@ BEGIN_JUCER_METADATA
                 buttonText="Loop Sample" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <SLIDER name="Gain Slider" id="9d008628b8772a4d" memberName="gainSlider"
-          virtualName="" explicitFocusOrder="0" pos="592 328 112 160" thumbcol="ff7fffd4"
-          trackcol="ffffffff" rotaryslideroutline="ff0000ff" min="0" max="1"
-          int="0.2000000000000000111" style="LinearVertical" textBoxPos="TextBoxBelow"
+          virtualName="" explicitFocusOrder="0" pos="592 320 112 160" thumbcol="ff7fffd4"
+          trackcol="ff7fffd4" rotaryslideroutline="ff0000ff" min="0" max="1"
+          int="0.10000000000000000555" style="LinearVertical" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <LABEL name="Gain Label" id="d9d519cd8dc043ff" memberName="gainLabel"
          virtualName="" explicitFocusOrder="0" pos="568 496 150 24" textCol="fff0ffff"
