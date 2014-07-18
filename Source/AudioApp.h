@@ -67,6 +67,7 @@ public:
     void changeListenerCallback(ChangeBroadcaster* source);
     static std::vector<float> ONSETS;
     void shiftyLooping();
+    void playLoop();
     //[/UserMethods]
 
     void paint (Graphics& g);

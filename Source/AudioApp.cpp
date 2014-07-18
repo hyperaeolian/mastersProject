@@ -158,8 +158,7 @@ AudioApp::AudioApp () : APP_WIDTH(800), APP_HEIGHT(700)
     //[/Constructor]
 }
 
-AudioApp::~AudioApp()
-{
+AudioApp::~AudioApp(){
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
@@ -180,10 +179,10 @@ AudioApp::~AudioApp()
 
     //[Destructor]. You can add your own custom destruction code here..
     for (auto l : LOOPS) {
-        delete l.next;
-        delete l.prev;
+        if (l.next != nullptr) l.next = nullptr;
+        if (l.prev != nullptr) l.prev = nullptr;
     }
-    delete current;
+    current = nullptr;
     //[/Destructor]
 }
 
@@ -206,8 +205,7 @@ void AudioApp::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void AudioApp::resized()
-{
+void AudioApp::resized(){
     infoLabel->setBounds (40, 544, 664, 120);
     appLabel->setBounds (40, 40, 168, 40);
     mainGroup->setBounds (48, 104, 528, 392);
@@ -275,17 +273,17 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked){
         DialogWindow::showModalDialog(String("Audio Settings"), &settings, TopLevelWindow::getTopLevelWindow(0), Colours::white, true);
         //[/UserButtonCode_settingsButton]
     }
-    else if (buttonThatWasClicked == loopButton)
-    {
+    else if (buttonThatWasClicked == loopButton){
         //[UserButtonCode_loopButton] -- add your button handler code here..
-        if (readerSource->isLooping()) {
+        Looping == state ? changeState(Stopping) : changeState(Looping);
+      /*  if (readerSource->isLooping()) {
             readerSource->setLooping(false);
         } else
             readerSource->setLooping(true);
+      */
         //[/UserButtonCode_loopButton]
     }
-    else if (buttonThatWasClicked == shiftButton)
-    {
+    else if (buttonThatWasClicked == shiftButton){
         //[UserButtonCode_shiftButton] -- add your button handler code here..
         if (shiftButton->getToggleState()) {
             //transportSource.setPosition(drand48() * static_cast<float>(transportSource.getTotalLength()));
@@ -329,8 +327,10 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
         deviceManager.getAudioDeviceSetup(setup);
         setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr) :
                                         sourcePlayer.setSource(&transportSource);
-        gainSlider->setValue(static_cast<double>(transportSource.getGain()));
+        
     } else if (&transportSource == src){
+        transportSource.setPosition(current->start);
+        gainSlider->setValue(static_cast<double>(transportSource.getGain()));
         if (transportSource.isPlaying()) {
                 changeState(Playing);
         } else {
@@ -352,10 +352,10 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(false);
                 loopButton->setEnabled(true);
-                transportSource.setPosition(0.0);
+                transportSource.setPosition(current->start);
+                //transportSource.setPosition(0.0);
                 break;
             case Starting:
-                transportSource.setPosition(current->start);
                 transportSource.start();
                 break;
             case Playing:
@@ -365,7 +365,8 @@ void AudioApp::changeState(TransportState newState){
                 shiftButton->setEnabled(true);
                 loopButton->setEnabled(true);
                 if (transportSource.getCurrentPosition() >= current->end) {
-                    transportSource.stop();
+                    infoLabel->setText(String("Reached end of Loop"), sendNotification);
+                    changeState(Stopping);
                 }
                 break;
             case Pausing:
@@ -382,16 +383,34 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(true);
-                //loopButton->setEnabled(false);
-                transportSource.setPosition(current->start);
-                transportSource.setLooping(true);
-                if (transportSource.getCurrentPosition() >= current->end) {
-                    transportSource.stop();
+                if (Looping == state) {
+                    goto HandleLoopPlayback;
                 }
                 break;
+                
+        }
+        
+    }
+HandleLoopPlayback:
+    transportSource.setPosition(current->start);
+    transportSource.start();
+    playLoop();
+    loopButton->setToggleState(false, sendNotification);
+}
+
+void AudioApp::playLoop(){
+    static int numPlays = 0;
+//HandleLoopPlayback:
+    while (transportSource.isPlaying()) {
+        if (transportSource.getCurrentPosition() >= current->end) {
+            transportSource.stop();
+            infoLabel->setText(String(String(numPlays) + " Reached end of Loop"), sendNotification);
+            numPlays++;
+            break;
         }
     }
 }
+
 
 void AudioApp::shiftyLooping(){
     if ((transportSource.getCurrentPosition()*44100)/60 >= transportSource.getLengthInSeconds()) {

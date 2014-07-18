@@ -38,11 +38,6 @@ vector<Loop> computeLoops(const std::string audiofilename) {
 }
 
 inline void createLoops(const vector<float>& onsets){
-    int itr = 0;
-    for (const auto& lp : onsets){
-        std::cout << "Onset " << itr << " is " << lp << std::endl;
-        itr++;
-    }
     float lPoint;
     Loop curLoop;
     for (int i = 0; i < onsets.size(); ++i) {
