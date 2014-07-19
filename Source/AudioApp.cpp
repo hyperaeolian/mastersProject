@@ -20,8 +20,6 @@
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
 #include "LoopGen.h"
-//#include "LoopGenerator.h"
-//#include "LoopGenerator.cpp"
 //[/Headers]
 
 #include "AudioApp.h"
@@ -31,8 +29,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp () : APP_WIDTH(800), APP_HEIGHT(700)
-{
+AudioApp::AudioApp () : APP_WIDTH(700), APP_HEIGHT(750){
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -108,57 +105,40 @@ AudioApp::AudioApp () : APP_WIDTH(800), APP_HEIGHT(700)
     gainLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
     gainLabel->setColour (TextEditor::highlightColourId, Colours::red);
 
-    addAndMakeVisible (delaySlider = new Slider ("Delay Slider"));
-    delaySlider->setRange (0, 1, 0.2);
-    delaySlider->setSliderStyle (Slider::LinearVertical);
-    delaySlider->setTextBoxStyle (Slider::TextBoxBelow, false, 80, 20);
-    delaySlider->setColour (Slider::thumbColourId, Colours::aquamarine);
-    delaySlider->setColour (Slider::trackColourId, Colours::white);
-    delaySlider->setColour (Slider::rotarySliderOutlineColourId, Colours::blue);
-    delaySlider->addListener (this);
-    delaySlider->setSkewFactor (2);
-
-    addAndMakeVisible (delayLabel = new Label ("Delay Label",
-                                               TRANS("DELAY")));
-    delayLabel->setFont (Font ("Arial Black", 22.30f, Font::plain));
-    delayLabel->setJustificationType (Justification::centred);
-    delayLabel->setEditable (false, false, false);
-    delayLabel->setColour (Label::textColourId, Colours::azure);
-    delayLabel->setColour (TextEditor::textColourId, Colours::black);
-    delayLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    delayLabel->setColour (TextEditor::highlightColourId, Colours::red);
-
-    addAndMakeVisible (shiftButton = new ToggleButton ("Shifty Button"));
-    shiftButton->setButtonText (TRANS("Shifty"));
-    shiftButton->addListener (this);
-    shiftButton->setColour (ToggleButton::textColourId, Colours::grey);
+    addAndMakeVisible (shiftyLoopingButton = new ToggleButton ("Shifty Button"));
+    shiftyLoopingButton->setButtonText (TRANS("Shifty Looping"));
+    shiftyLoopingButton->addListener (this);
+    shiftyLoopingButton->setColour (ToggleButton::textColourId, Colour (0xfff3f3f3));
 
 
     //[UserPreSize]
     setSize(APP_WIDTH, APP_HEIGHT);
     //[/UserPreSize]
 
-    //setSize (600, 400);
+  //  setSize (600, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
-    current = new Loop;
+    currentLoop = new Loop;
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
-    shiftButton->setEnabled(false);
+    shiftyLoopingButton->setEnabled(false);
+    loopButton->setEnabled(false);
     formatManager.registerBasicFormats();
-    sourcePlayer.setSource(&transportSource);
+    sourcePlayer.setSource(&player);
     deviceManager.addAudioCallback(&sourcePlayer);
     deviceManager.initialise(0, 2, nullptr, true);
     deviceManager.addChangeListener(this);
-    transportSource.addChangeListener(this);
+    player.addChangeListener(this);
     state = Stopped;
     gain = 1.0f;
     forward = false;
+    isLooping = false;
     //[/Constructor]
 }
 
-AudioApp::~AudioApp(){
+AudioApp::~AudioApp()
+{
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
@@ -172,17 +152,15 @@ AudioApp::~AudioApp(){
     loopButton = nullptr;
     gainSlider = nullptr;
     gainLabel = nullptr;
-    delaySlider = nullptr;
-    delayLabel = nullptr;
-    shiftButton = nullptr;
-    
+    shiftyLoopingButton = nullptr;
+
 
     //[Destructor]. You can add your own custom destruction code here..
-    for (auto l : LOOPS) {
+    for (auto l : _crudeLoops) {
         if (l.next != nullptr) l.next = nullptr;
         if (l.prev != nullptr) l.prev = nullptr;
     }
-    current = nullptr;
+    currentLoop = nullptr;
     //[/Destructor]
 }
 
@@ -205,7 +183,8 @@ void AudioApp::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void AudioApp::resized(){
+void AudioApp::resized()
+{
     infoLabel->setBounds (40, 544, 664, 120);
     appLabel->setBounds (40, 40, 168, 40);
     mainGroup->setBounds (48, 104, 528, 392);
@@ -213,52 +192,64 @@ void AudioApp::resized(){
     playButton->setBounds (192, 384, 96, 56);
     stopButton->setBounds (320, 384, 96, 56);
     settingsButton->setBounds (440, 384, 96, 56);
-    loopButton->setBounds (600, 96, 120, 40);
+    loopButton->setBounds (592, 112, 120, 40);
     gainSlider->setBounds (592, 320, 112, 160);
     gainLabel->setBounds (568, 496, 150, 24);
-    delaySlider->setBounds (592, 128, 112, 160);
-    delayLabel->setBounds (576, 296, 150, 24);
-    shiftButton->setBounds (472, 136, 72, 88);
+    shiftyLoopingButton->setBounds (592, 136, 72, 88);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void AudioApp::buttonClicked (Button* buttonThatWasClicked){
+void AudioApp::buttonClicked (Button* buttonThatWasClicked)
+{
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == loadButton){
-        //[UserButtonCode_loadButton]
+    if (buttonThatWasClicked == loadButton)
+    {
+        //[UserButtonCode_loadButton] -- add your button handler code here..
         FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
             readerSource = new AudioFormatReaderSource(formatManager.createReaderFor(file),true);
-            transportSource.setSource(readerSource);
-            LOOPS = computeLoops(AUDIO_FILENAME);
-            current = &LOOPS[rand() % LOOPS.size()];
+            player.setSource(readerSource);
+            _crudeLoops = computeLoops(AUDIO_FILENAME);
+            currentLoop = &_crudeLoops[rand() % _crudeLoops.size()];
             playButton->setEnabled(true);
+            loopButton->setEnabled(true);
         }
         //[/UserButtonCode_loadButton]
     }
-    else if (buttonThatWasClicked == playButton){
-        //[UserButtonCode_playButton]
+    else if (buttonThatWasClicked == playButton)
+    {
+        //[UserButtonCode_playButton] -- add your button handler code here..
         if (Stopped == state || Paused == state) {
             changeState(Starting);
         } else if (Playing == state) {
             changeState(Pausing);
         } else if (Looping == state){
-            changeState(Looping);
+            changeState(Pausing);
         }
         //[/UserButtonCode_playButton]
     }
-    else if (buttonThatWasClicked == stopButton){
-        //[UserButtonCode_stopButton]
-        Paused == state ? changeState(Stopped) : changeState(Stopping);
+    else if (buttonThatWasClicked == stopButton)
+    {
+        //[UserButtonCode_stopButton] -- add your button handler code here..
+        //Paused == state ? changeState(Stopped) : changeState(Stopping);
+        if (Looping == state) {
+            changeState(Stopped);
+            loopButton->setToggleState(false, true);
+        } else if (Paused == state){
+            changeState(Stopped);
+        } else {
+            changeState(Stopping);
+        }
         //[/UserButtonCode_stopButton]
     }
-    else if (buttonThatWasClicked == settingsButton){
-        //[UserButtonCode_settingsButton]
+    else if (buttonThatWasClicked == settingsButton)
+    {
+        //[UserButtonCode_settingsButton] -- add your button handler code here..
         bool showMidiInputOptions = false;
         bool showMidiOutputSelector = false;
         bool showChnlsAsStereoPairs =true;
@@ -273,22 +264,22 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked){
         DialogWindow::showModalDialog(String("Audio Settings"), &settings, TopLevelWindow::getTopLevelWindow(0), Colours::white, true);
         //[/UserButtonCode_settingsButton]
     }
-    else if (buttonThatWasClicked == loopButton){
+    else if (buttonThatWasClicked == loopButton)
+    {
         //[UserButtonCode_loopButton] -- add your button handler code here..
-        Looping == state ? changeState(Stopping) : changeState(Looping);
-      /*  if (readerSource->isLooping()) {
-            readerSource->setLooping(false);
-        } else
-            readerSource->setLooping(true);
-      */
+        assert(Playing != state);
+        if (loopButton->getToggleState()) {
+            changeState(Looping);
+        } else {
+            changeState(Stopped);
+        }
+
         //[/UserButtonCode_loopButton]
     }
-    else if (buttonThatWasClicked == shiftButton){
-        //[UserButtonCode_shiftButton] -- add your button handler code here..
-        if (shiftButton->getToggleState()) {
-            //transportSource.setPosition(drand48() * static_cast<float>(transportSource.getTotalLength()));
-        }
-        //[/UserButtonCode_shiftButton]
+    else if (buttonThatWasClicked == shiftyLoopingButton)
+    {
+        //[UserButtonCode_shiftyLoopingButton] -- add your button handler code here..
+        //[/UserButtonCode_shiftyLoopingButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -304,13 +295,8 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
         gain = static_cast<float>(gainSlider->getValue());
-        transportSource.setGain(gain);
+        player.setGain(gain);
         //[/UserSliderCode_gainSlider]
-    }
-    else if (sliderThatWasMoved == delaySlider)
-    {
-        //[UserSliderCode_delaySlider] -- add your slider handling code here..
-        //[/UserSliderCode_delaySlider]
     }
 
     //[UsersliderValueChanged_Post]
@@ -320,18 +306,22 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void AudioApp::printCurrentState(juce::String s){
+    infoLabel->setText("Current State: " + s, sendNotification);
+}
+
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 
     if (&deviceManager == src) {
         AudioDeviceManager::AudioDeviceSetup setup;
         deviceManager.getAudioDeviceSetup(setup);
         setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr) :
-                                        sourcePlayer.setSource(&transportSource);
-        
-    } else if (&transportSource == src){
-        transportSource.setPosition(current->start);
-        gainSlider->setValue(static_cast<double>(transportSource.getGain()));
-        if (transportSource.isPlaying()) {
+                                        sourcePlayer.setSource(&player);
+
+    } else if (&player == src){
+        player.setPosition(currentLoop->start);
+        gainSlider->setValue(static_cast<double>(player.getGain()));
+        if (player.isPlaying()) {
                 changeState(Playing);
         } else {
             if (Stopping == state || Playing == state) {
@@ -344,76 +334,77 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 }
 
 void AudioApp::changeState(TransportState newState){
+    
     if (state != newState) {
         state = newState;
         switch (state) {
             case Stopped:
+                printCurrentState(String("Stopped"));
                 playButton->setButtonText("Play");
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(false);
                 loopButton->setEnabled(true);
-                transportSource.setPosition(current->start);
+                player.setPosition(currentLoop->start);
                 //transportSource.setPosition(0.0);
                 break;
             case Starting:
-                transportSource.start();
+                printCurrentState(String("Starting..."));
+                if (isLooping) changeState(Looping);
+                player.start();
                 break;
             case Playing:
+                printCurrentState(String("Playing..."));
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(true);
-                shiftButton->setEnabled(true);
-                loopButton->setEnabled(true);
-                if (transportSource.getCurrentPosition() >= current->end) {
-                    infoLabel->setText(String("Reached end of Loop"), sendNotification);
+                shiftyLoopingButton->setEnabled(true);
+                loopButton->setEnabled(false);
+                if (player.getCurrentPosition() >= currentLoop->end) {
                     changeState(Stopping);
                 }
                 break;
             case Pausing:
-                transportSource.stop();
+                printCurrentState(String("Pausing..."));
+                player.stop();
                 break;
             case Paused:
+                printCurrentState(String("Paused"));
                 playButton->setButtonText("Resume");
-                stopButton->setButtonText("Return to Zero");
+                stopButton->setButtonText("Return to Beggining");
                 break;
             case Stopping:
-                transportSource.stop();
+                printCurrentState(String("Stopping..."));
+                player.stop();
                 break;
             case Looping:
+                printCurrentState(String("Looping..."));
+                isLooping = true;
+               // player.setLooping(true);
+                player.setPosition(currentLoop->start);
+                player.start();
+                stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                stopButton->setEnabled(true);
-                if (Looping == state) {
-                    goto HandleLoopPlayback;
+                while (player.isPlaying()){
+                    while (player.getCurrentPosition() < currentLoop->end) continue;
+                    break;
                 }
+                player.setNextReadPosition(currentLoop->start);
                 break;
-                
-        }
-        
-    }
-HandleLoopPlayback:
-    transportSource.setPosition(current->start);
-    transportSource.start();
-    playLoop();
-    loopButton->setToggleState(false, sendNotification);
-}
 
-void AudioApp::playLoop(){
-    static int numPlays = 0;
-//HandleLoopPlayback:
-    while (transportSource.isPlaying()) {
-        if (transportSource.getCurrentPosition() >= current->end) {
-            transportSource.stop();
-            infoLabel->setText(String(String(numPlays) + " Reached end of Loop"), sendNotification);
-            numPlays++;
-            break;
         }
+
     }
+    if (Looping == state){
+        changeState(Starting);
+        changeState(Looping);
+    }
+    
 }
 
 
 void AudioApp::shiftyLooping(){
-    if ((transportSource.getCurrentPosition()*44100)/60 >= transportSource.getLengthInSeconds()) {
+    if ((player.getCurrentPosition()*44100)/60 >= player.getLengthInSeconds()) {
         infoLabel->setText("True", sendNotification);
     }
     /* if (transportSource.hasStreamFinished()) {
@@ -427,8 +418,8 @@ void AudioApp::shiftyLooping(){
      startPos = current->start;
      transportSource.setPosition(startPos);
      }
-     
-     
+
+
      }
      }
      */
@@ -485,7 +476,7 @@ BEGIN_JUCER_METADATA
               buttonText="Settings..." connectedEdges="3" needsCallback="1"
               radioGroupId="0"/>
   <TOGGLEBUTTON name="Loop Button" id="a5b4e832ce1021b5" memberName="loopButton"
-                virtualName="" explicitFocusOrder="0" pos="600 96 120 40" txtcol="ffe8d8d8"
+                virtualName="" explicitFocusOrder="0" pos="592 112 120 40" txtcol="ffe8d8d8"
                 buttonText="Loop Sample" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <SLIDER name="Gain Slider" id="9d008628b8772a4d" memberName="gainSlider"
@@ -499,21 +490,10 @@ BEGIN_JUCER_METADATA
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
          italic="0" justification="36"/>
-  <SLIDER name="Delay Slider" id="d7c876357bbf5a7" memberName="delaySlider"
-          virtualName="" explicitFocusOrder="0" pos="592 128 112 160" thumbcol="ff7fffd4"
-          trackcol="ffffffff" rotaryslideroutline="ff0000ff" min="0" max="1"
-          int="0.2000000000000000111" style="LinearVertical" textBoxPos="TextBoxBelow"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
-  <LABEL name="Delay Label" id="f8d9f37a8cca0c07" memberName="delayLabel"
-         virtualName="" explicitFocusOrder="0" pos="576 296 150 24" textCol="fff0ffff"
-         edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="DELAY"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
-         italic="0" justification="36"/>
-  <TOGGLEBUTTON name="Shifty Button" id="717b6864ee8b9341" memberName="shiftButton"
-                virtualName="" explicitFocusOrder="0" pos="472 136 72 88" txtcol="ff808080"
-                buttonText="Shifty" connectedEdges="0" needsCallback="1" radioGroupId="0"
-                state="0"/>
+  <TOGGLEBUTTON name="Shifty Button" id="717b6864ee8b9341" memberName="shiftyLoopingButton"
+                virtualName="" explicitFocusOrder="0" pos="592 136 72 88" txtcol="fff3f3f3"
+                buttonText="Shifty Looping" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

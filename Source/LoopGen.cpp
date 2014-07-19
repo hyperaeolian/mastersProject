@@ -12,24 +12,21 @@
 #include "LoopGen.h"
 #include "FeatureExtractor.h"
 
-
 using namespace std;
+
 float LAST_ONSET;
-vector<Loop> LOOP_REPO;
+ vector<Loop> crudeLoops;
 
 vector<Loop> computeLoops(const std::string audiofilename) {
     
     std::pair<vector<float>, float> onset_times_rate(computeOnsets(audiofilename));
     vector<float> onsets(onset_times_rate.first);
-//Temporary
-
-//--Temporary
     LAST_ONSET = onsets.back();
     createLoops(onsets);
-    vector<Loop> loops(LOOP_REPO);
+    vector<Loop> loops(crudeLoops);
     
     int itr = 0;
-    for (const auto& lp : LOOP_REPO){
+    for (const auto& lp : crudeLoops){
         std::cout << "Loop " << itr << " is from " << lp.start << " to " << lp.end << std::endl;
         itr++;
     }
@@ -41,32 +38,33 @@ inline void createLoops(const vector<float>& onsets){
     float lPoint;
     Loop curLoop;
     for (int i = 0; i < onsets.size(); ++i) {
+        
         if (onsets[i] + BAR_SIZE <= LAST_ONSET) {
             //loop.start = static_cast<int>(onsets[i] * SR);
             curLoop.start = onsets[i];
             lPoint = onsets[i] + BAR_SIZE;
             //loop.end = static_cast<int>(quantizeToOnset(onsets, lPoint) * SR);
             curLoop.end = quantizeToOnset(onsets, lPoint);
-            LOOP_REPO.push_back(curLoop);
+            crudeLoops.push_back(curLoop);
         }
     }
 
 }
 
 inline void connectLoops(){
-    for (int i = 0; i < LOOP_REPO.size(); ++i) {
+    for (int i = 0; i < crudeLoops.size(); ++i) {
         if (i == 0) {
-            LOOP_REPO[i].prev = &LOOP_REPO[LOOP_REPO.size() - 1];
-            LOOP_REPO[i].next = &LOOP_REPO[i+1];
-        } else if (i == LOOP_REPO.size() - 1){
-            LOOP_REPO[i].prev = &LOOP_REPO[i-1];
-            LOOP_REPO[i].next = &LOOP_REPO[0];
+            crudeLoops[i].prev = &crudeLoops[crudeLoops.size() - 1];
+            crudeLoops[i].next = &crudeLoops[i+1];
+        } else if (i == crudeLoops.size() - 1){
+            crudeLoops[i].prev = &crudeLoops[i-1];
+            crudeLoops[i].next = &crudeLoops[0];
         } else {
-            LOOP_REPO[i].prev = &LOOP_REPO[i-1];
-            LOOP_REPO[i].next = &LOOP_REPO[i+1];
+            crudeLoops[i].prev = &crudeLoops[i-1];
+            crudeLoops[i].next = &crudeLoops[i+1];
         }
-        if (LOOP_REPO[i].end > LOOP_REPO[i].start) {
-            std::swap(LOOP_REPO[i].end, LOOP_REPO[i].start);
+        if (crudeLoops[i].end > crudeLoops[i].start) {
+            std::swap(crudeLoops[i].end, crudeLoops[i].start);
         }
     }
 }

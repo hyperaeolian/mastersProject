@@ -62,12 +62,13 @@ public:
     };
 
     float gain, delay;
-    bool shifting, forward;
+    bool shifting, forward, isLooping;
     void changeState(TransportState newState);
     void changeListenerCallback(ChangeBroadcaster* source);
     static std::vector<float> ONSETS;
     void shiftyLooping();
-    void playLoop();
+    void printCurrentState(String s);
+    
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -84,11 +85,11 @@ private:
     AudioFormatManager formatManager;
     ScopedPointer<AudioFormatReaderSource> readerSource;
     AudioSourcePlayer sourcePlayer;
-    AudioTransportSource transportSource;
+    AudioTransportSource player;
     TransportState state;
-    vector<Loop> LOOPS;
+    vector<Loop> _crudeLoops;
     std::string AUDIO_FILENAME;
-    Loop* current;
+    Loop* currentLoop;
     //[/UserVariables]
 
     //==============================================================================
@@ -102,9 +103,7 @@ private:
     ScopedPointer<ToggleButton> loopButton;
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> gainLabel;
-    ScopedPointer<Slider> delaySlider;
-    ScopedPointer<Label> delayLabel;
-    ScopedPointer<ToggleButton> shiftButton;
+    ScopedPointer<ToggleButton> shiftyLoopingButton;
 
 
     //==============================================================================

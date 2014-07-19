@@ -17,17 +17,19 @@ using namespace std;
 
 const int SR = 44100;
 const float BAR_SIZE = 1.0;
-
+    
 struct Loop {
     float start, end;
     Loop* prev;
     Loop* next;
 };
 
+   
 vector<Loop> computeLoops(const std::string audiofilename);
 void createLoops(const vector<float>& onsets);
 void connectLoops();
 float quantizeToOnset(const vector<float>& onsets, float value);
+
 
 
 
