@@ -23,6 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGen.h"
+#include "essentia.h"
 //[/Headers]
 
 
@@ -68,7 +69,8 @@ public:
     static std::vector<float> ONSETS;
     void shiftyLooping();
     void printCurrentState(String s);
-    
+    void settingSampleTest(AudioTransportSource& src);
+    void loadFileIntoTransport(const File& audioFile);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -84,12 +86,17 @@ private:
     AudioDeviceManager deviceManager;
     AudioFormatManager formatManager;
     ScopedPointer<AudioFormatReaderSource> readerSource;
+    ScopedPointer<AudioFormatReaderSource> currentAudioFileSource;
     AudioSourcePlayer sourcePlayer;
     AudioTransportSource player;
     TransportState state;
     vector<Loop> _crudeLoops;
     std::string AUDIO_FILENAME;
     Loop* currentLoop;
+    AudioSampleBuffer buffer;
+    AudioPlayHead::CurrentPositionInfo lastPosInfo;
+    TimeSliceThread thread;
+    vector<essentia::Real> loadedAudioSample;
     //[/UserVariables]
 
     //==============================================================================

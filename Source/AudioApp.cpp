@@ -20,6 +20,8 @@
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
 #include "LoopGen.h"
+#include "essentia.h"
+#include "algorithmfactory.h"
 //[/Headers]
 
 #include "AudioApp.h"
@@ -29,7 +31,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp () : APP_WIDTH(700), APP_HEIGHT(750){
+AudioApp::AudioApp () : APP_WIDTH(700), APP_HEIGHT(750), thread("Audio File Preview")
+{
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -115,25 +118,30 @@ AudioApp::AudioApp () : APP_WIDTH(700), APP_HEIGHT(750){
     setSize(APP_WIDTH, APP_HEIGHT);
     //[/UserPreSize]
 
-  //  setSize (600, 400);
+    
 
 
     //[Constructor] You can add your own custom stuff here..
-    currentLoop = new Loop;
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftyLoopingButton->setEnabled(false);
     loopButton->setEnabled(false);
+
     formatManager.registerBasicFormats();
     sourcePlayer.setSource(&player);
     deviceManager.addAudioCallback(&sourcePlayer);
     deviceManager.initialise(0, 2, nullptr, true);
     deviceManager.addChangeListener(this);
     player.addChangeListener(this);
+
+    currentLoop = new Loop;
     state = Stopped;
     gain = 1.0f;
     forward = false;
     isLooping = false;
+    
+    thread.startThread(3);
+    
     //[/Constructor]
 }
 
@@ -212,10 +220,20 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
-            readerSource = new AudioFormatReaderSource(formatManager.createReaderFor(file),true);
-            player.setSource(readerSource);
+           
+            essentia::init();
+            essentia::standard::Algorithm* loader = essentia::standard::AlgorithmFactory::create("MonoLoader", "filename", AUDIO_FILENAME);
+                loader->output("audio").set(loadedAudioSample);
+                loader->compute();
+                delete loader;
+            essentia::shutdown();
+            
+            
+            loadFileIntoTransport(file);
             _crudeLoops = computeLoops(AUDIO_FILENAME);
             currentLoop = &_crudeLoops[rand() % _crudeLoops.size()];
+            
+            
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
         }
@@ -334,7 +352,7 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 }
 
 void AudioApp::changeState(TransportState newState){
-    
+
     if (state != newState) {
         state = newState;
         switch (state) {
@@ -349,8 +367,8 @@ void AudioApp::changeState(TransportState newState){
                 break;
             case Starting:
                 printCurrentState(String("Starting..."));
-                if (isLooping) changeState(Looping);
-                player.start();
+                settingSampleTest(player);
+               // player.start();
                 break;
             case Playing:
                 printCurrentState(String("Playing..."));
@@ -359,9 +377,6 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 shiftyLoopingButton->setEnabled(true);
                 loopButton->setEnabled(false);
-                if (player.getCurrentPosition() >= currentLoop->end) {
-                    changeState(Stopping);
-                }
                 break;
             case Pausing:
                 printCurrentState(String("Pausing..."));
@@ -378,30 +393,19 @@ void AudioApp::changeState(TransportState newState){
                 break;
             case Looping:
                 printCurrentState(String("Looping..."));
-                isLooping = true;
-               // player.setLooping(true);
+                stopButton->setEnabled(true);
+
                 player.setPosition(currentLoop->start);
                 player.start();
-                stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                while (player.isPlaying()){
-                    while (player.getCurrentPosition() < currentLoop->end) continue;
-                    break;
-                }
-                player.setNextReadPosition(currentLoop->start);
                 break;
 
         }
 
     }
-    if (Looping == state){
-        changeState(Starting);
-        changeState(Looping);
-    }
-    
-}
 
+}
 
 void AudioApp::shiftyLooping(){
     if ((player.getCurrentPosition()*44100)/60 >= player.getLengthInSeconds()) {
@@ -424,6 +428,23 @@ void AudioApp::shiftyLooping(){
      }
      */
 }
+
+
+void AudioApp::settingSampleTest(juce::AudioTransportSource &src){src.start();}
+
+void AudioApp::loadFileIntoTransport(const juce::File &audioFile){
+    player.stop();
+    player.setSource(nullptr);
+    currentAudioFileSource = nullptr;
+    
+    AudioFormatReader* reader = formatManager.createReaderFor(audioFile);
+    if (reader != nullptr) {
+        currentAudioFileSource = new AudioFormatReaderSource(reader, true);
+        player.setSource(currentAudioFileSource, 32768, &thread, reader->sampleRate);
+        
+    }
+}
+
 
 //[/MiscUserCode]
 

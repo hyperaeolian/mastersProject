@@ -9,6 +9,7 @@
 */
 
 #include <iostream>
+#include "JuceHeader.h"
 #include "LoopGen.h"
 #include "FeatureExtractor.h"
 
@@ -24,13 +25,15 @@ vector<Loop> computeLoops(const std::string audiofilename) {
     LAST_ONSET = onsets.back();
     createLoops(onsets);
     vector<Loop> loops(crudeLoops);
-    
+    juce::String loopList;
     int itr = 0;
     for (const auto& lp : crudeLoops){
-        std::cout << "Loop " << itr << " is from " << lp.start << " to " << lp.end << std::endl;
+        loopList << "Loop " << itr << " is from " << lp.start << " to " << lp.end << "\n";
+        //std::cout << "Loop " << itr << " is from " << lp.start << " to " << lp.end << std::endl;
         itr++;
     }
-    
+    juce::Logger* log = juce::Logger::getCurrentLogger();
+    log->writeToLog(loopList);
     return loops;
 }
 
