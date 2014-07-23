@@ -20,18 +20,18 @@
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
 #include "LoopGen.h"
-#include "essentia.h"
-#include "algorithmfactory.h"
 //[/Headers]
 
 #include "AudioApp.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp () : APP_WIDTH(700), APP_HEIGHT(750), thread("Audio File Preview")
+AudioApp::AudioApp () //: APP_WIDTH(700), APP_HEIGHT(750)
+
 {
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
@@ -118,30 +118,36 @@ AudioApp::AudioApp () : APP_WIDTH(700), APP_HEIGHT(750), thread("Audio File Prev
     setSize(APP_WIDTH, APP_HEIGHT);
     //[/UserPreSize]
 
-    
+    //setSize (600, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
+    startTimer(40);
+    
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftyLoopingButton->setEnabled(false);
     loopButton->setEnabled(false);
+    
+    deviceManager.initialise(0, 2, nullptr, true);
+    deviceManager.addAudioCallback(&sourcePlayer);
+    sourcePlayer.setSource(&mediaPlayer);
+    deviceManager.addChangeListener(this);
+    mediaPlayer.addListener(this);
 
+    
+/*
     formatManager.registerBasicFormats();
     sourcePlayer.setSource(&player);
     deviceManager.addAudioCallback(&sourcePlayer);
     deviceManager.initialise(0, 2, nullptr, true);
     deviceManager.addChangeListener(this);
     player.addChangeListener(this);
-
+*/
     currentLoop = new Loop;
     state = Stopped;
     gain = 1.0f;
-    forward = false;
-    isLooping = false;
-    
-    thread.startThread(3);
-    
+    masterLogger = juce::Logger::getCurrentLogger();
     //[/Constructor]
 }
 
@@ -165,10 +171,11 @@ AudioApp::~AudioApp()
 
     //[Destructor]. You can add your own custom destruction code here..
     for (auto l : _crudeLoops) {
-        if (l.next != nullptr) l.next = nullptr;
-        if (l.prev != nullptr) l.prev = nullptr;
+        l.next = nullptr;
+        l.prev = nullptr;
     }
     currentLoop = nullptr;
+    mediaPlayer.removeListener(this);
     //[/Destructor]
 }
 
@@ -219,20 +226,11 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
+            mediaPlayer.setFile(file);
+            
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
-           
-            essentia::init();
-            essentia::standard::Algorithm* loader = essentia::standard::AlgorithmFactory::create("MonoLoader", "filename", AUDIO_FILENAME);
-                loader->output("audio").set(loadedAudioSample);
-                loader->compute();
-                delete loader;
-            essentia::shutdown();
-            
-            
-            loadFileIntoTransport(file);
             _crudeLoops = computeLoops(AUDIO_FILENAME);
             currentLoop = &_crudeLoops[rand() % _crudeLoops.size()];
-            
             
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
@@ -313,7 +311,9 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
         gain = static_cast<float>(gainSlider->getValue());
-        player.setGain(gain);
+        //TODO Set gain for mediaPlayer
+        //player.setGain(gain);
+        
         //[/UserSliderCode_gainSlider]
     }
 
@@ -334,20 +334,8 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
         AudioDeviceManager::AudioDeviceSetup setup;
         deviceManager.getAudioDeviceSetup(setup);
         setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr) :
-                                        sourcePlayer.setSource(&player);
-
-    } else if (&player == src){
-        player.setPosition(currentLoop->start);
-        gainSlider->setValue(static_cast<double>(player.getGain()));
-        if (player.isPlaying()) {
-                changeState(Playing);
-        } else {
-            if (Stopping == state || Playing == state) {
-                changeState(Stopped);
-            } else if (Pausing == state) changeState(Paused);
-        }
+                                        sourcePlayer.setSource(&mediaPlayer);
     }
-
 
 }
 
@@ -362,12 +350,11 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(false);
                 loopButton->setEnabled(true);
-                player.setPosition(currentLoop->start);
-                //transportSource.setPosition(0.0);
+                mediaPlayer.setPosition(0.0);
                 break;
             case Starting:
                 printCurrentState(String("Starting..."));
-                settingSampleTest(player);
+                mediaPlayer.start();
                // player.start();
                 break;
             case Playing:
@@ -380,7 +367,8 @@ void AudioApp::changeState(TransportState newState){
                 break;
             case Pausing:
                 printCurrentState(String("Pausing..."));
-                player.stop();
+                mediaPlayer.stop();
+                //player.stop();
                 break;
             case Paused:
                 printCurrentState(String("Paused"));
@@ -389,16 +377,15 @@ void AudioApp::changeState(TransportState newState){
                 break;
             case Stopping:
                 printCurrentState(String("Stopping..."));
-                player.stop();
+                if (mediaPlayer.isLooping()) mediaPlayer.setLooping(false);
+                mediaPlayer.stop();
                 break;
             case Looping:
                 printCurrentState(String("Looping..."));
                 stopButton->setEnabled(true);
-
-                player.setPosition(currentLoop->start);
-                player.start();
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
+                mediaPlayer.setLooping(true);
                 break;
 
         }
@@ -407,45 +394,28 @@ void AudioApp::changeState(TransportState newState){
 
 }
 
-void AudioApp::shiftyLooping(){
-    if ((player.getCurrentPosition()*44100)/60 >= player.getLengthInSeconds()) {
-        infoLabel->setText("True", sendNotification);
-    }
-    /* if (transportSource.hasStreamFinished()) {
-     if (forward) {
-     if (state != Playing) state = Playing;
-     current = current->next;
-     double startPos = current->prev->end;
-     double endPos = current->end;
-     transportSource.setPosition(startPos);
-     if (transportSource.getCurrentPosition() >= endPos){
-     startPos = current->start;
-     transportSource.setPosition(startPos);
-     }
 
+void AudioApp::shiftyLooping(){}
 
-     }
-     }
-     */
-}
+void AudioApp::fileChanged(drow::AudioFilePlayer* player){}
 
+void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
 
-void AudioApp::settingSampleTest(juce::AudioTransportSource &src){src.start();}
+void AudioApp::timerCallback(){}
 
-void AudioApp::loadFileIntoTransport(const juce::File &audioFile){
-    player.stop();
-    player.setSource(nullptr);
-    currentAudioFileSource = nullptr;
-    
-    AudioFormatReader* reader = formatManager.createReaderFor(audioFile);
-    if (reader != nullptr) {
-        currentAudioFileSource = new AudioFormatReaderSource(reader, true);
-        player.setSource(currentAudioFileSource, 32768, &thread, reader->sampleRate);
-        
+void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
+    if (player == &mediaPlayer){
+        masterLogger->writeToLog("Media Player Changing...");
+        mediaPlayer.setPosition(0.0);
+        if (mediaPlayer.isPlaying()) {
+            changeState(Playing);
+        } else {
+            if (Stopping == state || Playing == state) {
+                changeState(Stopped);
+            } else if (Pausing == state) changeState(Paused);
+        }
     }
 }
-
-
 //[/MiscUserCode]
 
 

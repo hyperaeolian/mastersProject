@@ -5,8 +5,6 @@
               jucerVersion="3.1.0" companyName="Phases">
   <MAINGROUP id="E0wmuP" name="PhaseTwo">
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
-      <FILE id="jAHgnt" name="Looping.cpp" compile="1" resource="0" file="Source/Looping.cpp"/>
-      <FILE id="nRn72Q" name="Looping.h" compile="0" resource="0" file="Source/Looping.h"/>
       <FILE id="d4Rdnk" name="LoopGen.cpp" compile="1" resource="0" file="Source/LoopGen.cpp"/>
       <FILE id="YPZoLc" name="LoopGen.h" compile="0" resource="0" file="Source/LoopGen.h"/>
       <GROUP id="{BA030AEE-B583-ADA7-433E-0F4ED845CCEE}" name="essentia">
@@ -170,10 +168,12 @@
         <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="dRowAudio" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
   <MODULES>
+    <MODULES id="dRowAudio" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
@@ -189,5 +189,5 @@
     <MODULES id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_video" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
-  <JUCEOPTIONS/>
+  <JUCEOPTIONS DROWAUDIO_USE_CURL="disabled"/>
 </JUCERPROJECT>

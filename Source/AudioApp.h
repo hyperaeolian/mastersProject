@@ -23,10 +23,10 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGen.h"
-#include "essentia.h"
+
 //[/Headers]
 
-
+//class MediaPlayerListener;
 
 //==============================================================================
 /**
@@ -37,7 +37,8 @@
 class AudioApp  : public Component,
                   public ChangeListener,
                   public ButtonListener,
-                  public SliderListener
+public SliderListener, public drow::AudioFilePlayer::Listener, public Timer
+
 {
 public:
     //==============================================================================
@@ -65,12 +66,15 @@ public:
     float gain, delay;
     bool shifting, forward, isLooping;
     void changeState(TransportState newState);
-    void changeListenerCallback(ChangeBroadcaster* source);
+    void changeListenerCallback(ChangeBroadcaster* src);
     static std::vector<float> ONSETS;
     void shiftyLooping();
     void printCurrentState(String s);
-    void settingSampleTest(AudioTransportSource& src);
-    void loadFileIntoTransport(const File& audioFile);
+    
+    void fileChanged(drow::AudioFilePlayer* player) override;
+    void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
+    void timerCallback();
+    void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -82,21 +86,17 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    const int APP_WIDTH, APP_HEIGHT;
-    AudioDeviceManager deviceManager;
-    AudioFormatManager formatManager;
-    ScopedPointer<AudioFormatReaderSource> readerSource;
-    ScopedPointer<AudioFormatReaderSource> currentAudioFileSource;
-    AudioSourcePlayer sourcePlayer;
-    AudioTransportSource player;
+    const int APP_WIDTH = 700, APP_HEIGHT = 750;
+    AudioDeviceManager       deviceManager;
+    AudioSourcePlayer        sourcePlayer;
+    drow::AudioFilePlayerExt mediaPlayer;
+    drow::AudioFilePlayer::Listener* listener;
+    
     TransportState state;
     vector<Loop> _crudeLoops;
     std::string AUDIO_FILENAME;
     Loop* currentLoop;
-    AudioSampleBuffer buffer;
-    AudioPlayHead::CurrentPositionInfo lastPosInfo;
-    TimeSliceThread thread;
-    vector<essentia::Real> loadedAudioSample;
+    juce::Logger* masterLogger;
     //[/UserVariables]
 
     //==============================================================================
@@ -118,6 +118,20 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
+class MediaPlayerListener : public drow::AudioFilePlayer::Listener {
+public:
+    MediaPlayerListener(drow::AudioFilePlayerExt& _player, int _state);
+        
+    ~MediaPlayerListener();
+    void fileChanged(drow::AudioFilePlayer* player);
+    
+private:
+    int state;
+    drow::AudioFilePlayerExt& audioFilePlayer;
+    
+};
+
+
 //[/EndFile]
 
 #endif   // __JUCE_HEADER_63FD855A234897E__

@@ -12,6 +12,7 @@
 #define LOOPGEN_H_INCLUDED
 
 #include <vector>
+#include "JuceHeader.h"
 
 using namespace std;
 
@@ -29,7 +30,6 @@ vector<Loop> computeLoops(const std::string audiofilename);
 void createLoops(const vector<float>& onsets);
 void connectLoops();
 float quantizeToOnset(const vector<float>& onsets, float value);
-
 
 
 
