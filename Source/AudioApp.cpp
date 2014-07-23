@@ -159,8 +159,8 @@ AudioApp::~AudioApp()
     //[Destructor]. You can add your own custom destruction code here..
     for (auto l : _crudeLoops) { l.next = nullptr; l.prev = nullptr; }
     currentLoop = nullptr;
-   // mediaPlayer.removeListener(this);
     masterLogger = nullptr;
+    if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
     //[/Destructor]
 }
 
@@ -356,7 +356,6 @@ void AudioApp::changeState(TransportState newState){
             case Stopping:
                 printCurrentState(String("Stopping..."));
                 if (mediaPlayer.isLooping()) mediaPlayer.setLooping(false);
-                mediaPlayer.setLoopBetweenTimes(false);
                 mediaPlayer.stop();
                 break;
             case Looping:
@@ -364,10 +363,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                mediaPlayer.start();
-                mediaPlayer.setLoopTimes(static_cast<double>(currentLoop->start),
-                                         static_cast<double>(currentLoop->end));
-                mediaPlayer.setLoopBetweenTimes(true);
+                mediaPlayer.setLooping(true);
                 break;
 
         }
@@ -390,7 +386,39 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     }
 }
 
-void AudioApp::shiftyLooping(){}
+void AudioApp::shiftyLooping(){
+    
+    if (mediaPlayer.hasStreamFinished()) {
+        masterLogger->writeToLog("Stream has finished...");
+        int r = rand() % 2;
+        shifting = r == 0 ? true : false;
+        r = rand() % 2;
+        forward = r == 0 ? true : false;
+        
+        if (shifting) {
+            masterLogger->writeToLog("Shifting...");
+            if (forward) {
+                masterLogger->writeToLog("forward");
+                currentLoop = currentLoop->next;
+                mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
+                mediaPlayer.setLoopBetweenTimes(true);
+                mediaPlayer.start();
+                mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+            } else {
+                masterLogger->writeToLog("backwards");
+                currentLoop = currentLoop->prev;
+                mediaPlayer.setLoopTimes(currentLoop->next->start, currentLoop->end);
+                mediaPlayer.setLoopBetweenTimes(true);
+                mediaPlayer.start();
+                mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+            }
+        }
+    }
+     
+}
+
+
+
 void AudioApp::fileChanged(drow::AudioFilePlayer* player){}
 void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
 void AudioApp::timerCallback(){}

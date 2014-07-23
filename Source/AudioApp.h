@@ -66,7 +66,7 @@ public:
     };
 
     float gain, delay;
-    bool shifting, forward, isLooping;
+    bool shifting, forward;
     void changeState(TransportState newState);
     void changeListenerCallback(ChangeBroadcaster* src);
     static std::vector<float> ONSETS;
