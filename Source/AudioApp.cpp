@@ -30,9 +30,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp () //: APP_WIDTH(700), APP_HEIGHT(750)
-
-{
+AudioApp::AudioApp (){
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -117,10 +115,7 @@ AudioApp::AudioApp () //: APP_WIDTH(700), APP_HEIGHT(750)
     //[UserPreSize]
     setSize(APP_WIDTH, APP_HEIGHT);
     //[/UserPreSize]
-
-    //setSize (600, 400);
-
-
+    
     //[Constructor] You can add your own custom stuff here..
     startTimer(40);
     
@@ -134,20 +129,12 @@ AudioApp::AudioApp () //: APP_WIDTH(700), APP_HEIGHT(750)
     sourcePlayer.setSource(&mediaPlayer);
     deviceManager.addChangeListener(this);
     mediaPlayer.addListener(this);
-
+    masterLogger = juce::Logger::getCurrentLogger();
     
-/*
-    formatManager.registerBasicFormats();
-    sourcePlayer.setSource(&player);
-    deviceManager.addAudioCallback(&sourcePlayer);
-    deviceManager.initialise(0, 2, nullptr, true);
-    deviceManager.addChangeListener(this);
-    player.addChangeListener(this);
-*/
     currentLoop = new Loop;
     state = Stopped;
     gain = 1.0f;
-    masterLogger = juce::Logger::getCurrentLogger();
+    
     //[/Constructor]
 }
 
@@ -170,12 +157,10 @@ AudioApp::~AudioApp()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-    for (auto l : _crudeLoops) {
-        l.next = nullptr;
-        l.prev = nullptr;
-    }
+    for (auto l : _crudeLoops) { l.next = nullptr; l.prev = nullptr; }
     currentLoop = nullptr;
     mediaPlayer.removeListener(this);
+    masterLogger = nullptr;
     //[/Destructor]
 }
 
@@ -198,8 +183,7 @@ void AudioApp::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void AudioApp::resized()
-{
+void AudioApp::resized(){
     infoLabel->setBounds (40, 544, 664, 120);
     appLabel->setBounds (40, 40, 168, 40);
     mainGroup->setBounds (48, 104, 528, 392);
@@ -220,8 +204,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == loadButton)
-    {
+    if (buttonThatWasClicked == loadButton){
         //[UserButtonCode_loadButton] -- add your button handler code here..
         FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
         if (chooser.browseForFileToOpen()) {
@@ -237,8 +220,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         }
         //[/UserButtonCode_loadButton]
     }
-    else if (buttonThatWasClicked == playButton)
-    {
+    else if (buttonThatWasClicked == playButton){
         //[UserButtonCode_playButton] -- add your button handler code here..
         if (Stopped == state || Paused == state) {
             changeState(Starting);
@@ -311,8 +293,7 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
         gain = static_cast<float>(gainSlider->getValue());
-        //TODO Set gain for mediaPlayer
-        //player.setGain(gain);
+        sourcePlayer.setGain(gain);
         
         //[/UserSliderCode_gainSlider]
     }
@@ -355,7 +336,6 @@ void AudioApp::changeState(TransportState newState){
             case Starting:
                 printCurrentState(String("Starting..."));
                 mediaPlayer.start();
-               // player.start();
                 break;
             case Playing:
                 printCurrentState(String("Playing..."));
@@ -368,7 +348,6 @@ void AudioApp::changeState(TransportState newState){
             case Pausing:
                 printCurrentState(String("Pausing..."));
                 mediaPlayer.stop();
-                //player.stop();
                 break;
             case Paused:
                 printCurrentState(String("Paused"));
@@ -394,15 +373,6 @@ void AudioApp::changeState(TransportState newState){
 
 }
 
-
-void AudioApp::shiftyLooping(){}
-
-void AudioApp::fileChanged(drow::AudioFilePlayer* player){}
-
-void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
-
-void AudioApp::timerCallback(){}
-
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &mediaPlayer){
         masterLogger->writeToLog("Media Player Changing...");
@@ -416,6 +386,12 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
         }
     }
 }
+
+void AudioApp::shiftyLooping(){}
+void AudioApp::fileChanged(drow::AudioFilePlayer* player){}
+void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
+void AudioApp::timerCallback(){}
+
 //[/MiscUserCode]
 
 
