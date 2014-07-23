@@ -117,7 +117,7 @@ AudioApp::AudioApp (){
     //[/UserPreSize]
     
     //[Constructor] You can add your own custom stuff here..
-    startTimer(40);
+    startTimer(200);
     
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
@@ -159,14 +159,13 @@ AudioApp::~AudioApp()
     //[Destructor]. You can add your own custom destruction code here..
     for (auto l : _crudeLoops) { l.next = nullptr; l.prev = nullptr; }
     currentLoop = nullptr;
-    mediaPlayer.removeListener(this);
+   // mediaPlayer.removeListener(this);
     masterLogger = nullptr;
     //[/Destructor]
 }
 
 //==============================================================================
-void AudioApp::paint (Graphics& g)
-{
+void AudioApp::paint (Graphics& g){
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
@@ -357,6 +356,7 @@ void AudioApp::changeState(TransportState newState){
             case Stopping:
                 printCurrentState(String("Stopping..."));
                 if (mediaPlayer.isLooping()) mediaPlayer.setLooping(false);
+                mediaPlayer.setLoopBetweenTimes(false);
                 mediaPlayer.stop();
                 break;
             case Looping:
@@ -364,7 +364,10 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                mediaPlayer.setLooping(true);
+                mediaPlayer.start();
+                mediaPlayer.setLoopTimes(static_cast<double>(currentLoop->start),
+                                         static_cast<double>(currentLoop->end));
+                mediaPlayer.setLoopBetweenTimes(true);
                 break;
 
         }
@@ -376,7 +379,8 @@ void AudioApp::changeState(TransportState newState){
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &mediaPlayer){
         masterLogger->writeToLog("Media Player Changing...");
-        mediaPlayer.setPosition(0.0);
+        //mediaPlayer.setPosition(0.0);
+        gainSlider->setValue(static_cast<double>(sourcePlayer.getGain()));
         if (mediaPlayer.isPlaying()) {
             changeState(Playing);
         } else {

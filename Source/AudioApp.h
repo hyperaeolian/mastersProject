@@ -37,7 +37,9 @@
 class AudioApp  : public Component,
                   public ChangeListener,
                   public ButtonListener,
-public SliderListener, public drow::AudioFilePlayer::Listener, public Timer
+                  public SliderListener,
+                  public Timer,
+                  public drow::AudioFilePlayer::Listener
 
 {
 public:
@@ -118,19 +120,6 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
-class MediaPlayerListener : public drow::AudioFilePlayer::Listener {
-public:
-    MediaPlayerListener(drow::AudioFilePlayerExt& _player, int _state);
-        
-    ~MediaPlayerListener();
-    void fileChanged(drow::AudioFilePlayer* player);
-    
-private:
-    int state;
-    drow::AudioFilePlayerExt& audioFilePlayer;
-    
-};
-
 
 //[/EndFile]
 
