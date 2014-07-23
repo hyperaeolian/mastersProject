@@ -379,7 +379,6 @@ void AudioApp::changeState(TransportState newState){
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &mediaPlayer){
         masterLogger->writeToLog("Media Player Changing...");
-        //mediaPlayer.setPosition(0.0);
         gainSlider->setValue(static_cast<double>(sourcePlayer.getGain()));
         if (mediaPlayer.isPlaying()) {
             changeState(Playing);
