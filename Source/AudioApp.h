@@ -49,6 +49,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    juce::Logger* masterLogger;
     enum TransportState{
         Stopped,
         Starting,
@@ -98,7 +99,7 @@ private:
     vector<Loop> _crudeLoops;
     std::string AUDIO_FILENAME;
     Loop* currentLoop;
-    juce::Logger* masterLogger;
+    
     //[/UserVariables]
 
     //==============================================================================

@@ -276,6 +276,8 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == shiftyLoopingButton)
     {
         //[UserButtonCode_shiftyLoopingButton] -- add your button handler code here..
+        changeState(Stopped);
+        shiftyLooping();
         //[/UserButtonCode_shiftyLoopingButton]
     }
 
@@ -364,6 +366,7 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 mediaPlayer.setLooping(true);
+                mediaPlayer.start();
                 break;
 
         }
@@ -384,6 +387,7 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
             } else if (Pausing == state) changeState(Paused);
         }
     }
+    delete player;
 }
 
 void AudioApp::shiftyLooping(){
@@ -400,13 +404,19 @@ void AudioApp::shiftyLooping(){
             if (forward) {
                 masterLogger->writeToLog("forward");
                 currentLoop = currentLoop->next;
-                mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
+               // if (currentLoop->prev->end > currentLoop->end)
+                float start = currentLoop->prev->end;
+                float end = currentLoop->end;
+                masterLogger->writeToLog("Start: " + String(start) + " End: " + String(end));
+                assert(start < end);
+                mediaPlayer.setLoopTimes(start, end);
                 mediaPlayer.setLoopBetweenTimes(true);
                 mediaPlayer.start();
                 mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
             } else {
                 masterLogger->writeToLog("backwards");
                 currentLoop = currentLoop->prev;
+                assert(currentLoop->next->start < currentLoop->end);
                 mediaPlayer.setLoopTimes(currentLoop->next->start, currentLoop->end);
                 mediaPlayer.setLoopBetweenTimes(true);
                 mediaPlayer.start();

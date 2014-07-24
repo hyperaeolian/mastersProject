@@ -16,7 +16,7 @@
 using namespace std;
 
 float LAST_ONSET;
- vector<Loop> crudeLoops;
+vector<Loop> crudeLoops;
 
 vector<Loop> computeLoops(const std::string audiofilename) {
     
@@ -29,11 +29,11 @@ vector<Loop> computeLoops(const std::string audiofilename) {
     int itr = 0;
     for (const auto& lp : crudeLoops){
         loopList << "Loop " << itr << " is from " << lp.start << " to " << lp.end << "\n";
-        //std::cout << "Loop " << itr << " is from " << lp.start << " to " << lp.end << std::endl;
         itr++;
     }
     juce::Logger* log = juce::Logger::getCurrentLogger();
     log->writeToLog(loopList);
+    delete log;
     return loops;
 }
 
