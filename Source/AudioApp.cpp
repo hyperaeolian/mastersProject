@@ -387,7 +387,7 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
             } else if (Pausing == state) changeState(Paused);
         }
     }
-    delete player;
+   // delete player;
 }
 
 void AudioApp::shiftyLooping(){

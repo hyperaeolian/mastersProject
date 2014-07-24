@@ -5,6 +5,8 @@
               jucerVersion="3.1.0" companyName="Phases">
   <MAINGROUP id="E0wmuP" name="PhaseTwo">
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
+      <FILE id="oCctHK" name="Features.cpp" compile="1" resource="0" file="Source/Features.cpp"/>
+      <FILE id="QwiGgh" name="Features.h" compile="0" resource="0" file="Source/Features.h"/>
       <FILE id="d4Rdnk" name="LoopGen.cpp" compile="1" resource="0" file="Source/LoopGen.cpp"/>
       <FILE id="YPZoLc" name="LoopGen.h" compile="0" resource="0" file="Source/LoopGen.h"/>
       <GROUP id="{BA030AEE-B583-ADA7-433E-0F4ED845CCEE}" name="essentia">
