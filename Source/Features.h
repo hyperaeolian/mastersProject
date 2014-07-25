@@ -19,8 +19,6 @@
 using namespace essentia;
 using namespace essentia::standard;
 
-const std::string SNDFILE;
-
 namespace fext {
     
     //Utilities
@@ -28,8 +26,8 @@ namespace fext {
     const int FRAME_SIZE = 2048;
     const int HOP        = FRAME_SIZE / 2;
     std::string wintype  = "hann";
-    Pool CURATED_FEATURES;
-    std::vector<Real> audioBuffer, wFrame, spectrum;
+    Pool featureBin;
+    std::vector<Real> audioBuffer, frame, windowedFrame, spectrum;
     
     
     //Rhythm Features
@@ -52,17 +50,7 @@ namespace fext {
     std::vector<std::string>        chords_Progression;
     std::vector<std::vector<Real> > hpcp, hpcp_HighRes;
     
-    //Methods
-    void initSys(const std::string& song);
-    void ExtractAndStoreFeatures(const std::string& song);
-    void computeRhythmFeatures();
-    void computeDynamicsFeatures();
-    void computeTimbralFeatures();
-    void computePitchFeatures(const std::string& song);
-    
-    //Use these two methods instead of the above
-    void computeTemporalFeatures();
-    void computeSpectralFeatures();
+    void computeFeatures(const std::string song);
     
 }
 
