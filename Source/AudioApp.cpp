@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
-#include "LoopGen.h"
+#include "LoopGenerator.h"
 //[/Headers]
 
 #include "AudioApp.h"

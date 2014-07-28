@@ -22,7 +22,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "LoopGen.h"
+#include "LoopGenerator.h"
 
 //[/Headers]
 
@@ -70,7 +70,7 @@ public:
     bool shifting, forward;
     void changeState(TransportState newState);
     void changeListenerCallback(ChangeBroadcaster* src);
-    static std::vector<float> ONSETS;
+   // static std::vector<float> ONSETS;
     void shiftyLooping();
     void printCurrentState(String s);
     
