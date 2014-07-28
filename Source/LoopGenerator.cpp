@@ -24,7 +24,7 @@ vector<Loop> computeLoops(std::string audiofilename) {
     std::cout << "HERE" << std::endl;
     computeFeatures(audiofilename);
     assert(successfulExtraction);
-    vector<essentia::Real> onsets(featureBin.value<vector<essentia::Real> >("rhythm.onsets"));
+vector<essentia::Real> onsets(featureBin->value<vector<essentia::Real> >("rhythm.onsets"));
     LAST_ONSET = onsets.back();
     createLoopPoints(onsets);
     //vector<Loop> loops(theLoops);

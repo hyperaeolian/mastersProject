@@ -5,6 +5,10 @@
               jucerVersion="3.1.0" companyName="Phases">
   <MAINGROUP id="E0wmuP" name="PhaseTwo">
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
+      <FILE id="v5MuI2" name="ProgressWindow.h" compile="0" resource="0"
+            file="Source/ProgressWindow.h"/>
+      <FILE id="N8gLdS" name="ProgressWindow.cpp" compile="1" resource="0"
+            file="Source/ProgressWindow.cpp"/>
       <FILE id="diD8rf" name="AudioApp.h" compile="0" resource="0" file="Source/AudioApp.h"/>
       <FILE id="Dv8Ih0" name="AudioApp.cpp" compile="1" resource="0" file="Source/AudioApp.cpp"/>
       <FILE id="QwiGgh" name="FeatureExtractor.h" compile="0" resource="0"
