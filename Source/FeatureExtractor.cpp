@@ -34,32 +34,32 @@ void computeFeatures(std::string song){
         AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
         
         juce::ScopedPointer<Algorithm>
-        audiofile       = factory.create("MonoLoader", "filename", song, "sampleRate", 44100),
-        _dur            = factory.create("Duration"),
-        fc              = factory.create("FrameCutter", "frameSize", FRAME_SIZE, "hopSize", HOP),
-        w               = factory.create("Windowing", "type", "hann"),
-        _spec           = factory.create("Spectrum"),
-        _mfcc           = factory.create("MFCC"),
-        _cent           = factory.create("Centroid"),
-        _onsetRate      = factory.create("OnsetRate"),
-        _rhythmExt      = factory.create("RhythmExtractor2013"),
-        _rms            = factory.create("RMS"),
-        _dynam          = factory.create("DynamicComplexity"),
-        _tonalExtractor = factory.create("TonalExtractor");
+            audiofile       = factory.create("MonoLoader", "filename", song, "sampleRate", 44100),
+            _dur            = factory.create("Duration"),
+            fc              = factory.create("FrameCutter", "frameSize", FRAME_SIZE, "hopSize", HOP),
+            w               = factory.create("Windowing", "type", "hann"),
+            _spec           = factory.create("Spectrum"),
+            _mfcc           = factory.create("MFCC"),
+            _cent           = factory.create("Centroid"),
+            _onsetRate      = factory.create("OnsetRate"),
+            _rhythmExt      = factory.create("RhythmExtractor2013"),
+            _rms            = factory.create("RMS"),
+            _dynam          = factory.create("DynamicComplexity"),
+            _tonalExtractor = factory.create("TonalExtractor");
         
         
         std::vector<Real> audioBuffer, frame, windowedFrame, spectrum;
         Real duration;
         
         audiofile->output("audio").set(audioBuffer);
-        _dur->input("signal").set(audioBuffer);
-        _dur->output("duration").set(duration);
-        fc->input("signal").set(audioBuffer);
-        fc->output("frame").set(frame);
-        w->input("frame").set(frame);
-        w->output("frame").set(windowedFrame);
-        _spec->input("frame").set(windowedFrame);
-        _spec->output("spectrum").set(spectrum);
+        _dur     ->input("signal").set(audioBuffer);
+        _dur     ->output("duration").set(duration);
+        fc       ->input("signal").set(audioBuffer);
+        fc       ->output("frame").set(frame);
+        w        ->input("frame").set(frame);
+        w        ->output("frame").set(windowedFrame);
+        _spec    ->input("frame").set(windowedFrame);
+        _spec    ->output("spectrum").set(spectrum);
         
         
         /* ========= RHYTHM FEATURES ===================== */
@@ -173,8 +173,9 @@ void computeFeatures(std::string song){
         essentia::shutdown();
     } else {
         progress.threadComplete(true);
+        successfulExtraction = true;
     }
-    successfulExtraction = true;
+    
     
 }
 

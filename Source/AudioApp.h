@@ -1,22 +1,3 @@
-/*
-  ==============================================================================
-
-  This is an automatically generated GUI class created by the Introjucer!
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Introjucer version: 3.1.0
-
-  ------------------------------------------------------------------------------
-
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
-
-  ==============================================================================
-*/
-
 #ifndef __JUCE_HEADER_63FD855A234897E__
 #define __JUCE_HEADER_63FD855A234897E__
 
@@ -26,11 +7,12 @@
 
 //[/Headers]
 
-//class MediaPlayerListener;
-
 //==============================================================================
 /**
                                                                     //[Comments]
+ TO DO:
+    Restructure program: use these separate components for the synthesis, analysis,
+    and GUI
 
                                                                     //[/Comments]
 */
@@ -49,7 +31,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    juce::Logger* masterLogger;
+    
     enum TransportState{
         Stopped,
         Starting,
@@ -67,10 +49,11 @@ public:
     };
 
     float gain, delay;
+    juce::Logger* masterLogger;
     bool shifting, forward;
+    
     void changeState(TransportState newState);
     void changeListenerCallback(ChangeBroadcaster* src);
-   // static std::vector<float> ONSETS;
     void shiftyLooping();
     void printCurrentState(String s);
     
@@ -88,7 +71,7 @@ public:
 
 
 private:
-    //[UserVariables]   -- You can add your own custom variables in this section.
+    //[UserVariables]   
     const int APP_WIDTH = 700, APP_HEIGHT = 750;
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;

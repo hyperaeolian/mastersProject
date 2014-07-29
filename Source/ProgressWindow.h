@@ -12,6 +12,7 @@
 #define PROGRESSWINDOW_H_INCLUDED
 
 #include "JuceHeader.h"
+#include "AudioApp.h"
 
 
 class BackgroundThread : public ThreadWithProgressWindow{
@@ -22,7 +23,7 @@ public:
     }
     
     void run() override{
-        setProgress (-1.0);
+        setProgress (-0.5);
         setStatusMessage ("Preparing file for Feature Extraction");
         wait (2000);
         const int features = 25;
@@ -34,16 +35,17 @@ public:
             wait (500);
         }
         
-        setProgress (-1.0);
+        setProgress (-0.5);
         setStatusMessage ("Cleaning Up");
-        wait (2000);
+        //wait (2000);
     }
     
     void threadComplete(bool userPressedCancel) override {
         if (userPressedCancel) {
             AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Progress Window", "Cancelling feature extraction");
         } else {
-            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Progress Window", "Feature Extraction Successful!");
+            setStatusMessage("Extraction Successful!");
+            //AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Progress Window", "Feature Extraction Successful!");
         }
     }
     
