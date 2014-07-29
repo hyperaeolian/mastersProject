@@ -8,13 +8,13 @@
   ==============================================================================
 */
 
-#include <iostream>
-#include "JuceHeader.h"
 #include "LoopGenerator.h"
 #include "FeatureExtractor.h"
 
 using namespace std;
 
+const int SR = 44100;
+const float BAR_SIZE = 1.0;
 
 float LAST_ONSET;
 vector<Loop> theLoops;
@@ -34,9 +34,9 @@ vector<Loop> computeLoops(std::string audiofilename) {
         loopList << "Loop " << itr << " is from " << lp.start << " to " << lp.end << "\n";
         itr++;
     }
-  //  juce::Logger* log = juce::Logger::getCurrentLogger();
-  //  log->writeToLog(loopList);
-  //  delete log;
+    juce::Logger* log = juce::Logger::getCurrentLogger();
+    log->writeToLog(loopList);
+    delete log;
     
     return theLoops;
 }

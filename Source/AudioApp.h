@@ -4,7 +4,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-
+#include "WaveformDisplay.h"
 //[/Headers]
 
 //==============================================================================
@@ -16,6 +16,8 @@
 
                                                                     //[/Comments]
 */
+
+
 class AudioApp  : public Component,
                   public ChangeListener,
                   public ButtonListener,
@@ -40,6 +42,7 @@ public:
         Paused,
         Stopping,
         Looping,
+        ShiftyLooping
     };
 
     enum Parameters{
@@ -63,8 +66,8 @@ public:
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
     //[/UserMethods]
 
-    void paint (Graphics& g);
     void resized();
+    void paint (Graphics& g);
     void buttonClicked (Button* buttonThatWasClicked);
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
@@ -79,10 +82,22 @@ private:
     drow::AudioFilePlayer::Listener* listener;
     
     TransportState state;
-    vector<Loop> _crudeLoops;
+    
+    std::vector<Loop> _crudeLoops;
     std::string AUDIO_FILENAME;
     Loop* currentLoop;
+
+//    LiveScrollingAudioDisplay display;
+    //drow::AudioFilePlayerExt& player;
+//    drow::TimeSliceThread backgroundThread;
+//    drow::AudioThumbnailCache cache;
+//    drow::ColouredAudioThumbnail thumbnail;
+//    
+//    ScopedPointer<drow::AudioThumbnailImage> image;
+//    ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
+//    ScopedPointer<drow::DraggableWaveDisplay> dragDisplay;
     
+ 
     //[/UserVariables]
 
     //==============================================================================

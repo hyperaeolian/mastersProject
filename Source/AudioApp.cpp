@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
-#include "LoopGenerator.h"
+//#include "LoopGenerator.h"
 //[/Headers]
 
 #include "AudioApp.h"
@@ -30,7 +30,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp (){
+AudioApp::AudioApp () {
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -118,7 +118,7 @@ AudioApp::AudioApp (){
     
     //[Constructor] You can add your own custom stuff here..
     startTimer(200);
-    
+   // addAndMakeVisible(display);
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftyLoopingButton->setEnabled(false);
@@ -126,6 +126,7 @@ AudioApp::AudioApp (){
     
     deviceManager.initialise(0, 2, nullptr, true);
     deviceManager.addAudioCallback(&sourcePlayer);
+  //  deviceManager.addAudioCallback(&display);
     sourcePlayer.setSource(&mediaPlayer);
     deviceManager.addChangeListener(this);
     mediaPlayer.addListener(this);
@@ -135,6 +136,7 @@ AudioApp::AudioApp (){
     state = Stopped;
     gain = 1.0f;
     
+
     //[/Constructor]
 }
 
@@ -161,7 +163,27 @@ AudioApp::~AudioApp()
     currentLoop = nullptr;
     masterLogger = nullptr;
     if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
+//    deviceManager.removeAudioCallback(&display);
+    deviceManager.removeAudioCallback(&sourcePlayer);
     //[/Destructor]
+}
+
+void AudioApp::resized(){
+    infoLabel->setBounds (40, 544, 664, 120);
+    appLabel->setBounds (40, 40, 168, 40);
+    mainGroup->setBounds (48, 104, 528, 392);
+    loadButton->setBounds (72, 384, 96, 56);
+    playButton->setBounds (192, 384, 96, 56);
+    stopButton->setBounds (320, 384, 96, 56);
+    settingsButton->setBounds (440, 384, 96, 56);
+    loopButton->setBounds (592, 112, 120, 40);
+    gainSlider->setBounds (592, 320, 112, 160);
+    gainLabel->setBounds (568, 496, 150, 24);
+    shiftyLoopingButton->setBounds (592, 136, 72, 88);
+    //[UserResized] Add your own custom resize handling here..
+    int margin = 23;
+  //  display.setBounds(mainGroup->getX() + margin, mainGroup->getY() + margin, getWidth()/2 + 2*margin, 64);
+    //[/UserResized]
 }
 
 //==============================================================================
@@ -179,24 +201,11 @@ void AudioApp::paint (Graphics& g){
     g.fillRoundedRectangle (20.0f, 12.0f, 708.0f, 668.0f, 10.000f);
 
     //[UserPaint] Add your own custom painting code here..
+
     //[/UserPaint]
 }
 
-void AudioApp::resized(){
-    infoLabel->setBounds (40, 544, 664, 120);
-    appLabel->setBounds (40, 40, 168, 40);
-    mainGroup->setBounds (48, 104, 528, 392);
-    loadButton->setBounds (72, 384, 96, 56);
-    playButton->setBounds (192, 384, 96, 56);
-    stopButton->setBounds (320, 384, 96, 56);
-    settingsButton->setBounds (440, 384, 96, 56);
-    loopButton->setBounds (592, 112, 120, 40);
-    gainSlider->setBounds (592, 320, 112, 160);
-    gainLabel->setBounds (568, 496, 150, 24);
-    shiftyLoopingButton->setBounds (592, 136, 72, 88);
-    //[UserResized] Add your own custom resize handling here..
-    //[/UserResized]
-}
+
 
 void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 {
@@ -221,27 +230,21 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == playButton){
         //[UserButtonCode_playButton] -- add your button handler code here..
+        
         if (Stopped == state || Paused == state) {
             changeState(Starting);
         } else if (Playing == state) {
             changeState(Pausing);
         } else if (Looping == state){
-            changeState(Pausing);
+            changeState(Stopped);
         }
         //[/UserButtonCode_playButton]
     }
-    else if (buttonThatWasClicked == stopButton)
-    {
+    else if (buttonThatWasClicked == stopButton){
         //[UserButtonCode_stopButton] -- add your button handler code here..
-        //Paused == state ? changeState(Stopped) : changeState(Stopping);
-        if (Looping == state) {
-            changeState(Stopped);
-            loopButton->setToggleState(false, true);
-        } else if (Paused == state){
-            changeState(Stopped);
-        } else {
-            changeState(Stopping);
-        }
+        Paused == state ? changeState(Stopped) : changeState(Stopping);
+        if (loopButton->getToggleState())
+            loopButton->setToggleState(false, dontSendNotification);
         //[/UserButtonCode_stopButton]
     }
     else if (buttonThatWasClicked == settingsButton)
@@ -264,20 +267,14 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == loopButton)
     {
         //[UserButtonCode_loopButton] -- add your button handler code here..
-        assert(Playing != state);
-        if (loopButton->getToggleState()) {
-            changeState(Looping);
-        } else {
-            changeState(Stopped);
-        }
-
+        (Looping != state) ? changeState(Looping) : changeState(Stopped);
         //[/UserButtonCode_loopButton]
     }
     else if (buttonThatWasClicked == shiftyLoopingButton)
     {
         //[UserButtonCode_shiftyLoopingButton] -- add your button handler code here..
-        changeState(Stopped);
-        shiftyLooping();
+        mediaPlayer.stop();
+        changeState(ShiftyLooping);
         //[/UserButtonCode_shiftyLoopingButton]
     }
 
@@ -344,7 +341,6 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(true);
                 shiftyLoopingButton->setEnabled(true);
-                loopButton->setEnabled(false);
                 break;
             case Pausing:
                 printCurrentState(String("Pausing..."));
@@ -368,7 +364,12 @@ void AudioApp::changeState(TransportState newState){
                 mediaPlayer.setLooping(true);
                 mediaPlayer.start();
                 break;
-
+            case ShiftyLooping:
+                printCurrentState(String("Shifty Looping..."));
+                stopButton->setEnabled(true);
+                playButton->setButtonText("Pause");
+                stopButton->setButtonText("Stop");
+                shiftyLooping();
         }
 
     }
@@ -391,8 +392,8 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 }
 
 void AudioApp::shiftyLooping(){
-    
-    if (mediaPlayer.hasStreamFinished()) {
+    while (ShiftyLooping == state){
+   // if (mediaPlayer.hasStreamFinished()) {
         masterLogger->writeToLog("Stream has finished...");
         int r = rand() % 2;
         shifting = r == 0 ? true : false;
@@ -416,6 +417,7 @@ void AudioApp::shiftyLooping(){
             } else {
                 masterLogger->writeToLog("backwards");
                 currentLoop = currentLoop->prev;
+                masterLogger->writeToLog("S: " + String(currentLoop->next->start) + " E: " + String(currentLoop->end));
                 assert(currentLoop->next->start < currentLoop->end);
                 mediaPlayer.setLoopTimes(currentLoop->next->start, currentLoop->end);
                 mediaPlayer.setLoopBetweenTimes(true);
@@ -423,8 +425,12 @@ void AudioApp::shiftyLooping(){
                 mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
             }
         }
+        
+        usleep(2000);
+        if (ShiftyLooping != state) break;
     }
-     
+    
+    
 }
 
 

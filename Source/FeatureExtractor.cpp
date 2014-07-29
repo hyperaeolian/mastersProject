@@ -8,14 +8,9 @@
   ==============================================================================
 */
 
-#include "JuceHeader.h"
-#include "essentia.h"
-#include "essentiamath.h"
-#include "AudioApp.h"
-#include "pool.h"
-#include "algorithmfactory.h"
+
 #include "FeatureExtractor.h"
-#include "ProgressWindow.h"
+
 
 using namespace essentia;
 using namespace essentia::standard;

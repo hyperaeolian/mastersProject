@@ -11,13 +11,12 @@
 #ifndef LOOPGEN_H_INCLUDED
 #define LOOPGEN_H_INCLUDED
 
+//#include <iostream>
 #include <vector>
 #include "JuceHeader.h"
 
-using namespace std;
-
-const int SR = 44100;
-const float BAR_SIZE = 1.0;
+extern const int SR;
+extern const float BAR_SIZE;
     
 struct Loop {
     float start, end;
@@ -27,10 +26,10 @@ struct Loop {
 };
 
 
-vector<Loop> computeLoops(std::string audiofilename);
-void createLoopPoints(const vector<float>& onsets);
+std::vector<Loop> computeLoops(std::string audiofilename);
+void createLoopPoints(const std::vector<float>& onsets);
 void connectLoops();
-float quantizeToOnset(const vector<float>& onsets, float value);
+float quantizeToOnset(const std::vector<float>& onsets, float value);
 //template <typename T> T retrieveFeature(T featType, std::string featName);
 
 

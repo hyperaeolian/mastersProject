@@ -11,7 +11,12 @@
 #ifndef FEATUREEXTRACTOR_H_INCLUDED
 #define FEATUREEXTRACTOR_H_INCLUDED
 
+#include "JuceHeader.h"
+#include "essentia.h"
+#include "essentiamath.h"
+//#include "AudioApp.h"
 #include "pool.h"
+#include "algorithmfactory.h"
 #include "ProgressWindow.h"
 
 /* ===========================================================================*//*
@@ -23,7 +28,7 @@
 | Dynamics:                                                                     |
 |    dynamicRangeCoeff, RMS, Loudness                                           |
 | ----------------------------------------------------------------------------- |
-| MFCCs:                                                                        |
+| Timbre:                                                                        |
 |    mfccBands, mfccCoeffs, centroid                                            |
 | ----------------------------------------------------------------------------- |
 | Tonal:                                                                        |
