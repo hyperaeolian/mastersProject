@@ -4,7 +4,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-#include "WaveformDisplay.h"
+//#include "WaveformDisplay.h"
 //[/Headers]
 
 //==============================================================================
@@ -86,18 +86,17 @@ private:
     std::vector<Loop> _crudeLoops;
     std::string AUDIO_FILENAME;
     Loop* currentLoop;
-
-//    LiveScrollingAudioDisplay display;
+    
+    
     //drow::AudioFilePlayerExt& player;
 //    drow::TimeSliceThread backgroundThread;
 //    drow::AudioThumbnailCache cache;
 //    drow::ColouredAudioThumbnail thumbnail;
-//    
-//    ScopedPointer<drow::AudioThumbnailImage> image;
-//    ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
-//    ScopedPointer<drow::DraggableWaveDisplay> dragDisplay;
     
- 
+    //ScopedPointer<drow::AudioThumbnailImage> image;
+    //ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
+    //ScopedPointer<drow::DraggableWaveDisplay> dragDisplay;
+    
     //[/UserVariables]
 
     //==============================================================================

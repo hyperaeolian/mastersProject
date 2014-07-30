@@ -156,11 +156,12 @@
                extraCompilerFlags="" externalLibraries="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="Native"
-                       isDebug="1" optimisation="1" targetName="PhaseTwo" libraryPath="/usr/local/lib"
-                       headerPath="/usr/local/include&#10;../../Source" cppLibType="libc++"/>
+                       isDebug="1" optimisation="1" targetName="PhaseTwo" libraryPath="/usr/local/lib&#10;"
+                       headerPath="/usr/local/include&#10;../../Source&#10;~/Desktop/Git_Repos/armadillo/include"
+                       cppLibType="libc++"/>
         <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="Native"
                        isDebug="0" optimisation="2" targetName="PhaseTwo" libraryPath="/usr/local/lib"
-                       headerPath="/usr/local/include&#10;../../Source"/>
+                       headerPath="/usr/local/include&#10;../../Source&#10;~/Desktop/Git_Repos/armadillo/include"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>

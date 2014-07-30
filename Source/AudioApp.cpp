@@ -30,7 +30,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp () {
+AudioApp::AudioApp ()
+{
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -115,28 +116,28 @@ AudioApp::AudioApp () {
     //[UserPreSize]
     setSize(APP_WIDTH, APP_HEIGHT);
     //[/UserPreSize]
-    
+
+    //setSize (600, 400);
+
+
     //[Constructor] You can add your own custom stuff here..
     startTimer(200);
-   // addAndMakeVisible(display);
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftyLoopingButton->setEnabled(false);
     loopButton->setEnabled(false);
-    
+
     deviceManager.initialise(0, 2, nullptr, true);
     deviceManager.addAudioCallback(&sourcePlayer);
-  //  deviceManager.addAudioCallback(&display);
     sourcePlayer.setSource(&mediaPlayer);
     deviceManager.addChangeListener(this);
     mediaPlayer.addListener(this);
     masterLogger = juce::Logger::getCurrentLogger();
-    
+
     currentLoop = new Loop;
     state = Stopped;
     gain = 1.0f;
     
-
     //[/Constructor]
 }
 
@@ -163,9 +164,27 @@ AudioApp::~AudioApp()
     currentLoop = nullptr;
     masterLogger = nullptr;
     if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
-//    deviceManager.removeAudioCallback(&display);
     deviceManager.removeAudioCallback(&sourcePlayer);
     //[/Destructor]
+}
+
+//==============================================================================
+void AudioApp::paint (Graphics& g)
+{
+    //[UserPrePaint] Add your own custom painting code here..
+    //[/UserPrePaint]
+
+    g.fillAll (Colour (0xff0f0f0f));
+
+    g.setGradientFill (ColourGradient (Colour (0xff262e90),
+                                       50.0f, 50.0f,
+                                       Colour (0xff4f0080),
+                                       416.0f, 288.0f,
+                                       false));
+    g.fillRoundedRectangle (20.0f, 12.0f, 708.0f, 668.0f, 10.000f);
+
+    //[UserPaint] Add your own custom painting code here..
+    //[/UserPaint]
 }
 
 void AudioApp::resized(){
@@ -181,56 +200,36 @@ void AudioApp::resized(){
     gainLabel->setBounds (568, 496, 150, 24);
     shiftyLoopingButton->setBounds (592, 136, 72, 88);
     //[UserResized] Add your own custom resize handling here..
-    int margin = 23;
-  //  display.setBounds(mainGroup->getX() + margin, mainGroup->getY() + margin, getWidth()/2 + 2*margin, 64);
     //[/UserResized]
 }
-
-//==============================================================================
-void AudioApp::paint (Graphics& g){
-    //[UserPrePaint] Add your own custom painting code here..
-    //[/UserPrePaint]
-
-    g.fillAll (Colour (0xff0f0f0f));
-
-    g.setGradientFill (ColourGradient (Colour (0xff262e90),
-                                       50.0f, 50.0f,
-                                       Colour (0xff4f0080),
-                                       416.0f, 288.0f,
-                                       false));
-    g.fillRoundedRectangle (20.0f, 12.0f, 708.0f, 668.0f, 10.000f);
-
-    //[UserPaint] Add your own custom painting code here..
-
-    //[/UserPaint]
-}
-
-
 
 void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == loadButton){
+    if (buttonThatWasClicked == loadButton)
+    {
         //[UserButtonCode_loadButton] -- add your button handler code here..
         FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
             mediaPlayer.setFile(file);
-            
+
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
             _crudeLoops = computeLoops(AUDIO_FILENAME);
             currentLoop = &_crudeLoops[rand() % _crudeLoops.size()];
-            
+
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
+      
         }
         //[/UserButtonCode_loadButton]
     }
-    else if (buttonThatWasClicked == playButton){
+    else if (buttonThatWasClicked == playButton)
+    {
         //[UserButtonCode_playButton] -- add your button handler code here..
-        
+
         if (Stopped == state || Paused == state) {
             changeState(Starting);
         } else if (Playing == state) {
@@ -240,7 +239,8 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         }
         //[/UserButtonCode_playButton]
     }
-    else if (buttonThatWasClicked == stopButton){
+    else if (buttonThatWasClicked == stopButton)
+    {
         //[UserButtonCode_stopButton] -- add your button handler code here..
         Paused == state ? changeState(Stopped) : changeState(Stopping);
         if (loopButton->getToggleState())
@@ -292,7 +292,7 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
         gain = static_cast<float>(gainSlider->getValue());
         sourcePlayer.setGain(gain);
-        
+
         //[/UserSliderCode_gainSlider]
     }
 
@@ -361,8 +361,9 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                mediaPlayer.setLooping(true);
                 mediaPlayer.start();
+                mediaPlayer.setLooping(true);
+                
                 break;
             case ShiftyLooping:
                 printCurrentState(String("Shifty Looping..."));
@@ -378,11 +379,12 @@ void AudioApp::changeState(TransportState newState){
 
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &mediaPlayer){
-        masterLogger->writeToLog("Media Player Changing...");
+     //   masterLogger->writeToLog("Media Player Changing...");
         gainSlider->setValue(static_cast<double>(sourcePlayer.getGain()));
         if (mediaPlayer.isPlaying()) {
-            changeState(Playing);
-        } else {
+            ShiftyLooping == state ? changeState(ShiftyLooping) : changeState(Playing);
+        }
+        else {
             if (Stopping == state || Playing == state) {
                 changeState(Stopped);
             } else if (Pausing == state) changeState(Paused);
@@ -392,6 +394,12 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 }
 
 void AudioApp::shiftyLooping(){
+    auto i = _crudeLoops[5];
+    mediaPlayer.setLoopTimes(i.start, i.end);
+    mediaPlayer.setLoopBetweenTimes(true);
+   // if (mediaPlayer.getLoopBetweenTimes()) mediaPlayer.start();
+  
+    /*
     while (ShiftyLooping == state){
    // if (mediaPlayer.hasStreamFinished()) {
         masterLogger->writeToLog("Stream has finished...");
@@ -399,7 +407,7 @@ void AudioApp::shiftyLooping(){
         shifting = r == 0 ? true : false;
         r = rand() % 2;
         forward = r == 0 ? true : false;
-        
+
         if (shifting) {
             masterLogger->writeToLog("Shifting...");
             if (forward) {
@@ -418,19 +426,19 @@ void AudioApp::shiftyLooping(){
                 masterLogger->writeToLog("backwards");
                 currentLoop = currentLoop->prev;
                 masterLogger->writeToLog("S: " + String(currentLoop->next->start) + " E: " + String(currentLoop->end));
-                assert(currentLoop->next->start < currentLoop->end);
+                if (currentLoop->next->start > currentLoop->end)
+                    std::swap(currentLoop->next->start, currentLoop->end);
                 mediaPlayer.setLoopTimes(currentLoop->next->start, currentLoop->end);
                 mediaPlayer.setLoopBetweenTimes(true);
                 mediaPlayer.start();
                 mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
             }
         }
-        
-        usleep(2000);
-        if (ShiftyLooping != state) break;
+
+        changeState(Playing);
     }
-    
-    
+
+*/
 }
 
 

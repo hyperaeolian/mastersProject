@@ -167,7 +167,7 @@ void computeFeatures(std::string song){
         
         essentia::shutdown();
     } else {
-        progress.threadComplete(true);
+       // progress.threadComplete(true);
         successfulExtraction = true;
     }
     

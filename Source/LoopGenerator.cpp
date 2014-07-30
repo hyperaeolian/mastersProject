@@ -16,9 +16,8 @@ using namespace std;
 const int SR = 44100;
 const float BAR_SIZE = 1.0;
 
+std::vector<Loop> theLoops;
 float LAST_ONSET;
-vector<Loop> theLoops;
-
 
 vector<Loop> computeLoops(std::string audiofilename) {
     std::cout << "HERE" << std::endl;
@@ -52,6 +51,7 @@ inline void createLoopPoints(const vector<float>& onsets){
             lPoint = onsets[i] + BAR_SIZE;
             //loop.end = static_cast<int>(quantizeToOnset(onsets, lPoint) * SR);
             curLoop.end = quantizeToOnset(onsets, lPoint);
+            if (curLoop.start > curLoop.end) std::swap(curLoop.start, curLoop.end);
             theLoops.push_back(curLoop);
         }
     }

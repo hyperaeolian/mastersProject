@@ -70,12 +70,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/AudioApp.cpp"
-            timestampString = "428361259.403962"
+            timestampString = "428447647.279196"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "186"
-            endingLineNumber = "186"
-            landmarkName = "AudioApp::resized()"
+            startingLineNumber = "182"
+            endingLineNumber = "182"
+            landmarkName = "AudioApp::paint (Graphics&amp; g)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../JuceLibraryCode/modules/dRowAudio/dRowAudio/audio/dRowAudio_LoopingAudioSource.cpp"
+            timestampString = "428448807.580057"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "66"
+            endingLineNumber = "66"
+            landmarkName = "LoopingAudioSource::setLoopTimes (double startTime, double endTime)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
