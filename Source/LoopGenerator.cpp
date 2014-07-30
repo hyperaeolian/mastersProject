@@ -63,11 +63,11 @@ inline void createLoopPoints(const vector<float>& onsets){
 inline void connectLoops(){
     for (int i = 0; i < theLoops.size(); ++i) {
         if (i == 0) {
-            theLoops[i].prev = &theLoops[theLoops.size() - 1];
-            theLoops[i].next = &theLoops[i+1];
+            theLoops[i].prev = &theLoops[i];
+            theLoops[i].next = &theLoops[1];
         } else if (i == theLoops.size() - 1){
             theLoops[i].prev = &theLoops[i-1];
-            theLoops[i].next = &theLoops[0];
+            theLoops[i].next = &theLoops[i];
         } else {
             theLoops[i].prev = &theLoops[i-1];
             theLoops[i].next = &theLoops[i+1];

@@ -394,14 +394,9 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 }
 
 void AudioApp::shiftyLooping(){
-    auto i = _crudeLoops[5];
-    mediaPlayer.setLoopTimes(i.start, i.end);
-    mediaPlayer.setLoopBetweenTimes(true);
-   // if (mediaPlayer.getLoopBetweenTimes()) mediaPlayer.start();
-  
-    /*
-    while (ShiftyLooping == state){
-   // if (mediaPlayer.hasStreamFinished()) {
+ 
+    
+    if (mediaPlayer.hasStreamFinished()) {
         masterLogger->writeToLog("Stream has finished...");
         int r = rand() % 2;
         shifting = r == 0 ? true : false;
@@ -435,10 +430,9 @@ void AudioApp::shiftyLooping(){
             }
         }
 
-        changeState(Playing);
+        playerStoppedOrStarted(&mediaPlayer);
     }
 
-*/
 }
 
 
