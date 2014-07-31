@@ -30,7 +30,6 @@ std::vector<Loop> computeLoops(std::string audiofilename);
 void createLoopPoints(const std::vector<float>& onsets);
 void connectLoops();
 float quantizeToOnset(const std::vector<float>& onsets, float value);
-//template <typename T> T retrieveFeature(T featType, std::string featName);
 
 
 

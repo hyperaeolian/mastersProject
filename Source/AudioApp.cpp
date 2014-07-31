@@ -118,6 +118,7 @@ AudioApp::AudioApp ()
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftyLoopingButton->setEnabled(false);
+    shiftyLoopingButton->setClickingTogglesState(true);
     loopButton->setEnabled(false);
 
     deviceManager.initialise(0, 2, nullptr, true);
@@ -207,6 +208,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
+            shiftyLoopingButton->setEnabled(true);
 
         }
         //[/UserButtonCode_loadButton]
@@ -259,7 +261,10 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_shiftyLoopingButton] -- add your button handler code here..
         mediaPlayer.stop();
+        mediaPlayer.setLoopTimes(static_cast<double>(currentLoop->start), static_cast<double>(currentLoop->end));
+        mediaPlayer.setPosition(static_cast<double>(currentLoop->start));
         changeState(ShiftyLooping);
+        mediaPlayer.start();
         //[/UserButtonCode_shiftyLoopingButton]
     }
 
@@ -288,9 +293,7 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void AudioApp::printCurrentState(juce::String s){
-    infoLabel->setText("Current State: " + s, sendNotification);
-}
+inline void AudioApp::printCurrentState(juce::String s){ infoLabel->setText("Current State: " + s, sendNotification);}
 
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 
@@ -355,45 +358,11 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                while (mediaPlayer.isPlaying()) {
-                    continue;
-                }
-
-                if (mediaPlayer.hasStreamFinished()) {
-                    masterLogger->writeToLog("Stream has finished...");
-
-//                    int r = rand() % 2;
-//                    shifting = r == 0 ? true : false;
-//                    r = rand() % 2;
-//                    forward = r == 0 ? true : false;
-//
-                    if (shifting) {
-                        masterLogger->writeToLog("Shifting...");
-                        if (forward) {
-                            masterLogger->writeToLog("forward");
-                            currentLoop = currentLoop->next;
-                            // if (currentLoop->prev->end > currentLoop->end)
-                            //masterLogger->writeToLog("Start: " + String(currentLoop->prev->end) + " End: " + String(currentLoop->end));
-                            mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
-                            mediaPlayer.setLoopBetweenTimes(true);
-                            mediaPlayer.start();
-                            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-                        } else {
-                            masterLogger->writeToLog("backwards");
-                            currentLoop = currentLoop->prev;
-                            masterLogger->writeToLog("S: " + String(currentLoop->next->start) + " E: " + String(currentLoop->end));
-                            if (currentLoop->next->start > currentLoop->end)
-                                std::swap(currentLoop->next->start, currentLoop->end);
-                            mediaPlayer.setLoopTimes(currentLoop->next->start, currentLoop->end);
-                            mediaPlayer.setLoopBetweenTimes(true);
-                            mediaPlayer.start();
-                            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-                        }
-                    }
-
-                    playerStoppedOrStarted(&mediaPlayer);
-                }
+                mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
+                //currentLoop = currentLoop->next;
+                break;
         }
+
 
     }
 
@@ -414,14 +383,6 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 }
 
 void AudioApp::shiftyLooping(){
-
-    while (mediaPlayer.isPlaying()) {
-        continue;
-    }
-
-    if (mediaPlayer.hasStreamFinished()) {
-        masterLogger->writeToLog("Stream has finished...");
-
         int r = rand() % 2;
         shifting = r == 0 ? true : false;
         r = rand() % 2;
@@ -432,8 +393,6 @@ void AudioApp::shiftyLooping(){
             if (forward) {
                 masterLogger->writeToLog("forward");
                 currentLoop = currentLoop->next;
-               // if (currentLoop->prev->end > currentLoop->end)
-                //masterLogger->writeToLog("Start: " + String(currentLoop->prev->end) + " End: " + String(currentLoop->end));
                 mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
                 mediaPlayer.setLoopBetweenTimes(true);
                 mediaPlayer.start();
@@ -441,9 +400,6 @@ void AudioApp::shiftyLooping(){
             } else {
                 masterLogger->writeToLog("backwards");
                 currentLoop = currentLoop->prev;
-                masterLogger->writeToLog("S: " + String(currentLoop->next->start) + " E: " + String(currentLoop->end));
-                if (currentLoop->next->start > currentLoop->end)
-                    std::swap(currentLoop->next->start, currentLoop->end);
                 mediaPlayer.setLoopTimes(currentLoop->next->start, currentLoop->end);
                 mediaPlayer.setLoopBetweenTimes(true);
                 mediaPlayer.start();
@@ -452,10 +408,9 @@ void AudioApp::shiftyLooping(){
         }
 
         playerStoppedOrStarted(&mediaPlayer);
-    }
+
 
 }
-
 
 
 void AudioApp::fileChanged(drow::AudioFilePlayer* player){}

@@ -4,6 +4,9 @@
               bundleIdentifier="com.yourcompany.PhaseTwo" includeBinaryInAppConfig="1"
               jucerVersion="3.1.0" companyName="Phases">
   <MAINGROUP id="E0wmuP" name="PhaseTwo">
+    <FILE id="L9N4kP" name="PreSynthesis.cpp" compile="1" resource="0"
+          file="Source/PreSynthesis.cpp"/>
+    <FILE id="t7wNyK" name="PreSynthesis.h" compile="0" resource="0" file="Source/PreSynthesis.h"/>
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
       <FILE id="IYP8CF" name="WaveformDisplay.cpp" compile="1" resource="0"
             file="Source/WaveformDisplay.cpp"/>
