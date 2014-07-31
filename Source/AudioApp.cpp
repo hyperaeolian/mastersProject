@@ -52,11 +52,6 @@ AudioApp::AudioApp ()
     appLabel->setColour (TextEditor::textColourId, Colours::black);
     appLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (mainGroup = new GroupComponent ("Buttons",
-                                                       TRANS("Main")));
-    mainGroup->setColour (GroupComponent::outlineColourId, Colour (0x66121111));
-    mainGroup->setColour (GroupComponent::textColourId, Colour (0xfff5f4f4));
-
     addAndMakeVisible (loadButton = new TextButton ("Load Button"));
     loadButton->setButtonText (TRANS("Load File..."));
     loadButton->setConnectedEdges (Button::ConnectedOnLeft | Button::ConnectedOnRight);
@@ -117,8 +112,6 @@ AudioApp::AudioApp ()
     setSize(APP_WIDTH, APP_HEIGHT);
     //[/UserPreSize]
 
-    //setSize (600, 400);
-
 
     //[Constructor] You can add your own custom stuff here..
     startTimer(200);
@@ -137,7 +130,7 @@ AudioApp::AudioApp ()
     currentLoop = new Loop;
     state = Stopped;
     gain = 1.0f;
-    
+
     //[/Constructor]
 }
 
@@ -148,7 +141,6 @@ AudioApp::~AudioApp()
 
     infoLabel = nullptr;
     appLabel = nullptr;
-    mainGroup = nullptr;
     loadButton = nullptr;
     playButton = nullptr;
     stopButton = nullptr;
@@ -176,29 +168,22 @@ void AudioApp::paint (Graphics& g)
 
     g.fillAll (Colour (0xff0f0f0f));
 
-    g.setGradientFill (ColourGradient (Colour (0xff262e90),
-                                       50.0f, 50.0f,
-                                       Colour (0xff4f0080),
-                                       416.0f, 288.0f,
-                                       false));
-    g.fillRoundedRectangle (20.0f, 12.0f, 708.0f, 668.0f, 10.000f);
-
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
 
-void AudioApp::resized(){
+void AudioApp::resized()
+{
     infoLabel->setBounds (40, 544, 664, 120);
     appLabel->setBounds (40, 40, 168, 40);
-    mainGroup->setBounds (48, 104, 528, 392);
     loadButton->setBounds (72, 384, 96, 56);
     playButton->setBounds (192, 384, 96, 56);
     stopButton->setBounds (320, 384, 96, 56);
     settingsButton->setBounds (440, 384, 96, 56);
-    loopButton->setBounds (592, 112, 120, 40);
-    gainSlider->setBounds (592, 320, 112, 160);
-    gainLabel->setBounds (568, 496, 150, 24);
-    shiftyLoopingButton->setBounds (592, 136, 72, 88);
+    loopButton->setBounds (120, 224, 120, 40);
+    gainSlider->setBounds (592, 240, 112, 160);
+    gainLabel->setBounds (576, 416, 150, 24);
+    shiftyLoopingButton->setBounds (384, 224, 112, 40);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -222,7 +207,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
-      
+
         }
         //[/UserButtonCode_loadButton]
     }
@@ -363,14 +348,51 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 mediaPlayer.start();
                 mediaPlayer.setLooping(true);
-                
+
                 break;
             case ShiftyLooping:
                 printCurrentState(String("Shifty Looping..."));
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                shiftyLooping();
+                while (mediaPlayer.isPlaying()) {
+                    continue;
+                }
+
+                if (mediaPlayer.hasStreamFinished()) {
+                    masterLogger->writeToLog("Stream has finished...");
+
+//                    int r = rand() % 2;
+//                    shifting = r == 0 ? true : false;
+//                    r = rand() % 2;
+//                    forward = r == 0 ? true : false;
+//
+                    if (shifting) {
+                        masterLogger->writeToLog("Shifting...");
+                        if (forward) {
+                            masterLogger->writeToLog("forward");
+                            currentLoop = currentLoop->next;
+                            // if (currentLoop->prev->end > currentLoop->end)
+                            //masterLogger->writeToLog("Start: " + String(currentLoop->prev->end) + " End: " + String(currentLoop->end));
+                            mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
+                            mediaPlayer.setLoopBetweenTimes(true);
+                            mediaPlayer.start();
+                            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+                        } else {
+                            masterLogger->writeToLog("backwards");
+                            currentLoop = currentLoop->prev;
+                            masterLogger->writeToLog("S: " + String(currentLoop->next->start) + " E: " + String(currentLoop->end));
+                            if (currentLoop->next->start > currentLoop->end)
+                                std::swap(currentLoop->next->start, currentLoop->end);
+                            mediaPlayer.setLoopTimes(currentLoop->next->start, currentLoop->end);
+                            mediaPlayer.setLoopBetweenTimes(true);
+                            mediaPlayer.start();
+                            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+                        }
+                    }
+
+                    playerStoppedOrStarted(&mediaPlayer);
+                }
         }
 
     }
@@ -379,7 +401,6 @@ void AudioApp::changeState(TransportState newState){
 
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &mediaPlayer){
-     //   masterLogger->writeToLog("Media Player Changing...");
         gainSlider->setValue(static_cast<double>(sourcePlayer.getGain()));
         if (mediaPlayer.isPlaying()) {
             ShiftyLooping == state ? changeState(ShiftyLooping) : changeState(Playing);
@@ -390,14 +411,17 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
             } else if (Pausing == state) changeState(Paused);
         }
     }
-   // delete player;
 }
 
 void AudioApp::shiftyLooping(){
- 
-    
+
+    while (mediaPlayer.isPlaying()) {
+        continue;
+    }
+
     if (mediaPlayer.hasStreamFinished()) {
         masterLogger->writeToLog("Stream has finished...");
+
         int r = rand() % 2;
         shifting = r == 0 ? true : false;
         r = rand() % 2;
@@ -409,11 +433,8 @@ void AudioApp::shiftyLooping(){
                 masterLogger->writeToLog("forward");
                 currentLoop = currentLoop->next;
                // if (currentLoop->prev->end > currentLoop->end)
-                float start = currentLoop->prev->end;
-                float end = currentLoop->end;
-                masterLogger->writeToLog("Start: " + String(start) + " End: " + String(end));
-                assert(start < end);
-                mediaPlayer.setLoopTimes(start, end);
+                //masterLogger->writeToLog("Start: " + String(currentLoop->prev->end) + " End: " + String(currentLoop->end));
+                mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
                 mediaPlayer.setLoopBetweenTimes(true);
                 mediaPlayer.start();
                 mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
@@ -458,10 +479,7 @@ BEGIN_JUCER_METADATA
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="600"
                  initialHeight="400">
-  <BACKGROUND backgroundColour="ff0f0f0f">
-    <ROUNDRECT pos="20 12 708 668" cornerSize="10" fill="linear: 50 50, 416 288, 0=ff262e90, 1=ff4f0080"
-               hasStroke="0"/>
-  </BACKGROUND>
+  <BACKGROUND backgroundColour="ff0f0f0f"/>
   <LABEL name="Info Label" id="2fc17cbb62c7782f" memberName="infoLabel"
          virtualName="" explicitFocusOrder="0" pos="40 544 664 120" bkgCol="ff0d0d0d"
          textCol="ff87ee20" edTextCol="ff000000" edBkgCol="0" labelText="Data"
@@ -474,9 +492,6 @@ BEGIN_JUCER_METADATA
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="34.399999999999998579" bold="0"
          italic="0" justification="33"/>
-  <GROUPCOMPONENT name="Buttons" id="f87700781fc32e24" memberName="mainGroup" virtualName=""
-                  explicitFocusOrder="0" pos="48 104 528 392" outlinecol="66121111"
-                  textcol="fff5f4f4" title="Main"/>
   <TEXTBUTTON name="Load Button" id="a79aafbaa2e02f08" memberName="loadButton"
               virtualName="" explicitFocusOrder="0" pos="72 384 96 56" bgColOff="fff0f8ff"
               buttonText="Load File..." connectedEdges="3" needsCallback="1"
@@ -492,22 +507,22 @@ BEGIN_JUCER_METADATA
               buttonText="Settings..." connectedEdges="3" needsCallback="1"
               radioGroupId="0"/>
   <TOGGLEBUTTON name="Loop Button" id="a5b4e832ce1021b5" memberName="loopButton"
-                virtualName="" explicitFocusOrder="0" pos="592 112 120 40" txtcol="ffe8d8d8"
+                virtualName="" explicitFocusOrder="0" pos="120 224 120 40" txtcol="ffe8d8d8"
                 buttonText="Loop Sample" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <SLIDER name="Gain Slider" id="9d008628b8772a4d" memberName="gainSlider"
-          virtualName="" explicitFocusOrder="0" pos="592 320 112 160" thumbcol="ff7fffd4"
+          virtualName="" explicitFocusOrder="0" pos="592 240 112 160" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff0000ff" min="0" max="1"
           int="0.10000000000000000555" style="LinearVertical" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <LABEL name="Gain Label" id="d9d519cd8dc043ff" memberName="gainLabel"
-         virtualName="" explicitFocusOrder="0" pos="568 496 150 24" textCol="fff0ffff"
+         virtualName="" explicitFocusOrder="0" pos="576 416 150 24" textCol="fff0ffff"
          edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="GAIN"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
          italic="0" justification="36"/>
   <TOGGLEBUTTON name="Shifty Button" id="717b6864ee8b9341" memberName="shiftyLoopingButton"
-                virtualName="" explicitFocusOrder="0" pos="592 136 72 88" txtcol="fff3f3f3"
+                virtualName="" explicitFocusOrder="0" pos="384 224 112 40" txtcol="fff3f3f3"
                 buttonText="Shifty Looping" connectedEdges="0" needsCallback="1"
                 radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>

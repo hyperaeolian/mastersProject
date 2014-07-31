@@ -1,3 +1,22 @@
+/*
+  ==============================================================================
+
+  This is an automatically generated GUI class created by the Introjucer!
+
+  Be careful when adding custom code to these files, as only the code within
+  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
+  and re-saved.
+
+  Created with Introjucer version: 3.1.0
+
+  ------------------------------------------------------------------------------
+
+  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
+  Copyright 2004-13 by Raw Material Software Ltd.
+
+  ==============================================================================
+*/
+
 #ifndef __JUCE_HEADER_63FD855A234897E__
 #define __JUCE_HEADER_63FD855A234897E__
 
@@ -6,6 +25,8 @@
 #include "LoopGenerator.h"
 //#include "WaveformDisplay.h"
 //[/Headers]
+
+
 
 //==============================================================================
 /**
@@ -16,15 +37,12 @@
 
                                                                     //[/Comments]
 */
-
-
 class AudioApp  : public Component,
                   public ChangeListener,
                   public ButtonListener,
                   public SliderListener,
                   public Timer,
                   public drow::AudioFilePlayer::Listener
-
 {
 public:
     //==============================================================================
@@ -33,7 +51,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    
+
     enum TransportState{
         Stopped,
         Starting,
@@ -54,55 +72,54 @@ public:
     float gain, delay;
     juce::Logger* masterLogger;
     bool shifting, forward;
-    
+
     void changeState(TransportState newState);
     void changeListenerCallback(ChangeBroadcaster* src);
     void shiftyLooping();
     void printCurrentState(String s);
-    
+
     void fileChanged(drow::AudioFilePlayer* player) override;
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
     void timerCallback();
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
     //[/UserMethods]
 
-    void resized();
     void paint (Graphics& g);
+    void resized();
     void buttonClicked (Button* buttonThatWasClicked);
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
 
 
 private:
-    //[UserVariables]   
+    //[UserVariables]   -- You can add your own custom variables in this section.
     const int APP_WIDTH = 700, APP_HEIGHT = 750;
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
     drow::AudioFilePlayerExt mediaPlayer;
     drow::AudioFilePlayer::Listener* listener;
-    
+
     TransportState state;
-    
+
     std::vector<Loop> _crudeLoops;
     std::string AUDIO_FILENAME;
     Loop* currentLoop;
-    
-    
+
+
     //drow::AudioFilePlayerExt& player;
 //    drow::TimeSliceThread backgroundThread;
 //    drow::AudioThumbnailCache cache;
 //    drow::ColouredAudioThumbnail thumbnail;
-    
+
     //ScopedPointer<drow::AudioThumbnailImage> image;
     //ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
     //ScopedPointer<drow::DraggableWaveDisplay> dragDisplay;
-    
+
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<Label> infoLabel;
     ScopedPointer<Label> appLabel;
-    ScopedPointer<GroupComponent> mainGroup;
     ScopedPointer<TextButton> loadButton;
     ScopedPointer<TextButton> playButton;
     ScopedPointer<TextButton> stopButton;
