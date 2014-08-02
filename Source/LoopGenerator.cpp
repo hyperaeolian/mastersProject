@@ -20,10 +20,9 @@ std::vector<Loop> theLoops;
 float LAST_ONSET;
 
 vector<Loop> computeLoops(std::string audiofilename) {
-    std::cout << "HERE" << std::endl;
-    computeFeatures(audiofilename);
-    //assert(successfulExtraction);
-    vector<essentia::Real> onsets(featureBin->value<vector<essentia::Real> >("rhythm.onsets"));
+    //computeFeatures(audiofilename);
+    //const vector<essentia::Real> onsets(featureBin->value<vector<essentia::Real> >("rhythm.onsets"));
+    const std::vector<essentia::Real> onsets(computeGlobalBeatsOnsets(audiofilename));
     LAST_ONSET = onsets.back();
     createLoopPoints(onsets);
     //vector<Loop> loops(theLoops);
@@ -58,9 +57,9 @@ inline void createLoopPoints(const vector<float>& onsets){
 
 }
 /*
-   <=|Loop0|=> <=|Loop1|=> <=|Loop2|=> <=|LoopN|=>
+   |Loop0|=> <=|Loop1|=> <=|Loop2|=> <=|LoopN|
  */
-inline void connectLoops(){
+void connectLoops(){
     for (int i = 0; i < theLoops.size(); ++i) {
         if (i == 0) {
             theLoops[i].prev = &theLoops[i];
@@ -88,10 +87,8 @@ inline float quantizeToOnset(const vector<float>& onsets, float value){
     float diff1 = abs(value - onsets[limit.first - onsets.begin()]);
     float diff2 = abs(onsets[limit.second - onsets.begin()] - value);
     
-    if (diff1 > diff2)
-        return onsets[limit.second - onsets.begin()];
-    else
-        return onsets[limit.first - onsets.begin()];
+    if (diff1 > diff2) return onsets[limit.second - onsets.begin()];
+    else               return onsets[limit.first - onsets.begin()];
 }
 
 

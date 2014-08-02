@@ -23,7 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-//#include "WaveformDisplay.h"
+#include "WaveformDisplay.h"
 //[/Headers]
 
 
@@ -83,6 +83,9 @@ public:
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
     void timerCallback();
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
+    
+    WaveformDisplay waveform;
+    //ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
     //[/UserMethods]
 
     void paint (Graphics& g);

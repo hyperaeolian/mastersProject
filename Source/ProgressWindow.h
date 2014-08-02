@@ -18,7 +18,9 @@
 class BackgroundThread : public ThreadWithProgressWindow{
 public:
     
-    BackgroundThread() : ThreadWithProgressWindow("Exracting features...", true, true){
+    BackgroundThread(const int N) : ThreadWithProgressWindow("Exracting features...", true, true),
+                                    numFeatures(N)
+    {
         setStatusMessage("Initializing Feature Extractor");
     }
     
@@ -26,18 +28,18 @@ public:
         setProgress (-0.5);
         setStatusMessage ("Preparing file for Feature Extraction");
         wait (2000);
-        const int features = 25;
+        //const int features = 25;
         
-        for (int i = 0; i < features; ++i){
+        for (int i = 0; i < numFeatures; ++i){
             if (threadShouldExit()) return;
-            setProgress (i / (double) features);
-            setStatusMessage (String (features - i) + " features left to extract...");
+            setProgress (i / (double) numFeatures);
+            setStatusMessage (String (numFeatures - i) + " features left to extract...");
             wait (500);
         }
         
         setProgress (-0.5);
         setStatusMessage ("Cleaning Up");
-        //wait (2000);
+       // wait (2000);
     }
     
     void threadComplete(bool userPressedCancel) override {
@@ -45,9 +47,11 @@ public:
             AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Progress Window", "Cancelling feature extraction");
         } else {
             setStatusMessage("Extraction Successful!");
-            //AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Progress Window", "Feature Extraction Successful!");
+            AlertWindow::showMessageBoxAsync(AlertWindow::NoIcon, "Progress Window", "Feature Extraction Successful!");
         }
     }
+private:
+    const int numFeatures;
     
 };
 

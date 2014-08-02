@@ -42,15 +42,14 @@
 *//*=========================================================================== */
 
 
-extern int FRAME_SIZE;
-extern int HOP;
-extern int NumFeatures;
-
-extern bool successfulExtraction;
-
+extern const int FRAME_SIZE, HOP, NumFeatures;
+extern bool successfulExtraction, onlyRhythm;
 extern essentia::Pool* featureBin;
 
 void computeFeatures(std::string song);
+//void computeFeatures(const vector<essentia::Real>& segment);
+std::vector<essentia::Real> computeGlobalBeatsOnsets(std::string song);
+
 
 
 #endif  // FEATUREEXTRACTOR_H_INCLUDED

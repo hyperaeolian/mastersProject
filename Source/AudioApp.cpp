@@ -30,7 +30,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp ()
+AudioApp::AudioApp () : waveform(mediaPlayer)
 {
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
@@ -132,6 +132,7 @@ AudioApp::AudioApp ()
     state = Stopped;
     gain = 1.0f;
 
+    addAndMakeVisible(waveform);
     //[/Constructor]
 }
 
@@ -186,6 +187,8 @@ void AudioApp::resized()
     gainLabel->setBounds (576, 416, 150, 24);
     shiftyLoopingButton->setBounds (384, 224, 112, 40);
     //[UserResized] Add your own custom resize handling here..
+    waveform.setBounds(0, 0, 50, 20);
+
     //[/UserResized]
 }
 
@@ -260,7 +263,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == shiftyLoopingButton)
     {
         //[UserButtonCode_shiftyLoopingButton] -- add your button handler code here..
-        mediaPlayer.stop();
+       // mediaPlayer.stop();
         mediaPlayer.setLoopTimes(static_cast<double>(currentLoop->start), static_cast<double>(currentLoop->end));
         mediaPlayer.setPosition(static_cast<double>(currentLoop->start));
         changeState(ShiftyLooping);
@@ -293,7 +296,9 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-inline void AudioApp::printCurrentState(juce::String s){ infoLabel->setText("Current State: " + s, sendNotification);}
+void AudioApp::printCurrentState(juce::String s) {
+    infoLabel->setText("Current State: " + s, sendNotification);
+}
 
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 
@@ -311,14 +316,6 @@ void AudioApp::changeState(TransportState newState){
     if (state != newState) {
         state = newState;
         switch (state) {
-            case Stopped:
-                printCurrentState(String("Stopped"));
-                playButton->setButtonText("Play");
-                stopButton->setButtonText("Stop");
-                stopButton->setEnabled(false);
-                loopButton->setEnabled(true);
-                mediaPlayer.setPosition(0.0);
-                break;
             case Starting:
                 printCurrentState(String("Starting..."));
                 mediaPlayer.start();
@@ -344,6 +341,14 @@ void AudioApp::changeState(TransportState newState){
                 if (mediaPlayer.isLooping()) mediaPlayer.setLooping(false);
                 mediaPlayer.stop();
                 break;
+            case Stopped:
+                printCurrentState(String("Stopped"));
+                playButton->setButtonText("Play");
+                stopButton->setButtonText("Stop");
+                stopButton->setEnabled(false);
+                loopButton->setEnabled(true);
+                mediaPlayer.setPosition(0.0);
+                break;
             case Looping:
                 printCurrentState(String("Looping..."));
                 stopButton->setEnabled(true);
@@ -351,7 +356,6 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 mediaPlayer.start();
                 mediaPlayer.setLooping(true);
-
                 break;
             case ShiftyLooping:
                 printCurrentState(String("Shifty Looping..."));
@@ -359,7 +363,7 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
-                //currentLoop = currentLoop->next;
+                currentLoop = currentLoop->next;
                 break;
         }
 
@@ -382,7 +386,7 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     }
 }
 
-void AudioApp::shiftyLooping(){
+inline void AudioApp::shiftyLooping(){
         int r = rand() % 2;
         shifting = r == 0 ? true : false;
         r = rand() % 2;

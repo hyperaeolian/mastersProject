@@ -8,12 +8,6 @@
           file="Source/PreSynthesis.cpp"/>
     <FILE id="t7wNyK" name="PreSynthesis.h" compile="0" resource="0" file="Source/PreSynthesis.h"/>
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
-      <FILE id="IYP8CF" name="WaveformDisplay.cpp" compile="1" resource="0"
-            file="Source/WaveformDisplay.cpp"/>
-      <FILE id="nx4hxF" name="WaveformDisplay.h" compile="0" resource="0"
-            file="Source/WaveformDisplay.h"/>
-      <FILE id="v5MuI2" name="ProgressWindow.h" compile="0" resource="0"
-            file="Source/ProgressWindow.h"/>
       <FILE id="diD8rf" name="AudioApp.h" compile="0" resource="0" file="Source/AudioApp.h"/>
       <FILE id="Dv8Ih0" name="AudioApp.cpp" compile="1" resource="0" file="Source/AudioApp.cpp"/>
       <FILE id="QwiGgh" name="FeatureExtractor.h" compile="0" resource="0"
@@ -27,6 +21,12 @@
             file="Source/MainComponent.cpp"/>
       <FILE id="kUQbSr" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="vFbdZW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="nx4hxF" name="WaveformDisplay.h" compile="0" resource="0"
+            file="Source/WaveformDisplay.h"/>
+      <FILE id="IYP8CF" name="WaveformDisplay.cpp" compile="1" resource="0"
+            file="Source/WaveformDisplay.cpp"/>
+      <FILE id="v5MuI2" name="ProgressWindow.h" compile="0" resource="0"
+            file="Source/ProgressWindow.h"/>
       <GROUP id="{BA030AEE-B583-ADA7-433E-0F4ED845CCEE}" name="essentia">
         <FILE id="ybXtkJ" name="algorithm.h" compile="0" resource="0" file="/usr/local/include/essentia/algorithm.h"/>
         <FILE id="q1Ihzo" name="algorithmfactory.h" compile="0" resource="0"
@@ -158,11 +158,11 @@
     <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="-lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lswresample -lfftw3f -lz"
                extraCompilerFlags="" externalLibraries="">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="Native"
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="default"
                        isDebug="1" optimisation="1" targetName="PhaseTwo" libraryPath="/usr/local/lib&#10;"
                        headerPath="/usr/local/include&#10;../../Source&#10;~/Desktop/Git_Repos/armadillo/include"
                        cppLibType="libc++"/>
-        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="Native"
+        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="default"
                        isDebug="0" optimisation="2" targetName="PhaseTwo" libraryPath="/usr/local/lib"
                        headerPath="/usr/local/include&#10;../../Source&#10;~/Desktop/Git_Repos/armadillo/include"/>
       </CONFIGURATIONS>

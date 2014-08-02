@@ -15,19 +15,18 @@
 using namespace essentia;
 using namespace essentia::standard;
 
-int FRAME_SIZE = 2048;
-int HOP = FRAME_SIZE / 2;
-int NumFeatures = 25;
+const int FRAME_SIZE = 2048;
+const int HOP = FRAME_SIZE / 2;
+const int NumFeatures = 25;
 bool successfulExtraction = false;
 
 essentia::Pool* featureBin = new Pool;
 
 void computeFeatures(std::string song){
-    BackgroundThread progress;
+    BackgroundThread progress(NumFeatures);
     if (progress.runThread()){
         essentia::init();
         AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
-        
         juce::ScopedPointer<Algorithm>
             audiofile       = factory.create("MonoLoader", "filename", song, "sampleRate", 44100),
             _dur            = factory.create("Duration"),
@@ -167,7 +166,7 @@ void computeFeatures(std::string song){
         
         essentia::shutdown();
     } else {
-       // progress.threadComplete(true);
+      //  progress.threadComplete(true);
         successfulExtraction = true;
     }
     
@@ -175,7 +174,32 @@ void computeFeatures(std::string song){
 }
 
 
-
+std::vector<essentia::Real> computeGlobalBeatsOnsets(std::string song){
+    essentia::init();
+    juce::ScopedPointer<Algorithm> audiofile = AlgorithmFactory::create("MonoLoader", "filename", song,
+                                                              "sampleRate", 44100);
+    juce::ScopedPointer<Algorithm> _onsetRate = AlgorithmFactory::create("OnsetRate"),
+                                   _beatTrack = AlgorithmFactory::create("BeatTrackerMultiFeature");
+    std::vector<Real> buffer, onsetTimes, beats;
+    Real rate, conf;
+    audiofile->output("audio").set(buffer);
+    _onsetRate->input("signal").set(buffer);
+    _onsetRate->output("onsets").set(onsetTimes);
+    _onsetRate->output("onsetRate").set(rate);
+    _beatTrack->input("signal").set(buffer);
+    _beatTrack->output("ticks").set(beats);
+    _beatTrack->output("confidence").set(conf);
+    
+    audiofile->compute();
+    _onsetRate->compute();
+    _beatTrack->compute();
+    
+    essentia::shutdown();
+    return onsetTimes;
+    
+    //TODO: Get the beats later
+    
+}
 
 
 
