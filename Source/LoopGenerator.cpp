@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-    LoopGen.cpp
-    Created: 16 Jul 2014 2:23:14pm
-    Author:  milrob
+    Here, the audio buffer is initialized; global onsets and beats are detected;
+        loop points are created using those onsets/beats; features for each
+        created loop is then extracted
 
   ==============================================================================
 */
@@ -23,28 +23,27 @@ float LAST_ONSET;
 
 
 vector<Loop> computeLoops(std::string audiofilename) {
-    //const vector<essentia::Real> onsets(featureBin->value<vector<essentia::Real> >("rhythm.onsets"));
     const std::vector<essentia::Real> onsets(computeGlobalBeatsOnsets(audiofilename));
     LAST_ONSET = onsets.back();
     
     essentia::init();
-    juce::ScopedPointer<essentia::standard::Algorithm> loader = essentia::standard::AlgorithmFactory::create("MonoLoader", "filename", audiofilename, "sampleRate", 44100);
-    std::vector<essentia::Real> tempBuffer;
-    loader->output("audio").set(tempBuffer);
-    loader->compute();
+        juce::ScopedPointer<essentia::standard::Algorithm> loader = essentia::standard::AlgorithmFactory::create("MonoLoader", "filename", audiofilename, "sampleRate", 44100);
+        std::vector<essentia::Real> tempBuffer;
+        loader->output("audio").set(tempBuffer);
+        loader->compute();
     essentia::shutdown();
+    juce::String s("Initializing Loop Generator");
+    BackgroundThread progressWindow(static_cast<int>(onsets.size()), s);
     
-    createLoopPoints(onsets, tempBuffer);
-    juce::String loopList;
-    int itr = 0;
-    for (auto& lp : theLoops){
-        computeFeaturesForLoop(lp);
-        loopList << "Loop " << itr << " is from " << lp.start << " to " << lp.end << "\n";
-        itr++;
+    if (progressWindow.runThread()){
+        progressWindow.setStatusMessage("Finding all possible loop points...");
+        createLoopPoints(onsets, tempBuffer);
+        progressWindow.setStatusMessage("Computing features for loops...");
+        for (auto& lp : theLoops)
+            computeFeaturesForLoop(lp);
+    } else {
+        progressWindow.threadComplete(true);
     }
-    juce::Logger* log = juce::Logger::getCurrentLogger();
-    log->writeToLog(loopList);
-    delete log;
     
     return theLoops;
 }

@@ -12,21 +12,21 @@
 #define PROGRESSWINDOW_H_INCLUDED
 
 #include "JuceHeader.h"
-#include "AudioApp.h"
 
+/* This needs to be more generic */
 
 class BackgroundThread : public ThreadWithProgressWindow{
 public:
     
-    BackgroundThread(const int N) : ThreadWithProgressWindow("Exracting features...", true, true),
-                                    numFeatures(N)
+    BackgroundThread(const int N, juce::String msg) : ThreadWithProgressWindow("Exracting features...", true, true),
+                                    numFeatures(N), initMsg(msg)
     {
-        setStatusMessage("Initializing Feature Extractor");
+        setStatusMessage(initMsg);
     }
     
     void run() override{
         setProgress (-0.5);
-        setStatusMessage ("Preparing file for Feature Extraction");
+        //setStatusMessage ("Preparing file for Feature Extraction");
         wait (2000);
         //const int features = 25;
         
@@ -52,6 +52,7 @@ public:
     }
 private:
     const int numFeatures;
+    juce::String initMsg;
     
 };
 

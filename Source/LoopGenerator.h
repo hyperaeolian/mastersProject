@@ -17,6 +17,7 @@
 #include "pool.h"
 #include "essentia.h"
 #include "algorithmfactory.h"
+#include "ProgressWindow.h"
 
 
 extern const int SR;

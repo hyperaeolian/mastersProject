@@ -14,10 +14,10 @@
 #include "JuceHeader.h"
 #include "essentia.h"
 #include "essentiamath.h"
-//#include "AudioApp.h"
+#include "AudioApp.h" /* Why do I need this include? */
 #include "pool.h"
 #include "algorithmfactory.h"
-#include "ProgressWindow.h"
+
 
 /* ===========================================================================*//*
 |               [List of features]                                              |
@@ -46,9 +46,8 @@ extern const int FRAME_SIZE, HOP, NumFeatures;
 extern bool successfulExtraction, onlyRhythm;
 extern essentia::Pool* featureBin;
 
-void computeFeatures(std::string song);
+
 void computeFeaturesForLoop(Loop& loop);
-//void computeFeatures(const vector<essentia::Real>& segment);
 std::vector<essentia::Real> computeGlobalBeatsOnsets(std::string song);
 
 
