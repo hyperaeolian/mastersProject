@@ -24,6 +24,9 @@
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
 #include "WaveformDisplay.h"
+#include "essentia.h"
+#include "algorithmfactory.h"
+#include "pool.h"
 //[/Headers]
 
 
@@ -37,6 +40,7 @@
 
                                                                     //[/Comments]
 */
+
 class AudioApp  : public Component,
                   public ChangeListener,
                   public ButtonListener,
@@ -104,9 +108,9 @@ private:
     drow::AudioFilePlayer::Listener* listener;
 
     TransportState state;
-
-    std::vector<Loop> _crudeLoops;
     std::string AUDIO_FILENAME;
+    std::vector<Loop> _crudeLoops;
+    
     Loop* currentLoop;
 
 

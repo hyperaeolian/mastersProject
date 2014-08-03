@@ -10,7 +10,7 @@
 
 #ifndef PRESYNTHESIS_H_INCLUDED
 #define PRESYNTHESIS_H_INCLUDED
-
+/*
 #include <vector>
 #include "FeatureExtractor.h"
 
@@ -19,6 +19,6 @@ template <typename T>
 std::vector<T> createArrangedVector(std::vector<float>* sig);
 
 void computeFeatsForDist(std::vector<float> *insig);
-
+*/
 
 #endif  // PRESYNTHESIS_H_INCLUDED

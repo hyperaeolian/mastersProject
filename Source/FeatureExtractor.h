@@ -47,6 +47,7 @@ extern bool successfulExtraction, onlyRhythm;
 extern essentia::Pool* featureBin;
 
 void computeFeatures(std::string song);
+void computeFeaturesForLoop(Loop& loop);
 //void computeFeatures(const vector<essentia::Real>& segment);
 std::vector<essentia::Real> computeGlobalBeatsOnsets(std::string song);
 

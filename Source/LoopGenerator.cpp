@@ -11,24 +11,34 @@
 #include "LoopGenerator.h"
 #include "FeatureExtractor.h"
 
+
 using namespace std;
 
 const int SR = 44100;
 const float BAR_SIZE = 1.0;
 
+
 std::vector<Loop> theLoops;
 float LAST_ONSET;
 
+
 vector<Loop> computeLoops(std::string audiofilename) {
-    //computeFeatures(audiofilename);
     //const vector<essentia::Real> onsets(featureBin->value<vector<essentia::Real> >("rhythm.onsets"));
     const std::vector<essentia::Real> onsets(computeGlobalBeatsOnsets(audiofilename));
     LAST_ONSET = onsets.back();
-    createLoopPoints(onsets);
-    //vector<Loop> loops(theLoops);
+    
+    essentia::init();
+    juce::ScopedPointer<essentia::standard::Algorithm> loader = essentia::standard::AlgorithmFactory::create("MonoLoader", "filename", audiofilename, "sampleRate", 44100);
+    std::vector<essentia::Real> tempBuffer;
+    loader->output("audio").set(tempBuffer);
+    loader->compute();
+    essentia::shutdown();
+    
+    createLoopPoints(onsets, tempBuffer);
     juce::String loopList;
     int itr = 0;
-    for (const auto& lp : theLoops){
+    for (auto& lp : theLoops){
+        computeFeaturesForLoop(lp);
         loopList << "Loop " << itr << " is from " << lp.start << " to " << lp.end << "\n";
         itr++;
     }
@@ -39,7 +49,7 @@ vector<Loop> computeLoops(std::string audiofilename) {
     return theLoops;
 }
 
-inline void createLoopPoints(const vector<float>& onsets){
+inline void createLoopPoints(const vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER){
     float lPoint;
     Loop curLoop;
     for (int i = 0; i < onsets.size(); ++i) {
@@ -51,6 +61,10 @@ inline void createLoopPoints(const vector<float>& onsets){
             //loop.end = static_cast<int>(quantizeToOnset(onsets, lPoint) * SR);
             curLoop.end = quantizeToOnset(onsets, lPoint);
             if (curLoop.start > curLoop.end) std::swap(curLoop.start, curLoop.end);
+            auto first = AUDIO_BUFFER.begin() + curLoop.start;
+            auto last = AUDIO_BUFFER.begin() + curLoop.end;
+            std::vector<essentia::Real> tmp(first, last);
+            curLoop.loopBuffer = tmp;
             theLoops.push_back(curLoop);
         }
     }

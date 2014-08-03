@@ -19,7 +19,6 @@
 
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
-//#include "LoopGenerator.h"
 //[/Headers]
 
 #include "AudioApp.h"
@@ -206,6 +205,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             mediaPlayer.setFile(file);
 
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
+          
             _crudeLoops = computeLoops(AUDIO_FILENAME);
             currentLoop = &_crudeLoops[rand() % _crudeLoops.size()];
 

@@ -14,20 +14,26 @@
 //#include <iostream>
 #include <vector>
 #include "JuceHeader.h"
+#include "pool.h"
+#include "essentia.h"
+#include "algorithmfactory.h"
+
 
 extern const int SR;
 extern const float BAR_SIZE;
-    
+
 struct Loop {
     float start, end;
     Loop* prev;
     Loop* next;
+    std::vector<float> loopBuffer;
+    essentia::Pool bin;
     //MATRIX markovChain;
 };
 
 
 std::vector<Loop> computeLoops(std::string audiofilename);
-void createLoopPoints(const std::vector<float>& onsets);
+void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER);
 void connectLoops();
 float quantizeToOnset(const std::vector<float>& onsets, float value);
 
