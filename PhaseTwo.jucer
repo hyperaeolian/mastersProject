@@ -21,6 +21,7 @@
             file="Source/MainComponent.cpp"/>
       <FILE id="kUQbSr" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="vFbdZW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="vo9ntx" name="Matrix.h" compile="0" resource="0" file="Source/Matrix.h"/>
       <FILE id="nx4hxF" name="WaveformDisplay.h" compile="0" resource="0"
             file="Source/WaveformDisplay.h"/>
       <FILE id="IYP8CF" name="WaveformDisplay.cpp" compile="1" resource="0"

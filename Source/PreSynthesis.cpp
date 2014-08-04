@@ -10,6 +10,15 @@
 
 #include "PreSynthesis.h"
 
+void computeSDM(std::vector<Loop> loops){
+//    std::vector<essentia::Real> distVec;
+//    for (int i = 0; i < loops.size(); ++i){
+//        for (int j = i; j < loops.size(); ++j){
+//            distVec.push_back(loops[j])
+//        }
+//    }
+}
+
 /*
 template <typename T>
 std::vector<T> createArrangedVector(std::vector<T>* sig){

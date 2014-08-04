@@ -18,6 +18,7 @@
 #include "essentia.h"
 #include "algorithmfactory.h"
 #include "ProgressWindow.h"
+#include "Matrix.h"
 
 
 extern const int SR;
@@ -29,7 +30,9 @@ struct Loop {
     Loop* next;
     std::vector<float> loopBuffer;
     essentia::Pool bin;
-    //MATRIX markovChain;
+    essentia::Pool binStats;
+  //  Matrix selfDistMat;
+  //  Matrix markovChain;
 };
 
 

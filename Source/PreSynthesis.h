@@ -10,15 +10,10 @@
 
 #ifndef PRESYNTHESIS_H_INCLUDED
 #define PRESYNTHESIS_H_INCLUDED
-/*
-#include <vector>
-#include "FeatureExtractor.h"
+
+#include "AudioApp.h"
 
 
-template <typename T>
-std::vector<T> createArrangedVector(std::vector<float>* sig);
-
-void computeFeatsForDist(std::vector<float> *insig);
-*/
+void compute_SDM(std::vector<Loop> loops);
 
 #endif  // PRESYNTHESIS_H_INCLUDED

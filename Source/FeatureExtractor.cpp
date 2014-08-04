@@ -15,14 +15,14 @@
 using namespace essentia;
 using namespace essentia::standard;
 
-const int FRAME_SIZE = 2048;
-const int HOP = FRAME_SIZE / 2;
+const int FRAME_SIZE  = 2048;
+const int HOP         = FRAME_SIZE / 2;
 const int NumFeatures = 25;
 bool successfulExtraction = false;
 
 essentia::Pool* featureBin = new Pool;
 
-std::vector<essentia::Real> computeGlobalBeatsOnsets(std::string song){
+std::vector<essentia::Real> computeGlobalBeatsOnsets(const std::string song){
     essentia::init();
     juce::ScopedPointer<Algorithm> audiofile = AlgorithmFactory::create("MonoLoader", "filename", song,
                                                               "sampleRate", 44100);
@@ -166,28 +166,39 @@ void computeFeaturesForLoop(Loop& loop){
         //loop.bin.set("tonal.highres", hpcp_HighRes);
         loop.bin.set("tonal.key", key_Key);
         loop.bin.set("tonal.scale", key_Scale);
+    
+        fc->compute();
+        w->compute();
         
+        _rms->compute();
+        _spec->compute();
+        _mfcc->compute();
+        _cent->compute();
+        _dynam->compute();
         
-        while (true) {
-            fc->compute();
-            if (!frame.size()) break;
-            if (isSilent(frame)) continue;
-            w->compute();
-            
-            _rms->compute();
-            _spec->compute();
-            _mfcc->compute();
-            _cent->compute();
-            _dynam->compute();
-            
-            loop.bin.set("dynam.loud", loudness);
-            loop.bin.set("dynam.rms", rms);
-            loop.bin.set("timbre.mfcc", mfccs);
-            loop.bin.set("timbre.cent", centroid);
-        }
-        
-        
-        
+        loop.bin.set("dynam.loud", loudness);
+        loop.bin.set("dynam.rms", rms);
+        loop.bin.set("timbre.mfcc", mfccs);
+        loop.bin.set("timbre.cent", centroid);
+    
+        /*==============Compute Stats======================*/
+        const char* stats[] = {"mean", "var", "min", "max"};
+        juce::ScopedPointer<Algorithm> aggr = factory.create("PoolAggregator",
+                                                             "defaultStats", arrayToVector<std::string>(stats));
+        aggr->input("input").set(loop.bin);
+        aggr->output("output").set(loop.binStats);
+        aggr->compute();
+    
+    static int loopnum = 0;
+    loopnum++;
+    juce::String s = juce::String(loopnum) + "SL480xStats";
+    const char* foo = s.toUTF8();
+    std::string outputFilename(static_cast<std::string>(foo));
+    juce::ScopedPointer<Algorithm> output = AlgorithmFactory::create("YamlOutput",
+                                                 "filename", outputFilename);
+    output->input("pool").set(loop.bin);
+    output->compute();
+    
         essentia::shutdown();
   
 }
