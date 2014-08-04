@@ -11,13 +11,18 @@
 #include "PreSynthesis.h"
 
 void computeSDM(std::vector<Loop> loops){
-//    std::vector<essentia::Real> distVec;
-//    for (int i = 0; i < loops.size(); ++i){
-//        for (int j = i; j < loops.size(); ++j){
-//            distVec.push_back(loops[j])
-//        }
-//    }
+    std::vector<essentia::Real> distVec;
+    const char* featNames[] = {"dynam.rms", "dynam.loud", };
+    for (int i = 0; i < loops.size(); ++i){
+        for (int j = i; j < loops.size(); ++j){
+           // distVec.push_back(eucNorm(loops[j].retrieve<essentia::Real>(<#std::string s#>), <#T t2#>))
+            distVec.push_back(eucNorm(loops[i].binStats.value<essentia::Real>("dynam.rms"),
+                                      loops[j].binStats.value<essentia::Real>("dynam.rms")));
+        }
+    }
 }
+
+
 
 /*
 template <typename T>
