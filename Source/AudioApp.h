@@ -27,6 +27,9 @@
 #include "essentia.h"
 #include "algorithmfactory.h"
 #include "pool.h"
+
+//for convenience, probably bad practice though
+#define REAL_NUM essentia::Real
 //[/Headers]
 
 

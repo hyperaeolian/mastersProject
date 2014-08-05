@@ -1,0 +1,31 @@
+
+metadata:
+    version:
+        essentia: "2.0-dev"
+
+dynam:
+    loud: -90
+    rms: 0.000720852520317
+
+rhythm:
+    bpm: 0
+    conf: 0
+    rate: 0
+    beats: []
+    intervals: []
+    onsets: []
+    tempogram: []
+
+timbre:
+    cent: 0.368341445923
+    mfcc: [-1029.00476074, 6.22799682617, -3.90496826172, 2.3776512146, -1.54804992676, 1.07053756714, -0.778526306152, 0.588272094727, -0.458683013916, 0.366329193115, -0.298450469971, 0.247283935547, -0.207927703857]
+
+tonal:
+    chordrate: 0
+    chordsNumberRate: 0.5
+    chordsStrength: [0.380026191473, 0.380026191473]
+    histo: [100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    chordScale: "minor"
+    chordsKey: "A"
+    key: "A"
+    scale: "minor"

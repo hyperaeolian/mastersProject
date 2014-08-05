@@ -34,11 +34,8 @@ struct Loop {
   //  Matrix selfDistMat;
   //  Matrix markovChain;
     
-    /* Should the entire struct be templated, or just this method?
-     */
-    template <typename T> T retrieve(std::string s){
-        return this->binStats.value<T>(s);
-    }
+    template <typename T>
+    T retrieve(std::string s){ return this->binStats.value<T>(s); }
 };
 
 

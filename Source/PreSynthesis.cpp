@@ -10,14 +10,23 @@
 
 #include "PreSynthesis.h"
 
+const char* fNames[] = {"rhythm.bpm", "rhythm.rate", "dynam.rms", "dynam.loud", "timbre.cent"};
+
 void computeSDM(std::vector<Loop> loops){
-    std::vector<essentia::Real> distVec;
-    const char* featNames[] = {"dynam.rms", "dynam.loud", };
+    std::vector<std::string> features(fNames, fNames+4);
+    std::vector<REAL_NUM> distVec;
     for (int i = 0; i < loops.size(); ++i){
         for (int j = i; j < loops.size(); ++j){
-           // distVec.push_back(eucNorm(loops[j].retrieve<essentia::Real>(<#std::string s#>), <#T t2#>))
-            distVec.push_back(eucNorm(loops[i].binStats.value<essentia::Real>("dynam.rms"),
-                                      loops[j].binStats.value<essentia::Real>("dynam.rms")));
+            int itr = 0;
+            while (itr < features.size()) {
+                REAL_NUM dist = euclid(loops[j].retrieve<REAL_NUM>(features[itr]),
+                                       loops[i].retrieve<REAL_NUM>(features[itr]));
+                std::cout << "Dist: " << dist << std::endl;
+                distVec.push_back(dist); //distVec should be a Matrix
+                itr++;
+            }
+
+            
         }
     }
 }
@@ -39,11 +48,4 @@ std::vector<T> createArrangedVector(std::vector<T>* sig){
     }
     return newVec;
 }
-
-void computeFeatsForDist(std::vector<float> *insig){
-    std::vector<essentia::Real> arrVec(createArrangedVector(insig));
-    for (int i = 0; i < arrVec.size(); ++i) {
-    }
-}
-
 */

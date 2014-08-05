@@ -31,6 +31,7 @@ public:
     
     int numrows() const { return array.size(); }
     int numcols() const { return numrows() ? array[0].size() : 0; }
+    void resize(int rows, int cols) { for (auto& row : array) row.resize(cols); }
     
 private:
     std::vector<std::vector<T> > array;
