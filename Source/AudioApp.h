@@ -30,8 +30,7 @@
 #include "pool.h"
 
 //for convenience, probably bad practice though
-#define REAL_NUM essentia::Real
-#define VAR juce::var
+#define VAR essentia::Real
 //[/Headers]
 
 

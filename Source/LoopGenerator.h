@@ -41,8 +41,8 @@ struct Loop {
 
 
 std::vector<Loop> computeLoops(std::string audiofilename);
-void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER);
-void connectLoops();
+void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER, std::vector<Loop>& loops);
+void connectLoops(std::vector<Loop>& loops);
 float quantizeToOnset(const std::vector<float>& onsets, float value);
 
 

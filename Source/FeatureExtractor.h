@@ -48,7 +48,7 @@ extern essentia::Pool* featureBin;
 
 
 void computeFeaturesForLoop(Loop& loop);
-std::vector<REAL_NUM> computeGlobalBeatsOnsets(const std::string song);
+std::vector<VAR> computeGlobalBeatsOnsets(const std::string song);
 
 
 

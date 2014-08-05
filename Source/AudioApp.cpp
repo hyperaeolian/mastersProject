@@ -265,12 +265,14 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == shiftyLoopingButton)
     {
         //[UserButtonCode_shiftyLoopingButton]
-            changeState(ShiftyLooping);
-            mediaPlayer.setLoopTimes(static_cast<double>(currentLoop->start), static_cast<double>(currentLoop->end));
-            mediaPlayer.setPosition(static_cast<double>(currentLoop->start));
+        VAR start = currentLoop->start;
+        VAR end = currentLoop->end;
+        if (start > end) std::swap(start, end);
+            mediaPlayer.setLoopTimes(static_cast<double>(start), static_cast<double>(end));
+            mediaPlayer.setPosition(static_cast<double>(start));
             mediaPlayer.start();
-            shiftyLooping();
-        
+        changeState(ShiftyLooping);
+       // shiftyLoopingButton->triggerClick();
         //[/UserButtonCode_shiftyLoopingButton]
     }
 
@@ -361,15 +363,16 @@ void AudioApp::changeState(TransportState newState){
                 mediaPlayer.setLooping(true);
                 break;
             case ShiftyLooping:
+                
                 printCurrentState(String("Shifty Looping..."));
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
                 currentLoop = currentLoop->next;
+                masterLogger->writeToLog("Current Loop: " + String(currentLoop->start) + " to " + String(currentLoop->end));
                 break;
         }
-
 
     }
 
