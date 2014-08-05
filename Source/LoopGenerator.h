@@ -24,6 +24,7 @@
 extern const int SR;
 extern const float BAR_SIZE;
 
+/* How can this be more scalable? */
 struct Loop {
     float start, end;
     Loop* prev;

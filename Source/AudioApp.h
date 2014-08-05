@@ -31,6 +31,7 @@
 
 //for convenience, probably bad practice though
 #define REAL_NUM essentia::Real
+#define VAR juce::var
 //[/Headers]
 
 
@@ -116,16 +117,6 @@ private:
     std::vector<Loop> crudeLoops;
     
     Loop* currentLoop;
-
-
-    //drow::AudioFilePlayerExt& player;
-//    drow::TimeSliceThread backgroundThread;
-//    drow::AudioThumbnailCache cache;
-//    drow::ColouredAudioThumbnail thumbnail;
-
-    //ScopedPointer<drow::AudioThumbnailImage> image;
-    //ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
-    //ScopedPointer<drow::DraggableWaveDisplay> dragDisplay;
 
     //[/UserVariables]
 

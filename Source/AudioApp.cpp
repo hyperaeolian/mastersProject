@@ -120,6 +120,7 @@ AudioApp::AudioApp () : waveform(mediaPlayer)
     shiftyLoopingButton->setClickingTogglesState(true);
     loopButton->setEnabled(false);
 
+    //Audio device setup
     deviceManager.initialise(0, 2, nullptr, true);
     deviceManager.addAudioCallback(&sourcePlayer);
     sourcePlayer.setSource(&mediaPlayer);
@@ -186,8 +187,9 @@ void AudioApp::resized()
     gainLabel->setBounds (576, 416, 150, 24);
     shiftyLoopingButton->setBounds (384, 224, 112, 40);
     //[UserResized] Add your own custom resize handling here..
-    waveform.setBounds(0, 0, 50, 20);
-
+    int margin = APP_WIDTH / 16;
+    //waveform.setBounds(20, 20, APP_WIDTH - margin, APP_HEIGHT - margin);
+    waveform.setBounds(20, 20, 650, 400);
     //[/UserResized]
 }
 
@@ -270,6 +272,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         mediaPlayer.setPosition(static_cast<double>(currentLoop->start));
         changeState(ShiftyLooping);
         mediaPlayer.start();
+        shiftyLooping();
         //[/UserButtonCode_shiftyLoopingButton]
     }
 
@@ -412,9 +415,6 @@ inline void AudioApp::shiftyLooping(){
                 mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
             }
         }
-
-        playerStoppedOrStarted(&mediaPlayer);
-
 
 }
 

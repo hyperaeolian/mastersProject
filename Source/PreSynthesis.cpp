@@ -22,7 +22,7 @@ void compute_SDM(std::vector<Loop>& loops){
             while (itr < features.size()) {
                 REAL_NUM dist = euclid(loops[j].retrieve<REAL_NUM>(features[itr]),
                                        loops[i].retrieve<REAL_NUM>(features[itr]));
-                sdm[i][j] = dist;
+               // sdm[i][j] = dist;
                 itr++;
             }
 
