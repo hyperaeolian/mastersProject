@@ -109,7 +109,7 @@ private:
 
     TransportState state;
     std::string AUDIO_FILENAME;
-    std::vector<Loop> _crudeLoops;
+    std::vector<Loop> crudeLoops;
     
     Loop* currentLoop;
 

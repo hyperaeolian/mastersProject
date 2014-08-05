@@ -10,15 +10,19 @@
 
 #ifndef PRESYNTHESIS_H_INCLUDED
 #define PRESYNTHESIS_H_INCLUDED
-/*
-#include <vector>
-#include "FeatureExtractor.h"
 
+#include "AudioApp.h"
+
+void compute_SDM(std::vector<Loop> loops);
 
 template <typename T>
-std::vector<T> createArrangedVector(std::vector<float>* sig);
+T eucNorm(T t1, T t2){ return sqrt(pow((t2 - t1),(T)2)); }
 
-void computeFeatsForDist(std::vector<float> *insig);
-*/
+int NoteNameToOrdVal(char s){
+    char alpha[] = {"C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
+    int itr = 0;
+    while (s != alpha[itr]) itr++;
+    return itr;
+}
 
 #endif  // PRESYNTHESIS_H_INCLUDED

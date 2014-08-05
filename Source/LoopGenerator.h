@@ -18,6 +18,7 @@
 #include "essentia.h"
 #include "algorithmfactory.h"
 #include "ProgressWindow.h"
+#include "Matrix.h"
 
 
 extern const int SR;
@@ -29,7 +30,15 @@ struct Loop {
     Loop* next;
     std::vector<float> loopBuffer;
     essentia::Pool bin;
-    //MATRIX markovChain;
+    essentia::Pool binStats;
+  //  Matrix selfDistMat;
+  //  Matrix markovChain;
+    
+    /* Should the entire struct be templated, or just this method?
+     */
+    template <typename T> T retrieve(std::string s){
+        return this->binStats.value<T>(s);
+    }
 };
 
 

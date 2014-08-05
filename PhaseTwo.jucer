@@ -4,9 +4,6 @@
               bundleIdentifier="com.yourcompany.PhaseTwo" includeBinaryInAppConfig="1"
               jucerVersion="3.1.0" companyName="Phases">
   <MAINGROUP id="E0wmuP" name="PhaseTwo">
-    <FILE id="L9N4kP" name="PreSynthesis.cpp" compile="1" resource="0"
-          file="Source/PreSynthesis.cpp"/>
-    <FILE id="t7wNyK" name="PreSynthesis.h" compile="0" resource="0" file="Source/PreSynthesis.h"/>
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
       <FILE id="diD8rf" name="AudioApp.h" compile="0" resource="0" file="Source/AudioApp.h"/>
       <FILE id="Dv8Ih0" name="AudioApp.cpp" compile="1" resource="0" file="Source/AudioApp.cpp"/>
@@ -21,6 +18,10 @@
             file="Source/MainComponent.cpp"/>
       <FILE id="kUQbSr" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="vFbdZW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="vo9ntx" name="Matrix.h" compile="0" resource="0" file="Source/Matrix.h"/>
+      <FILE id="t7wNyK" name="PreSynthesis.h" compile="0" resource="0" file="Source/PreSynthesis.h"/>
+      <FILE id="L9N4kP" name="PreSynthesis.cpp" compile="1" resource="0"
+            file="Source/PreSynthesis.cpp"/>
       <FILE id="nx4hxF" name="WaveformDisplay.h" compile="0" resource="0"
             file="Source/WaveformDisplay.h"/>
       <FILE id="IYP8CF" name="WaveformDisplay.cpp" compile="1" resource="0"

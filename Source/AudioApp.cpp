@@ -153,7 +153,7 @@ AudioApp::~AudioApp()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-    for (auto l : _crudeLoops) { l.next = nullptr; l.prev = nullptr; }
+    for (auto l : crudeLoops) { l.next = nullptr; l.prev = nullptr; }
     currentLoop = nullptr;
     masterLogger = nullptr;
     if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
@@ -206,8 +206,8 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
           
-            _crudeLoops = computeLoops(AUDIO_FILENAME);
-            currentLoop = &_crudeLoops[rand() % _crudeLoops.size()];
+            crudeLoops = computeLoops(AUDIO_FILENAME);
+            currentLoop = &crudeLoops[rand() % crudeLoops.size()];
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
