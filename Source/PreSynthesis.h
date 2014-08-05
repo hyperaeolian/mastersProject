@@ -13,11 +13,10 @@
 
 
 #include "AudioApp.h"
+#include "Matrix.h"
 
-//template <class T>
-//extern Matrix& DISTANCE_MATRIX;
 
-void compute_SDM(std::vector<Loop> loops);
+void compute_SDM(std::vector<Loop>& loops);
 
 template <typename T>
 T euclid(T t1, T t2){ return sqrt(pow((t2 - t1),(T)2)); }

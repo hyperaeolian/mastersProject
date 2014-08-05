@@ -23,6 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
+#include "PreSynthesis.h"
 #include "WaveformDisplay.h"
 #include "essentia.h"
 #include "algorithmfactory.h"

@@ -199,7 +199,7 @@ void computeFeaturesForLoop(Loop& loop){
     juce::ScopedPointer<Algorithm> output = AlgorithmFactory::create("YamlOutput",
                                                  "filename", outputFilename);
     output->input("pool").set(loop.bin);
-    output->compute();
+    //output->compute();
     
         essentia::shutdown();
   

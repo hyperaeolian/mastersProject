@@ -12,17 +12,17 @@
 
 const char* fNames[] = {"rhythm.bpm", "rhythm.rate", "dynam.rms", "dynam.loud", "timbre.cent"};
 
-void computeSDM(std::vector<Loop> loops){
+//Compute a self distance matrix of the loops using the fNames features
+void compute_SDM(std::vector<Loop>& loops){
     std::vector<std::string> features(fNames, fNames+4);
-    std::vector<REAL_NUM> distVec;
+    Matrix<REAL_NUM> sdm(loops.size() - 1, loops.size() - 1);
     for (int i = 0; i < loops.size(); ++i){
         for (int j = i; j < loops.size(); ++j){
             int itr = 0;
             while (itr < features.size()) {
                 REAL_NUM dist = euclid(loops[j].retrieve<REAL_NUM>(features[itr]),
                                        loops[i].retrieve<REAL_NUM>(features[itr]));
-                std::cout << "Dist: " << dist << std::endl;
-                distVec.push_back(dist); //distVec should be a Matrix
+                sdm[i][j] = dist;
                 itr++;
             }
 
