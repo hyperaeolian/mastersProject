@@ -48,30 +48,26 @@ vector<Loop> computeLoops(std::string audiofilename) {
     return theLoops;
 }
 
-inline void createLoopPoints(const vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER){
+void createLoopPoints(const vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER){
     float lPoint;
-    Loop curLoop;
+    Loop curr;
     for (int i = 0; i < onsets.size(); ++i) {
-        
         if (onsets[i] + BAR_SIZE <= LAST_ONSET) {
-            //loop.start = static_cast<int>(onsets[i] * SR);
-            curLoop.start = onsets[i];
-            lPoint = onsets[i] + BAR_SIZE;
-            //loop.end = static_cast<int>(quantizeToOnset(onsets, lPoint) * SR);
-            curLoop.end = quantizeToOnset(onsets, lPoint);
-            if (curLoop.start > curLoop.end) std::swap(curLoop.start, curLoop.end);
-            auto first = AUDIO_BUFFER.begin() + curLoop.start;
-            auto last = AUDIO_BUFFER.begin() + curLoop.end;
+            curr.start = onsets[i];
+            lPoint     = onsets[i] + BAR_SIZE;
+            curr.end   = quantizeToOnset(onsets, lPoint);
+            if (curr.start > curr.end)
+                std::swap(curr.start, curr.end);
+            auto first = AUDIO_BUFFER.begin() + curr.start;
+            auto last  = AUDIO_BUFFER.begin() + curr.end;
             std::vector<essentia::Real> tmp(first, last);
-            curLoop.loopBuffer = tmp;
-            theLoops.push_back(curLoop);
+            curr.loopBuffer = tmp;
+            theLoops.push_back(curr);
         }
     }
 
 }
-/*
-   |Loop0|=> <=|Loop1|=> <=|Loop2|=> <=|LoopN|
- */
+
 void connectLoops(){
     for (int i = 0; i < theLoops.size(); ++i) {
         if (i == 0) {

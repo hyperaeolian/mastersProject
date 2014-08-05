@@ -187,9 +187,7 @@ void AudioApp::resized()
     gainLabel->setBounds (576, 416, 150, 24);
     shiftyLoopingButton->setBounds (384, 224, 112, 40);
     //[UserResized] Add your own custom resize handling here..
-    int margin = APP_WIDTH / 16;
-    //waveform.setBounds(20, 20, APP_WIDTH - margin, APP_HEIGHT - margin);
-    waveform.setBounds(20, 20, 650, 400);
+    addAndMakeVisible(waveform);
     //[/UserResized]
 }
 
@@ -235,7 +233,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == stopButton)
     {
-        //[UserButtonCode_stopButton] -- add your button handler code here..
+        //[UserButtonCode_stopButton]
         Paused == state ? changeState(Stopped) : changeState(Stopping);
         if (loopButton->getToggleState())
             loopButton->setToggleState(false, dontSendNotification);
@@ -243,7 +241,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == settingsButton)
     {
-        //[UserButtonCode_settingsButton] -- add your button handler code here..
+        //[UserButtonCode_settingsButton]
         bool showMidiInputOptions = false;
         bool showMidiOutputSelector = false;
         bool showChnlsAsStereoPairs =true;
@@ -260,19 +258,19 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == loopButton)
     {
-        //[UserButtonCode_loopButton] -- add your button handler code here..
+        //[UserButtonCode_loopButton]
         (Looping != state) ? changeState(Looping) : changeState(Stopped);
         //[/UserButtonCode_loopButton]
     }
     else if (buttonThatWasClicked == shiftyLoopingButton)
     {
-        //[UserButtonCode_shiftyLoopingButton] -- add your button handler code here..
-       // mediaPlayer.stop();
-        mediaPlayer.setLoopTimes(static_cast<double>(currentLoop->start), static_cast<double>(currentLoop->end));
-        mediaPlayer.setPosition(static_cast<double>(currentLoop->start));
-        changeState(ShiftyLooping);
-        mediaPlayer.start();
-        shiftyLooping();
+        //[UserButtonCode_shiftyLoopingButton]
+            changeState(ShiftyLooping);
+            mediaPlayer.setLoopTimes(static_cast<double>(currentLoop->start), static_cast<double>(currentLoop->end));
+            mediaPlayer.setPosition(static_cast<double>(currentLoop->start));
+            mediaPlayer.start();
+            shiftyLooping();
+        
         //[/UserButtonCode_shiftyLoopingButton]
     }
 
@@ -287,7 +285,7 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
     if (sliderThatWasMoved == gainSlider)
     {
-        //[UserSliderCode_gainSlider] -- add your slider handling code here..
+        //[UserSliderCode_gainSlider]
         gain = static_cast<float>(gainSlider->getValue());
         sourcePlayer.setGain(gain);
 

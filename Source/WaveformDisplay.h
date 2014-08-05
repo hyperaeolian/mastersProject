@@ -17,7 +17,6 @@ class WaveformDisplay : public Component {
 public:
     WaveformDisplay(drow::AudioFilePlayerExt& _player);
     ~WaveformDisplay();
-    ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
     void resized();
     void paint(Graphics& g);
 
@@ -28,8 +27,10 @@ private:
     drow::ColouredAudioThumbnail thumbnail;
     
     ScopedPointer<drow::AudioThumbnailImage> image;
-    
+    ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
     ScopedPointer<drow::DraggableWaveDisplay> dragDisplay;
+   
     
+    void* foo;
 };
 #endif  // WAVEFORMDISPLAY_H_INCLUDED

@@ -117,7 +117,6 @@ private:
     std::vector<Loop> crudeLoops;
     
     Loop* currentLoop;
-
     //[/UserVariables]
 
     //==============================================================================

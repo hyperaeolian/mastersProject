@@ -33,7 +33,7 @@ public:
         for (int i = 0; i < numFeatures; ++i){
             if (threadShouldExit()) return;
             setProgress (i / (double) numFeatures);
-            setStatusMessage (String (numFeatures - i) + " features left to extract...");
+            setStatusMessage (String (numFeatures - i) + " remaining loops to create...");
             wait (500);
         }
         

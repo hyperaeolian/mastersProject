@@ -23,24 +23,22 @@ WaveformDisplay::WaveformDisplay(drow::AudioFilePlayerExt& _player) : player(_pl
     dragDisplay = new drow::DraggableWaveDisplay(*image);
     addAndMakeVisible(dragDisplay);
     
-    backgroundThread.startThread(1);
-    
-    
+    backgroundThread.startThread(2);
 }
 
 WaveformDisplay::~WaveformDisplay(){}
 
 void WaveformDisplay::resized(){
-    const int w = getWidth();
+    //const int w = getWidth();
     //const int h = getHeight();
     int m = 5;
     const int bevelSize = 2;
     
-    Rectangle<int> posBounds(0,0,w,50);
+    Rectangle<int> posBounds(50,50,600,80);
     posDisplay->setBounds(posBounds.reduced(bevelSize));
-    
-    Rectangle<int> dragBounds(0, 50 + m, w, 50);
+    Rectangle<int> dragBounds(50, 50, 600, 80);
     dragDisplay->setBounds(dragBounds.reduced(bevelSize));
+
 }
 
 void WaveformDisplay::paint(juce::Graphics &g){
