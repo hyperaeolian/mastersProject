@@ -23,6 +23,7 @@
 
 extern const int SR;
 extern const float BAR_SIZE;
+extern MATRIX markov;
 
 /* How can this be more scalable? */
 struct Loop {
@@ -33,9 +34,6 @@ struct Loop {
     std::vector<Loop> overlappers;
     essentia::Pool bin;
     essentia::Pool binStats;
-    
-    template <typename T>
-    T retrieve(std::string s){ return this->binStats.value<T>(s); }
 };
 
 

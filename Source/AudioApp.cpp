@@ -209,7 +209,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             crudeLoops = computeLoops(AUDIO_FILENAME);
             currentLoop = &crudeLoops[rand() % crudeLoops.size()];
             
-            compute_SDM(crudeLoops);
+           // compute_SDM(crudeLoops);
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);

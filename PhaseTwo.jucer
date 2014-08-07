@@ -18,7 +18,6 @@
             file="Source/MainComponent.cpp"/>
       <FILE id="kUQbSr" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="vFbdZW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="vo9ntx" name="Matrix.h" compile="0" resource="0" file="Source/Matrix.h"/>
       <FILE id="t7wNyK" name="PreSynthesis.h" compile="0" resource="0" file="Source/PreSynthesis.h"/>
       <FILE id="L9N4kP" name="PreSynthesis.cpp" compile="1" resource="0"
             file="Source/PreSynthesis.cpp"/>
@@ -28,6 +27,12 @@
             file="Source/WaveformDisplay.cpp"/>
       <FILE id="v5MuI2" name="ProgressWindow.h" compile="0" resource="0"
             file="Source/ProgressWindow.h"/>
+      <GROUP id="{A0E85984-9B1A-0199-299F-3F19A6CFB6A0}" name="matrix">
+        <FILE id="vga2Nf" name="VECTOR.cpp" compile="1" resource="0" file="../../Coursework/patternformation/cymatics/VECTOR.cpp"/>
+        <FILE id="bPfTSg" name="VECTOR.h" compile="0" resource="0" file="../../Coursework/patternformation/cymatics/VECTOR.h"/>
+        <FILE id="C0kzOd" name="MATRIX.cpp" compile="1" resource="0" file="../../Coursework/patternformation/cymatics/MATRIX.cpp"/>
+        <FILE id="Girf6V" name="MATRIX.h" compile="0" resource="0" file="../../Coursework/patternformation/cymatics/MATRIX.h"/>
+      </GROUP>
       <GROUP id="{BA030AEE-B583-ADA7-433E-0F4ED845CCEE}" name="essentia">
         <FILE id="ybXtkJ" name="algorithm.h" compile="0" resource="0" file="/usr/local/include/essentia/algorithm.h"/>
         <FILE id="q1Ihzo" name="algorithmfactory.h" compile="0" resource="0"
@@ -161,11 +166,11 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="default"
                        isDebug="1" optimisation="1" targetName="PhaseTwo" libraryPath="/usr/local/lib&#10;"
-                       headerPath="/usr/local/include&#10;../../Source&#10;~/Desktop/Git_Repos/armadillo/include"
+                       headerPath="/usr/local/include&#10;../../Source&#10;../../matrix&#10;~/Desktop/Git_Repos/armadillo/include&#10;/System/Library/Frameworks/Accelerate.framework/Versions/A/Headers"
                        cppLibType="libc++"/>
         <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="default"
                        isDebug="0" optimisation="2" targetName="PhaseTwo" libraryPath="/usr/local/lib"
-                       headerPath="/usr/local/include&#10;../../Source&#10;~/Desktop/Git_Repos/armadillo/include"/>
+                       headerPath="/usr/local/include&#10;../../Source&#10;../../matrix&#10;~/Desktop/Git_Repos/armadillo/include&#10;/System/Library/Frameworks/Accelerate.framework/Versions/A/Headers"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>

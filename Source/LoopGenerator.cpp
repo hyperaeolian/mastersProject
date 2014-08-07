@@ -40,6 +40,7 @@ vector<Loop> computeLoops(std::string audiofilename) {
         progressWindow.setStatusMessage("Finding all possible loop points...");
         createLoopPoints(onsets, tempBuffer, theLoops);
         connectLoops(theLoops);
+        MATRIX markov(theLoops.size(), theLoops.size());
         progressWindow.setStatusMessage("Computing features for loops...");
         for (auto& lp : theLoops)
             computeFeaturesForLoop(lp);
@@ -87,7 +88,7 @@ void connectLoops(std::vector<Loop>& loops){
         }
     }
     
-    findOverlaps(loops);
+   // findOverlaps(loops);
 }
 
 void findOverlaps(std::vector<Loop>& loops){
