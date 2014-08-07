@@ -370,7 +370,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
                 currentLoop = currentLoop->next;
-                masterLogger->writeToLog("Current Loop: " + String(currentLoop->start) + " to " + String(currentLoop->end));
+                //masterLogger->writeToLog("Current Loop: " + String(currentLoop->start) + " to " + String(currentLoop->end));
                 break;
         }
 

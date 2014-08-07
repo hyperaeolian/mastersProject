@@ -86,8 +86,30 @@ void connectLoops(std::vector<Loop>& loops){
             std::swap(loops[i].end, loops[i].start);
         }
     }
+    
+    findOverlaps(loops);
 }
 
+void findOverlaps(std::vector<Loop>& loops){
+    for (int i = 0; i < loops.size(); ++i){
+        Loop& current = loops[i];
+        std::vector<Loop> overlaps;
+        for (int j = 0; j < loops.size(); ++j){
+            if (i == j) continue;
+            if (current.loopBuffer.front() > loops[j].loopBuffer.back() ||
+                current.loopBuffer.back() < loops[j].loopBuffer.front()) {
+                continue;
+            } else {
+                overlaps.push_back(loops[j]);
+            }
+        }
+        current.overlappers = overlaps;
+    }
+    std::cout << "Loop5: " << loops[4].start << " end: " << loops[4].end << std::endl;
+    for (int i = 0; i < loops[4].overlappers.size(); ++i){
+        std::cout << "Overlaps: " << endl << "\tstart:" << loops[4].overlappers[i].start << " end: " << loops[4].overlappers[i].end << std::endl;
+    }
+}
 
 inline float quantizeToOnset(const vector<float>& onsets, float value){
     if (value > LAST_ONSET) {

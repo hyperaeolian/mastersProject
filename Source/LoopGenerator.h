@@ -30,10 +30,9 @@ struct Loop {
     Loop* prev;
     Loop* next;
     std::vector<float> loopBuffer;
+    std::vector<Loop> overlappers;
     essentia::Pool bin;
     essentia::Pool binStats;
-  //  Matrix selfDistMat;
-  //  Matrix markovChain;
     
     template <typename T>
     T retrieve(std::string s){ return this->binStats.value<T>(s); }
@@ -43,7 +42,9 @@ struct Loop {
 std::vector<Loop> computeLoops(std::string audiofilename);
 void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER, std::vector<Loop>& loops);
 void connectLoops(std::vector<Loop>& loops);
+void findOverlaps(std::vector<Loop>& loops);
 float quantizeToOnset(const std::vector<float>& onsets, float value);
+
 
 
 

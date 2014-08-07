@@ -16,7 +16,7 @@ using namespace essentia;
 using namespace essentia::standard;
 
 const int FRAME_SIZE  = 2048;
-const int HOP         = FRAME_SIZE / 2;
+const int HOP         = 512;
 const int NumFeatures = 25;
 bool successfulExtraction = false;
 
@@ -96,7 +96,7 @@ void computeFeaturesForLoop(Loop& loop){
         
         /* ========= DYNAMICS FEATURES ===================== */
         Real dynamicRangeCoeff, loudness, rms;
-        //std::vector<Real> rms;
+        //std::vector<Real> wrms;
         
         _rms      ->input("array")       .set(frame);
         _rms      ->output("rms")         .set(rms);
@@ -169,7 +169,10 @@ void computeFeaturesForLoop(Loop& loop){
         loop.bin.set("tonal.key", key_Key);
         loop.bin.set("tonal.scale", key_Scale);
     
+   // while (true) {
         fc->compute();
+//        if (!frame.size()) break;
+//        if (isSilent(frame)) continue;
         w->compute();
         
         _rms->compute();
@@ -178,10 +181,14 @@ void computeFeaturesForLoop(Loop& loop){
         _cent->compute();
         _dynam->compute();
         
+        juce::String p("Loud: " + String(loudness) + " RMS: " + String(rms) + " Cent: " + String(centroid));
+        std::cout << p << std::endl;
+        
         loop.bin.set("dynam.loud", loudness);
         loop.bin.set("dynam.rms", rms);
         loop.bin.set("timbre.mfcc", mfccs);
         loop.bin.set("timbre.cent", centroid);
+   // }
     
         /*==============Compute Stats======================*/
         const char* stats[] = {"mean", "var", "min", "max"};
