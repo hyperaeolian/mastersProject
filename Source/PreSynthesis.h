@@ -24,6 +24,10 @@ void initialize_matrix(const std::vector<Loop>& loops, MATRIX& mat);
 
 void computeDistances(const std::vector<Loop>& loops, MATRIX& mat);
 
+MATRIX markovizeDistanceMatrix(const MATRIX& mat);
+
+std::vector<essentia::Real> markov_chain(const MATRIX& mc, int max_iters, int start);
+
 template <typename T>
 T euclidean(T t1, T t2){ return sqrt(pow((t2 - t1),(T)2)); }
 

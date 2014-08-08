@@ -158,6 +158,7 @@ AudioApp::~AudioApp()
     currentLoop = nullptr;
     masterLogger = nullptr;
     similarity = nullptr;
+    markov_chain = nullptr;
     if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
     deviceManager.removeAudioCallback(&sourcePlayer);
     //[/Destructor]
@@ -211,9 +212,14 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             currentLoop = &crudeLoops[rand() % crudeLoops.size()];
 
             similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
+
             computeDistances(crudeLoops, *similarity);
             
-            std::cout << "MATRIX: " << *similarity << std::endl;
+           // std::cout << "MATRIX: " << *similarity << std::endl;
+            
+            markov_chain = new MATRIX(markovizeDistanceMatrix(*similarity));
+            
+            //std::cout << "\nMARKOV: " << *markov_chain << std::endl;
             
             playButton->setEnabled(true);
             loopButton->setEnabled(true);

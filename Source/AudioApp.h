@@ -117,6 +117,7 @@ private:
     
     Loop* currentLoop;
     MATRIX* similarity;
+    juce::ScopedPointer<MATRIX> markov_chain;
     //[/UserVariables]
 
     //==============================================================================

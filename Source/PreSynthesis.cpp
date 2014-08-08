@@ -36,6 +36,7 @@ inline void initalize_matrix(const std::vector<Loop>& loops, MATRIX& mat){
 }
 
 void computeDistances(const std::vector<Loop>& loops, MATRIX& mat){
+    assert(loops.size() * loops.size() == mat.cols() * mat.rows());
     initalize_matrix(loops, mat);
     
     std::vector<std::string> feature_names(fNames, fNames + numFeatures);
@@ -44,7 +45,7 @@ void computeDistances(const std::vector<Loop>& loops, MATRIX& mat){
             if (mat(i,j) == 0 || i == j) {
                 continue;
             } else {
-                essentia::Real dist = 0.0;
+                essentia::Real dist = 0.f;
                 for (int k = 0; k < feature_names.size(); ++k){
                     dist += euclidean(loops.at(i).bin.value<essentia::Real>(feature_names[k]),
                                       loops.at(j).bin.value<essentia::Real>(feature_names[k]));
@@ -54,4 +55,44 @@ void computeDistances(const std::vector<Loop>& loops, MATRIX& mat){
             }
         }
     }    
+}
+
+MATRIX markovizeDistanceMatrix(const MATRIX& mat){
+    MATRIX markov(mat);
+    std::cout << "MARKOV BEFORE: " << markov << std::endl;
+    for (int i = 0; i < markov.rows(); ++i){
+        essentia::Real rowSum = 0.f;
+        std::cout << std::endl;
+        for (int j = 0; j < 2 * markov.cols(); ++j){
+            if (j < markov.cols()){
+                rowSum += markov(i,j);
+            } else {
+                int k = j % markov.cols();
+                markov(i,k) /= rowSum;
+            }
+            //j < markov.cols()  ?  rowSum += markov(i,j)  :  markov(i,(j/2)) /= rowSum;
+        }
+    }
+    std::cout << "MARKOV AFTER: " << markov << std::endl;
+    return markov;
+}
+
+
+std::vector<essentia::Real> markov_chain(const MATRIX& mc, int max_iters, int startingPos){
+    /* Untested */
+    int current = startingPos;
+    juce::Random r;
+    std::vector<essentia::Real> chain;
+    chain.push_back(startingPos);
+    for (int n = 0; n < max_iters - 1; ++n){
+        essentia::Real probability = r.nextFloat();
+        for (int i = 0; i < mc.rows(); ++i){
+            probability -= mc(current,i);
+            if (probability < 0) {
+                break;
+            }
+            chain.push_back(i);
+        }
+    }
+    return chain;
 }
