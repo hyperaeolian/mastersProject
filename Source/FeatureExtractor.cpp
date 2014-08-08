@@ -49,9 +49,10 @@ std::vector<VAR> computeGlobalBeatsOnsets(const std::string song){
     
 }
 
-void computeFeaturesForLoop(Loop& loop){
+void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& BUFFER){
         essentia::init();
         AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
+        std::vector<essentia::Real> buffer(BUFFER.begin() + loop.head, BUFFER.begin() + loop.tail);
         juce::ScopedPointer<Algorithm>
             _dur            = factory.create("Duration"),
             fc              = factory.create("FrameCutter", "frameSize", FRAME_SIZE, "hopSize", HOP),
@@ -67,27 +68,24 @@ void computeFeaturesForLoop(Loop& loop){
         
         
         std::vector<Real> frame, windowedFrame, spectrum;
-        Real duration;
-        
-        _dur     ->input("signal").set(loop.loopBuffer);
-        _dur     ->output("duration").set(duration);
-        fc       ->input("signal").set(loop.loopBuffer);
+    
+        fc       ->input("signal").set(buffer);
         fc       ->output("frame").set(frame);
         w        ->input("frame").set(frame);
         w        ->output("frame").set(windowedFrame);
         _spec    ->input("frame").set(windowedFrame);
         _spec    ->output("spectrum").set(spectrum);
-        
+   
         
         /* ========= RHYTHM FEATURES ===================== */
         Real bpm, onsetRate, beatsConfidence;
         std::vector<Real> tempogram, onsetTimes, beats, beatIntervals;
         
-        _onsetRate->input("signal")       .set(loop.loopBuffer);
+        _onsetRate->input("signal")       .set(buffer);
         _onsetRate->output("onsets")      .set(onsetTimes);
         _onsetRate->output("onsetRate")   .set(onsetRate);
         
-        _rhythmExt->input("signal")       .set(loop.loopBuffer);
+        _rhythmExt->input("signal")       .set(buffer);
         _rhythmExt->output("bpm")         .set(bpm);
         _rhythmExt->output("ticks")       .set(beats);
         _rhythmExt->output("confidence")  .set(beatsConfidence);
@@ -100,7 +98,7 @@ void computeFeaturesForLoop(Loop& loop){
         
         _rms      ->input("array")       .set(frame);
         _rms      ->output("rms")         .set(rms);
-        _dynam    ->input("signal")       .set(loop.loopBuffer);
+        _dynam    ->input("signal")       .set(buffer);
         _dynam    ->output("loudness")    .set(loudness);
         _dynam    ->output("dynamicComplexity").set(dynamicRangeCoeff);
         
@@ -123,7 +121,7 @@ void computeFeaturesForLoop(Loop& loop){
         std::vector<std::string>        chords_Progression;
         std::vector<std::vector<Real> > hpcp, hpcp_HighRes;
         
-        _tonalExtractor->input("signal").set(loop.loopBuffer);
+        _tonalExtractor->input("signal").set(buffer);
         _tonalExtractor->output("chords_changes_rate").set(chords_ChangeRate);
         _tonalExtractor->output("chords_histogram")   .set(chords_Histogram);
         _tonalExtractor->output("chords_key")         .set(chords_key);
@@ -135,13 +133,13 @@ void computeFeaturesForLoop(Loop& loop){
         _tonalExtractor->output("hpcp_highres")       .set(hpcp_HighRes);
         _tonalExtractor->output("key_key")            .set(key_Key);
         _tonalExtractor->output("key_scale")          .set(key_Scale);
-        _tonalExtractor->output("key_strength")          .set(key_Strength);
+        _tonalExtractor->output("key_strength")       .set(key_Strength);
         
         
         
         /* ========= COMPUTE AND STORE FEATURES ===================== */
         
-        _dur->compute();
+       
         _onsetRate->compute();
         _rhythmExt->compute();
         _tonalExtractor->compute();
@@ -169,10 +167,7 @@ void computeFeaturesForLoop(Loop& loop){
         loop.bin.set("tonal.key", key_Key);
         loop.bin.set("tonal.scale", key_Scale);
     
-   // while (true) {
         fc->compute();
-//        if (!frame.size()) break;
-//        if (isSilent(frame)) continue;
         w->compute();
         
         _rms->compute();
@@ -181,14 +176,14 @@ void computeFeaturesForLoop(Loop& loop){
         _cent->compute();
         _dynam->compute();
         
-        juce::String p("Loud: " + String(loudness) + " RMS: " + String(rms) + " Cent: " + String(centroid));
-        std::cout << p << std::endl;
-        
+        juce::String p(" RMS: " + String(rms) + " Cent: " + String(centroid) + " Key: " + String(key_Strength) + " dynam: " + String(dynamicRangeCoeff));
+        std::cout << p << std::endl << std::endl;
+    
         loop.bin.set("dynam.loud", loudness);
         loop.bin.set("dynam.rms", rms);
         loop.bin.set("timbre.mfcc", mfccs);
         loop.bin.set("timbre.cent", centroid);
-   // }
+
     
         /*==============Compute Stats======================*/
         const char* stats[] = {"mean", "var", "min", "max"};
@@ -198,6 +193,7 @@ void computeFeaturesForLoop(Loop& loop){
         aggr->output("output").set(loop.binStats);
         aggr->compute();
     
+   
     static int loopnum = 0;
     loopnum++;
     juce::String s = juce::String(loopnum) + "SL480xStats";

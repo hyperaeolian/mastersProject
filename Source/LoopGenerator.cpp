@@ -20,7 +20,7 @@ const float BAR_SIZE = 1.0;
 float LAST_ONSET;
 
 
-vector<Loop> computeLoops(std::string audiofilename) {
+vector<Loop> computeLoops(const std::string audiofilename) {
     std::vector<Loop> theLoops;
     const std::vector<essentia::Real> onsets(computeGlobalBeatsOnsets(audiofilename));
     LAST_ONSET = onsets.back();
@@ -39,11 +39,12 @@ vector<Loop> computeLoops(std::string audiofilename) {
     if (progressWindow.runThread()){
         progressWindow.setStatusMessage("Finding all possible loop points...");
         createLoopPoints(onsets, tempBuffer, theLoops);
+        
         connectLoops(theLoops);
-        MATRIX markov(theLoops.size(), theLoops.size());
+       
         progressWindow.setStatusMessage("Computing features for loops...");
         for (auto& lp : theLoops)
-            computeFeaturesForLoop(lp);
+            computeFeaturesForLoop(lp, tempBuffer);
     } else {
         progressWindow.threadComplete(true);
     }
@@ -51,9 +52,10 @@ vector<Loop> computeLoops(std::string audiofilename) {
     return theLoops;
 }
 
-void createLoopPoints(const vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER, std::vector<Loop>& loops){
+void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER, std::vector<Loop>& loops){
     float lPoint;
     Loop curr;
+
     for (int i = 0; i < onsets.size(); ++i) {
         if (onsets[i] + BAR_SIZE <= LAST_ONSET) {
             curr.start = onsets[i];
@@ -61,10 +63,8 @@ void createLoopPoints(const vector<float>& onsets, const std::vector<essentia::R
             curr.end   = quantizeToOnset(onsets, lPoint);
             if (curr.start > curr.end)
                 std::swap(curr.start, curr.end);
-            auto first = AUDIO_BUFFER.begin() + curr.start;
-            auto last  = AUDIO_BUFFER.begin() + curr.end;
-            std::vector<essentia::Real> tmp(first, last);
-            curr.loopBuffer = tmp;
+            curr.head = static_cast<int>(onsets[i] * SR);
+            curr.tail = static_cast<int>(onsets[i+1] * SR);
             loops.push_back(curr);
         }
     }
@@ -97,8 +97,10 @@ void findOverlaps(std::vector<Loop>& loops){
         std::vector<Loop> overlaps;
         for (int j = 0; j < loops.size(); ++j){
             if (i == j) continue;
-            if (current.loopBuffer.front() > loops[j].loopBuffer.back() ||
-                current.loopBuffer.back() < loops[j].loopBuffer.front()) {
+            if (current.head > loops[j].tail ||
+                current.tail < loops[j].head){
+            // if (current.loopBuffer.front() > loops[j].loopBuffer.back() ||
+           //     current.loopBuffer.back() < loops[j].loopBuffer.front()) {
                 continue;
             } else {
                 overlaps.push_back(loops[j]);
@@ -124,6 +126,4 @@ inline float quantizeToOnset(const vector<float>& onsets, float value){
     if (diff1 > diff2) return onsets[limit.second - onsets.begin()];
     else               return onsets[limit.first - onsets.begin()];
 }
-
-
 

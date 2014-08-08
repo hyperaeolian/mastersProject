@@ -13,7 +13,7 @@
 
 const char* fNames[] = {"rhythm.bpm", "rhythm.rate", "dynam.rms", "dynam.loud", "timbre.cent"};
 
-int overlapExists(Loop a, Loop b){
+int overlapExists(const Loop& a, const Loop& b){
     if (a.start < b.end || a.end > b.start) {
         return false;
     } else {
@@ -22,14 +22,13 @@ int overlapExists(Loop a, Loop b){
 }
 
 void computeDistance(const std::vector<Loop>& loops, MATRIX& mat){
-    assert(mat.rows() <= loops.size());
     for (int i = 0; i < mat.rows(); ++i){
         for (int j = i + 1; j < mat.cols(); ++j){
             if (i == j){
                 mat(i,j) = 0;
                 continue;
             } else {
-                mat(i,j) = overlapExists(loops[i], loops[j]);
+                mat(i,j) = overlapExists(loops.at(i), loops.at(j));
                 mat(j,i) = mat(i,j);
             }
         }
@@ -40,8 +39,8 @@ void computeDistance(const std::vector<Loop>& loops, MATRIX& mat){
             if (mat(i,j) == 0) {
                 continue;
             } else {
-                mat(i,j) = euclid(loops[i].bin.value<essentia::Real>("dynam.rms"),
-                                  loops[j].bin.value<essentia::Real>("dynam.rms"));
+                mat(i,j) = euclid(loops.at(i).bin.value<essentia::Real>("dynam.rms"),
+                                  loops.at(j).bin.value<essentia::Real>("dynam.rms"));
             }
         }
     }    

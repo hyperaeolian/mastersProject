@@ -19,7 +19,7 @@
 
 //void compute_SDM(std::vector<Loop>& loops);
 
-int overlapExists(Loop& a, Loop& b);
+int overlapExists(const Loop& a, const Loop& b);
 
 void computeDistances(const std::vector<Loop>& loops, MATRIX& mat);
 

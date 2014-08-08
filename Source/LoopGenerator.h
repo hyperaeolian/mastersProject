@@ -18,31 +18,31 @@
 #include "essentia.h"
 #include "algorithmfactory.h"
 #include "ProgressWindow.h"
-#include "Matrix.h"
+//#include "Matrix.h"
 
 
 extern const int SR;
 extern const float BAR_SIZE;
-extern MATRIX markov;
+//extern MATRIX markov;
 
-/* How can this be more scalable? */
 struct Loop {
     float start, end;
+    int head, tail;
     Loop* prev;
     Loop* next;
-    std::vector<float> loopBuffer;
+   // std::vector<float> loopBuffer;
     std::vector<Loop> overlappers;
     essentia::Pool bin;
     essentia::Pool binStats;
 };
 
 
-std::vector<Loop> computeLoops(std::string audiofilename);
+std::vector<Loop> computeLoops(const std::string audiofilename);
 void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER, std::vector<Loop>& loops);
 void connectLoops(std::vector<Loop>& loops);
 void findOverlaps(std::vector<Loop>& loops);
 float quantizeToOnset(const std::vector<float>& onsets, float value);
-
+void printBuffer(Loop& a);
 
 
 

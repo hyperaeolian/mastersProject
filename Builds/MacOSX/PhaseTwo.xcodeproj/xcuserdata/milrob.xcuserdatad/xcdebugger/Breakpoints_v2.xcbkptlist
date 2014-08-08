@@ -70,12 +70,44 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PreSynthesis.cpp"
-            timestampString = "429079571.971153"
+            timestampString = "429124287.8704"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "43"
-            endingLineNumber = "43"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
             landmarkName = "computeDistance(const std::vector&lt;Loop&gt;&amp; loops, MATRIX&amp; mat)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Source/LoopGenerator.cpp"
+            timestampString = "429144476.513298"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "62"
+            endingLineNumber = "62"
+            landmarkName = "createLoopPoints(const std::vector&lt;float&gt;&amp; onsets, const std::vector&lt;essentia::Real&gt;&amp; AUDIO_BUFFER, std::vector&lt;Loop&gt;&amp; loops)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Source/LoopGenerator.cpp"
+            timestampString = "429144476.513298"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "64"
+            endingLineNumber = "64"
+            landmarkName = "createLoopPoints(const std::vector&lt;float&gt;&amp; onsets, const std::vector&lt;essentia::Real&gt;&amp; AUDIO_BUFFER, std::vector&lt;Loop&gt;&amp; loops)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
