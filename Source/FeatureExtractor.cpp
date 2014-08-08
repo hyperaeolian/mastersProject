@@ -43,16 +43,14 @@ std::vector<VAR> computeGlobalBeatsOnsets(const std::string song){
     _beatTrack->compute();
     
     essentia::shutdown();
-    return onsetTimes;
-    
-    //TODO: Get the beats later
+    //return onsetTimes for precision in start and end points for the loop
+    return beats;
     
 }
 
-void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& BUFFER){
+void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& buffer){
         essentia::init();
         AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
-        std::vector<essentia::Real> buffer(BUFFER.begin() + loop.head, BUFFER.begin() + loop.tail);
         juce::ScopedPointer<Algorithm>
             _dur            = factory.create("Duration"),
             fc              = factory.create("FrameCutter", "frameSize", FRAME_SIZE, "hopSize", HOP),
@@ -166,6 +164,7 @@ void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& BUFFE
         //loop.bin.set("tonal.highres", hpcp_HighRes);
         loop.bin.set("tonal.key", key_Key);
         loop.bin.set("tonal.scale", key_Scale);
+    loop.bin.set("tonal.keyStr", key_Strength);
     
         fc->compute();
         w->compute();
@@ -181,6 +180,7 @@ void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& BUFFE
     
         loop.bin.set("dynam.loud", loudness);
         loop.bin.set("dynam.rms", rms);
+    loop.bin.set("dynam.dyRange", dynamicRangeCoeff);
         loop.bin.set("timbre.mfcc", mfccs);
         loop.bin.set("timbre.cent", centroid);
 

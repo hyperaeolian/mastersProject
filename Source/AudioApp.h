@@ -23,12 +23,12 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-//#include "PreSynthesis.h"
+#include "PreSynthesis.h"
 #include "WaveformDisplay.h"
 #include "essentia.h"
 #include "algorithmfactory.h"
 #include "pool.h"
-
+#include "MATRIX.h"
 //for convenience, probably bad practice though
 #define VAR essentia::Real
 //[/Headers]
@@ -116,6 +116,7 @@ private:
     std::vector<Loop> crudeLoops;
     
     Loop* currentLoop;
+    MATRIX* similarity;
     //[/UserVariables]
 
     //==============================================================================

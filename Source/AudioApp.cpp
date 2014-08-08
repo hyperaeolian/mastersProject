@@ -157,6 +157,7 @@ AudioApp::~AudioApp()
     for (auto l : crudeLoops) { l.next = nullptr; l.prev = nullptr; }
     currentLoop = nullptr;
     masterLogger = nullptr;
+    similarity = nullptr;
     if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
     deviceManager.removeAudioCallback(&sourcePlayer);
     //[/Destructor]
@@ -208,9 +209,10 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
           
             crudeLoops = computeLoops(AUDIO_FILENAME);
             currentLoop = &crudeLoops[rand() % crudeLoops.size()];
-            
-           // compute_SDM(crudeLoops);
 
+            similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
+            computeDistances(crudeLoops, *similarity);
+            
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
             shiftyLoopingButton->setEnabled(true);

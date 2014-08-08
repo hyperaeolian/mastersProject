@@ -39,12 +39,13 @@ vector<Loop> computeLoops(const std::string audiofilename) {
     if (progressWindow.runThread()){
         progressWindow.setStatusMessage("Finding all possible loop points...");
         createLoopPoints(onsets, tempBuffer, theLoops);
-        
         connectLoops(theLoops);
-       
+       // findOverlaps(theLoops);
         progressWindow.setStatusMessage("Computing features for loops...");
-        for (auto& lp : theLoops)
-            computeFeaturesForLoop(lp, tempBuffer);
+        for (auto& lp : theLoops){
+            std::vector<essentia::Real> loopBuffer(tempBuffer.begin() + lp.head, tempBuffer.begin() + lp.tail);
+            computeFeaturesForLoop(lp, loopBuffer);
+        }
     } else {
         progressWindow.threadComplete(true);
     }
@@ -87,8 +88,6 @@ void connectLoops(std::vector<Loop>& loops){
             std::swap(loops[i].end, loops[i].start);
         }
     }
-    
-   // findOverlaps(loops);
 }
 
 void findOverlaps(std::vector<Loop>& loops){
@@ -99,8 +98,6 @@ void findOverlaps(std::vector<Loop>& loops){
             if (i == j) continue;
             if (current.head > loops[j].tail ||
                 current.tail < loops[j].head){
-            // if (current.loopBuffer.front() > loops[j].loopBuffer.back() ||
-           //     current.loopBuffer.back() < loops[j].loopBuffer.front()) {
                 continue;
             } else {
                 overlaps.push_back(loops[j]);
@@ -108,10 +105,10 @@ void findOverlaps(std::vector<Loop>& loops){
         }
         current.overlappers = overlaps;
     }
-    std::cout << "Loop5: " << loops[4].start << " end: " << loops[4].end << std::endl;
-    for (int i = 0; i < loops[4].overlappers.size(); ++i){
-        std::cout << "Overlaps: " << endl << "\tstart:" << loops[4].overlappers[i].start << " end: " << loops[4].overlappers[i].end << std::endl;
-    }
+//    std::cout << "Loop5: " << loops[4].start << " end: " << loops[4].end << std::endl;
+//    for (int i = 0; i < loops[4].overlappers.size(); ++i){
+//        std::cout << "Overlaps: " << endl << "\tstart:" << loops[4].overlappers[i].start << " end: " << loops[4].overlappers[i].end << std::endl;
+//    }
 }
 
 inline float quantizeToOnset(const vector<float>& onsets, float value){

@@ -10,8 +10,8 @@
 
 #include "PreSynthesis.h"
 
-
-const char* fNames[] = {"rhythm.bpm", "rhythm.rate", "dynam.rms", "dynam.loud", "timbre.cent"};
+const int numFeatures = 4;
+const char* fNames[] = {"dynam.rms", "timbre.cent", "tonal.keyStr", "dynam.dyRange"};
 
 int overlapExists(const Loop& a, const Loop& b){
     if (a.start < b.end || a.end > b.start) {
@@ -21,7 +21,7 @@ int overlapExists(const Loop& a, const Loop& b){
     }
 }
 
-void computeDistance(const std::vector<Loop>& loops, MATRIX& mat){
+inline void initalize_matrix(const std::vector<Loop>& loops, MATRIX& mat){
     for (int i = 0; i < mat.rows(); ++i){
         for (int j = i + 1; j < mat.cols(); ++j){
             if (i == j){
@@ -33,14 +33,24 @@ void computeDistance(const std::vector<Loop>& loops, MATRIX& mat){
             }
         }
     }
+}
+
+void computeDistance(const std::vector<Loop>& loops, MATRIX& mat){
+    initalize_matrix(loops, mat);
     
+    std::vector<std::string> feature_names(fNames, fNames + numFeatures);
     for (int i = 0; i < mat.rows(); ++i) {
         for (int j = 0; j < mat.cols(); ++j) {
-            if (mat(i,j) == 0) {
+            if (mat(i,j) == 0 || i == j) {
                 continue;
             } else {
-                mat(i,j) = euclid(loops.at(i).bin.value<essentia::Real>("dynam.rms"),
-                                  loops.at(j).bin.value<essentia::Real>("dynam.rms"));
+                essentia::Real dist = 0.0;
+                for (int k = 0; k < feature_names.size(); ++k){
+                    dist += euclidean(loops.at(i).bin.value<essentia::Real>(feature_names[k]),
+                                      loops.at(j).bin.value<essentia::Real>(feature_names[k]));
+                }
+                mat(i,j) = dist;
+                mat(j,i) = mat(i,j);
             }
         }
     }    
