@@ -217,9 +217,18 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             
            // std::cout << "MATRIX: " << *similarity << std::endl;
             
-            markov_chain = new MATRIX(markovizeDistanceMatrix(*similarity));
+            markov_chain = new MATRIX(computeTransitionMatrix(*similarity));
             
             //std::cout << "\nMARKOV: " << *markov_chain << std::endl;
+            
+            MATRIX foo(5,5);
+            for (int i = 0; i < foo.rows(); ++i)
+                for (int j = 0; j < foo.cols(); ++j){
+                    foo(i,j) = rand() % 5 * j;
+                }
+            
+            std::vector<essentia::Real> bar(markovChain(foo, 10, 3));
+            std::cout << "MArko: " << bar << std::endl;
             
             playButton->setEnabled(true);
             loopButton->setEnabled(true);

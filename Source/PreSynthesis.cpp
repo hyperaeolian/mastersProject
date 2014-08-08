@@ -25,7 +25,7 @@ inline void initalize_matrix(const std::vector<Loop>& loops, MATRIX& mat){
     for (int i = 0; i < mat.rows(); ++i){
         for (int j = i + 1; j < mat.cols(); ++j){
             if (i == j){
-                mat(i,j) = 0;
+                mat(i,j) = 0.5;
                 continue;
             } else {
                 mat(i,j) = overlapExists(loops.at(i), loops.at(j));
@@ -41,8 +41,9 @@ void computeDistances(const std::vector<Loop>& loops, MATRIX& mat){
     
     std::vector<std::string> feature_names(fNames, fNames + numFeatures);
     for (int i = 0; i < mat.rows(); ++i) {
-        for (int j = 0; j < mat.cols(); ++j) {
-            if (mat(i,j) == 0 || i == j) {
+        for (int j = i + 1; j < mat.cols(); ++j) {
+            //if loop doesn't overlap or is on the diagnol, skip it
+            if (mat(i,j) == 0 || i == j){
                 continue;
             } else {
                 essentia::Real dist = 0.f;
@@ -57,37 +58,37 @@ void computeDistances(const std::vector<Loop>& loops, MATRIX& mat){
     }    
 }
 
-MATRIX markovizeDistanceMatrix(const MATRIX& mat){
-    MATRIX markov(mat);
-    std::cout << "MARKOV BEFORE: " << markov << std::endl;
-    for (int i = 0; i < markov.rows(); ++i){
+MATRIX computeTransitionMatrix(const MATRIX& mat){
+    MATRIX transitions(mat); //----Keeping a copy of similarity mat could be wasteful,
+                        //----still needed at this point?
+    //std::cout << "MARKOV BEFORE: " << markov << std::endl;
+    for (int i = 0; i < transitions.rows(); ++i){
         essentia::Real rowSum = 0.f;
         std::cout << std::endl;
-        for (int j = 0; j < 2 * markov.cols(); ++j){
-            if (j < markov.cols()){
-                rowSum += markov(i,j);
+        for (int j = 0; j < 2 * transitions.cols(); ++j){
+            if (j < transitions.cols()){
+                rowSum += transitions(i,j);
             } else {
-                int k = j % markov.cols();
-                markov(i,k) /= rowSum;
+                int k = j % transitions.cols();
+                transitions(i,k) /= rowSum;
             }
-            //j < markov.cols()  ?  rowSum += markov(i,j)  :  markov(i,(j/2)) /= rowSum;
         }
     }
-    std::cout << "MARKOV AFTER: " << markov << std::endl;
-    return markov;
+    //std::cout << "MARKOV AFTER: " << markov << std::endl;
+    return transitions;
 }
 
 
-std::vector<essentia::Real> markov_chain(const MATRIX& mc, int max_iters, int startingPos){
+std::vector<essentia::Real> markovChain(const MATRIX& transMat, int max_iters, int row){
     /* Untested */
-    int current = startingPos;
+    int current = row;
     juce::Random r;
     std::vector<essentia::Real> chain;
-    chain.push_back(startingPos);
+    chain.push_back(row);
     for (int n = 0; n < max_iters - 1; ++n){
         essentia::Real probability = r.nextFloat();
-        for (int i = 0; i < mc.rows(); ++i){
-            probability -= mc(current,i);
+        for (int i = 0; i < transMat.cols(); ++i){
+            probability -= transMat(current,i);
             if (probability < 0) {
                 break;
             }
@@ -96,3 +97,5 @@ std::vector<essentia::Real> markov_chain(const MATRIX& mc, int max_iters, int st
     }
     return chain;
 }
+
+
