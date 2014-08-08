@@ -213,6 +213,8 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
             computeDistances(crudeLoops, *similarity);
             
+            std::cout << "MATRIX: " << *similarity << std::endl;
+            
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
             shiftyLoopingButton->setEnabled(true);

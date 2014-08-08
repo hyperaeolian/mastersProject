@@ -176,7 +176,7 @@ void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& buffe
         _dynam->compute();
         
         juce::String p(" RMS: " + String(rms) + " Cent: " + String(centroid) + " Key: " + String(key_Strength) + " dynam: " + String(dynamicRangeCoeff));
-        std::cout << p << std::endl << std::endl;
+        //std::cout << p << std::endl << std::endl;
     
         loop.bin.set("dynam.loud", loudness);
         loop.bin.set("dynam.rms", rms);

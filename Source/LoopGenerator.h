@@ -18,20 +18,18 @@
 #include "essentia.h"
 #include "algorithmfactory.h"
 #include "ProgressWindow.h"
-//#include "Matrix.h"
+
 
 
 extern const int SR;
 extern const float BAR_SIZE;
-//extern MATRIX markov;
+
 
 struct Loop {
     float start, end;
     int head, tail;
     Loop* prev;
     Loop* next;
-   // std::vector<float> loopBuffer;
-    std::vector<Loop> overlappers;
     essentia::Pool bin;
     essentia::Pool binStats;
 };

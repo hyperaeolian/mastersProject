@@ -12,8 +12,8 @@
 #define PRESYNTHESIS_H_INCLUDED
 
 
-#include "AudioApp.h"
-//#include "LoopGenerator.h"
+//#include "AudioApp.h"
+#include "LoopGenerator.h"
 #include "MATRIX.h"
 
 

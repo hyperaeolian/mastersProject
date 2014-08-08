@@ -35,7 +35,7 @@ inline void initalize_matrix(const std::vector<Loop>& loops, MATRIX& mat){
     }
 }
 
-void computeDistance(const std::vector<Loop>& loops, MATRIX& mat){
+void computeDistances(const std::vector<Loop>& loops, MATRIX& mat){
     initalize_matrix(loops, mat);
     
     std::vector<std::string> feature_names(fNames, fNames + numFeatures);
