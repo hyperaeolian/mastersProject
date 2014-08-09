@@ -25,7 +25,7 @@ inline void initalize_matrix(const std::vector<Loop>& loops, MATRIX& mat){
     for (int i = 0; i < mat.rows(); ++i){
         for (int j = i + 1; j < mat.cols(); ++j){
             if (i == j){
-                mat(i,j) = 0.5;
+                mat(i,j) = 1.f;
                 continue;
             } else {
                 mat(i,j) = overlapExists(loops.at(i), loops.at(j));
@@ -79,14 +79,15 @@ MATRIX computeTransitionMatrix(const MATRIX& mat){
 }
 
 
-std::vector<essentia::Real> markovChain(const MATRIX& transMat, int max_iters, int row){
+std::vector<essentia::Real> markovChain(const MATRIX& transMat, int max_iters, int initState){
     /* Untested */
-    int current = row;
+    std::cout << "Cols: " << transMat.cols() << std::endl;
+    int current = initState;
     juce::Random r;
     std::vector<essentia::Real> chain;
-    chain.push_back(row);
+    chain.push_back(initState);
     for (int n = 0; n < max_iters - 1; ++n){
-        essentia::Real probability = r.nextFloat();
+        float probability = r.nextFloat();
         for (int i = 0; i < transMat.cols(); ++i){
             probability -= transMat(current,i);
             if (probability < 0) {

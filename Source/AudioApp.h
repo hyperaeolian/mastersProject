@@ -71,15 +71,8 @@ public:
         ShiftyLooping
     };
 
-    enum Parameters{
-        gainParam = 0,
-        delayParam,
-        totalNumParams
-    };
-
-    float gain, delay;
+    float gain;
     juce::Logger* masterLogger;
-    bool shifting, forward;
 
     void changeState(TransportState newState);
     void changeListenerCallback(ChangeBroadcaster* src);
@@ -89,7 +82,7 @@ public:
 
     void fileChanged(drow::AudioFilePlayer* player) override;
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
-    void timerCallback();
+    void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
     
     WaveformDisplay waveform;

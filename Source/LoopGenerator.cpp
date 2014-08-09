@@ -27,7 +27,7 @@ vector<Loop> computeLoops(const std::string audiofilename) {
     
     essentia::init();
         juce::ScopedPointer<essentia::standard::Algorithm> loader = essentia::standard::AlgorithmFactory::create("MonoLoader",
-                                                                                                                 "filename", audiofilename, "sampleRate", 44100);
+                                                                                                                 "filename", audiofilename, "sampleRate", SR);
         std::vector<essentia::Real> tempBuffer;
         loader->output("audio").set(tempBuffer);
         loader->compute();
@@ -40,7 +40,6 @@ vector<Loop> computeLoops(const std::string audiofilename) {
         progressWindow.setStatusMessage("Finding all possible loop points...");
         createLoopPoints(onsets, tempBuffer, theLoops);
         connectLoops(theLoops);
-       // findOverlaps(theLoops);
         progressWindow.setStatusMessage("Computing features for loops...");
         for (auto& lp : theLoops){
             std::vector<essentia::Real> loopBuffer(tempBuffer.begin() + lp.head, tempBuffer.begin() + lp.tail);
