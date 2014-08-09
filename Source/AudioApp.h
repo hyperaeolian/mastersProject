@@ -46,8 +46,8 @@
 */
 class AudioApp  : public Component,
                   public ChangeListener,
-                  public ButtonListener,
                   public SliderListener,
+                  public ButtonListener,
                   public Timer,
                   public drow::AudioFilePlayer::Listener
 {
@@ -112,8 +112,8 @@ private:
 
     Loop* currentLoop;
     MATRIX* similarity;
-    juce::ScopedPointer<MATRIX> markov_chain;
-    MemoryInputStream stream;
+    juce::ScopedPointer<MATRIX> transMat;
+    //MemoryInputStream stream;
     //[/UserVariables]
 
     //==============================================================================

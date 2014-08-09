@@ -29,7 +29,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp () : waveform(mediaPlayer), stream(sl490x_png, sl490x_pngSize, false)
+AudioApp::AudioApp () : waveform(mediaPlayer)
 {
     
     addAndMakeVisible (infoLabel = new Label ("Info Label",
@@ -107,8 +107,6 @@ AudioApp::AudioApp () : waveform(mediaPlayer), stream(sl490x_png, sl490x_pngSize
 
     //[Constructor] You can add your own custom stuff here..
     
-    //backgroundImg->setImage(ImageFileFormat::loadFrom(stream));
-    
     startTimer(200);
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
@@ -154,7 +152,7 @@ AudioApp::~AudioApp()
     currentLoop = nullptr;
     masterLogger = nullptr;
     similarity = nullptr;
-    markov_chain = nullptr;
+    transMat = nullptr;
     if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
     deviceManager.removeAudioCallback(&sourcePlayer);
     //[/Destructor]
@@ -208,14 +206,11 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             currentLoop = &crudeLoops[rand() % crudeLoops.size()];
 
             similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
-
             computeDistances(crudeLoops, *similarity);
-
-           // std::cout << "MATRIX: " << *similarity << std::endl;
-
-            markov_chain = new MATRIX(computeTransitionMatrix(*similarity));
-
-            //std::cout << "\nMARKOV: " << *markov_chain << std::endl;
+            transMat = new MATRIX(computeTransitionMatrix(*similarity));
+            std::vector<essentia::Real> markov_chain(markov(*transMat, 10, 4));
+            
+            std::cout << "Markov Chain: " << markov_chain << std::endl;
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
