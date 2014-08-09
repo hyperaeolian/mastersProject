@@ -44,7 +44,6 @@
 
                                                                     //[/Comments]
 */
-
 class AudioApp  : public Component,
                   public ChangeListener,
                   public ButtonListener,
@@ -78,13 +77,13 @@ public:
     void changeListenerCallback(ChangeBroadcaster* src);
     void shiftyLooping();
     void printCurrentState(String s);
-  
+
 
     void fileChanged(drow::AudioFilePlayer* player) override;
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
-    
+
     WaveformDisplay waveform;
     //ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
     //[/UserMethods]
@@ -94,6 +93,9 @@ public:
     void buttonClicked (Button* buttonThatWasClicked);
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
+    // Binary resources:
+    static const char* sl490x_png;
+    static const int sl490x_pngSize;
 
 
 private:
@@ -107,15 +109,15 @@ private:
     TransportState state;
     std::string AUDIO_FILENAME;
     std::vector<Loop> crudeLoops;
-    
+
     Loop* currentLoop;
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> markov_chain;
+    MemoryInputStream stream;
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<Label> infoLabel;
-    ScopedPointer<Label> appLabel;
     ScopedPointer<TextButton> loadButton;
     ScopedPointer<TextButton> playButton;
     ScopedPointer<TextButton> stopButton;
@@ -124,6 +126,7 @@ private:
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> gainLabel;
     ScopedPointer<ToggleButton> shiftyLoopingButton;
+    ScopedPointer<ImageComponent> backgroundImg;
 
 
     //==============================================================================
