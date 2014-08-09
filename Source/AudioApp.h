@@ -46,8 +46,8 @@
 */
 class AudioApp  : public Component,
                   public ChangeListener,
-                  public SliderListener,
                   public ButtonListener,
+                  public SliderListener,
                   public Timer,
                   public drow::AudioFilePlayer::Listener
 {

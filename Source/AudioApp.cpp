@@ -31,7 +31,6 @@
 //==============================================================================
 AudioApp::AudioApp () : waveform(mediaPlayer)
 {
-    
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -105,8 +104,9 @@ AudioApp::AudioApp () : waveform(mediaPlayer)
     setSize(APP_WIDTH, APP_HEIGHT);
     //[/UserPreSize]
 
+
     //[Constructor] You can add your own custom stuff here..
-    
+
     startTimer(200);
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
@@ -126,7 +126,7 @@ AudioApp::AudioApp () : waveform(mediaPlayer)
     state = Stopped;
     gain = 1.0f;
 
-    //addAndMakeVisible(waveform);
+    addAndMakeVisible(waveform);
     //[/Constructor]
 }
 
@@ -181,7 +181,7 @@ void AudioApp::resized()
     gainSlider->setBounds (592, 240, 112, 160);
     gainLabel->setBounds (576, 416, 150, 24);
     shiftyLoopingButton->setBounds (384, 224, 112, 40);
-    backgroundImg->setBounds (16, 16, 712, 672);
+    backgroundImg->setBounds (16, 8, 680, 120);
     //[UserResized] Add your own custom resize handling here..
     addAndMakeVisible(waveform);
     //[/UserResized]
@@ -209,7 +209,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             computeDistances(crudeLoops, *similarity);
             transMat = new MATRIX(computeTransitionMatrix(*similarity));
             std::vector<essentia::Real> markov_chain(markov(*transMat, 10, 4));
-            
+
             std::cout << "Markov Chain: " << markov_chain << std::endl;
 
             playButton->setEnabled(true);
@@ -485,7 +485,7 @@ BEGIN_JUCER_METADATA
                 buttonText="Shifty Looping" connectedEdges="0" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <GENERICCOMPONENT name="backgroundImg" id="72aa7502c65b2396" memberName="backgroundImg"
-                    virtualName="" explicitFocusOrder="0" pos="16 16 712 672" class="ImageComponent"
+                    virtualName="" explicitFocusOrder="0" pos="16 8 680 120" class="ImageComponent"
                     params=""/>
 </JUCER_COMPONENT>
 
