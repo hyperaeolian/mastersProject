@@ -203,14 +203,16 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
 
             crudeLoops = computeLoops(AUDIO_FILENAME);
-            currentLoop = &crudeLoops[rand() % crudeLoops.size()];
+            int n = random.nextInt(crudeLoops.size() - 1);
+            currentLoop = &crudeLoops[n];
 
             similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
             computeDistances(crudeLoops, *similarity);
             transMat = new MATRIX(computeTransitionMatrix(*similarity));
-            std::vector<essentia::Real> markov_chain(markov(*transMat, 10, 4));
+            std::vector<std::pair<int,int> > markov_chain(markov(*transMat, MarkovIterations, n));
 
-            std::cout << "Markov Chain: " << markov_chain << std::endl;
+            for (auto& x : markov_chain)
+                std::cout << "Markov Chain: " << x.first << " " << x.second << std::endl;
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);

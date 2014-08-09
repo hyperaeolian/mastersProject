@@ -101,6 +101,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     const int APP_WIDTH = 700, APP_HEIGHT = 750;
+    const int MarkovIterations = 9;
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
     drow::AudioFilePlayerExt mediaPlayer;
@@ -109,6 +110,7 @@ private:
     TransportState state;
     std::string AUDIO_FILENAME;
     std::vector<Loop> crudeLoops;
+    juce::Random random;
 
     Loop* currentLoop;
     MATRIX* similarity;

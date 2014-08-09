@@ -79,11 +79,13 @@ MATRIX computeTransitionMatrix(const MATRIX& mat){
 }
 
 
-std::vector<essentia::Real> markov(const MATRIX& transMat, const int num_iters, int state){
+std::vector<std::pair<int, int> > markov(const MATRIX& transMat, const int num_iters, int state){
     juce::Random r;
     std::vector<essentia::Real> chain;
+    std::vector<std::pair<int, int> > ch;
     for (int r = 0; r < transMat.cols(); ++r){
         chain.push_back(transMat(state,r));
+        ch.push_back(std::pair<int, int>(state,r));
     }
     
     for (int n = 0; n < num_iters - 1; ++n){
@@ -93,10 +95,12 @@ std::vector<essentia::Real> markov(const MATRIX& transMat, const int num_iters, 
             if (probability < 0) {
                 break;
             }
-            chain.push_back(i);
+            chain.push_back(static_cast<int>(i));
+            std::pair<int,int> p(state,i);
+            ch.push_back(p);
         }
     }
-    return chain;
+    return ch;
 }
 
 
