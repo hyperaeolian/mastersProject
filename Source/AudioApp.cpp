@@ -209,10 +209,8 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
             computeDistances(crudeLoops, *similarity);
             transMat = new MATRIX(computeTransitionMatrix(*similarity));
-            std::vector<std::pair<int,int> > markov_chain(markov(*transMat, MarkovIterations, n));
-
-            for (auto& x : markov_chain)
-                std::cout << "Markov Chain: " << x.first << " " << x.second << std::endl;
+            markov_chain = markov(*transMat, MarkovIterations, n);
+            std::cout << "Markov Chain: " << markov_chain << std::endl;
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
@@ -396,6 +394,21 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 }
 
 inline void AudioApp::shiftyLooping(){
+    int i = 0;
+    while (i < markov_chain.size()) {
+        currentLoop = &crudeLoops[markov_chain[i]];
+        mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+        mediaPlayer.setPosition(currentLoop->start);
+        mediaPlayer.start();
+        /* play loop until end, need to multithread */
+        if (markov_chain[i+1] > markov_chain[i] || markov_chain[i-1] > markov_chain[i]) {
+            /* we're shifting forward */
+            mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
+        } else {
+            
+        }
+    }
+    
     /*
     int r = rand() % 2;
         shifting = r == 0 ? true : false;

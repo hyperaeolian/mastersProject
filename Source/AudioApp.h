@@ -106,6 +106,7 @@ private:
     AudioSourcePlayer        sourcePlayer;
     drow::AudioFilePlayerExt mediaPlayer;
     drow::AudioFilePlayer::Listener* listener;
+    std::vector<essentia::Real> markov_chain;
 
     TransportState state;
     std::string AUDIO_FILENAME;
