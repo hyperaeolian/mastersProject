@@ -393,48 +393,42 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     }
 }
 
-inline void AudioApp::shiftyLooping(){
-    int i = 0;
-    while (i < markov_chain.size()) {
+void AudioApp::shiftyLooping(){
+    for (int i = 0; i < markov_chain.size(); ++i) {
         currentLoop = &crudeLoops[markov_chain[i]];
-        mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-        mediaPlayer.setPosition(currentLoop->start);
-        mediaPlayer.start();
-        /* play loop until end, need to multithread */
-        if (markov_chain[i+1] > markov_chain[i] || markov_chain[i-1] > markov_chain[i]) {
-            /* we're shifting forward */
-            mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
-        } else {
-            
+        std::thread t1(std::bind(&AudioApp::toggleLoop, this), std::ref(*currentLoop));
+        t1.join();
+        if (markov_chain[i+1] > markov_chain[i]) {
+            shifting = forward = true;
+            std::thread t1(std::bind(&AudioApp::toggleLoop, this), std::ref(*currentLoop));
+            t1.join();
+        } else if (markov_chain[i+1] < markov_chain[i]) {
+            shifting = true;
+            forward = false;
+            std::thread t1(std::bind(&AudioApp::toggleLoop, this), std::ref(*currentLoop));
+            t1.join();
         }
+        
+        if (ShiftyLooping != state) break;
     }
+
     
-    /*
-    int r = rand() % 2;
-        shifting = r == 0 ? true : false;
-        r = rand() % 2;
-        forward = r == 0 ? true : false;
+}
 
-        if (shifting) {
-            masterLogger->writeToLog("Shifting...");
-            if (forward) {
-                masterLogger->writeToLog("forward");
-                currentLoop = currentLoop->next;
-                mediaPlayer.setLoopTimes(currentLoop->prev->end, currentLoop->end);
-                mediaPlayer.setLoopBetweenTimes(true);
-                mediaPlayer.start();
-                mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-            } else {
-                masterLogger->writeToLog("backwards");
-                currentLoop = currentLoop->prev;
-                mediaPlayer.setLoopTimes(currentLoop->next->start, currentLoop->end);
-                mediaPlayer.setLoopBetweenTimes(true);
-                mediaPlayer.start();
-                mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-            }
+void AudioApp::toggleLoop(Loop &loop){
+    if (shifting) {
+        if (forward) {
+            mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
+            mediaPlayer.setPosition(loop.prev->end);
+        } else {
+            mediaPlayer.setLoopTimes(loop.next->start, loop.end);
+            mediaPlayer.setPosition(loop.next->start);
         }
-
-    */
+    } else {
+        mediaPlayer.setLoopTimes(loop.start, loop.end);
+        mediaPlayer.setPosition(loop.start);
+    }
+    mediaPlayer.start();
 }
 
 

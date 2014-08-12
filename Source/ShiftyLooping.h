@@ -14,5 +14,4 @@
 
 
 
-
 #endif  // SHIFTYLOOPING_H_INCLUDED

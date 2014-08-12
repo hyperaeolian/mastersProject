@@ -21,16 +21,16 @@
 #define __JUCE_HEADER_63FD855A234897E__
 
 //[Headers]     -- You can add your own extra header files here --
+#include <thread>
+#include <functional>
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
 #include "WaveformDisplay.h"
 #include "essentia.h"
 #include "algorithmfactory.h"
 #include "pool.h"
-#include "PreSynthesis.h"
+#include "Statistics.h"
 #include "MATRIX.h"
-//for convenience, probably bad practice though
-#define VAR essentia::Real
 //[/Headers]
 
 
@@ -57,8 +57,7 @@ public:
     ~AudioApp();
 
     //==============================================================================
-    //[UserMethods]     -- You can add your own custom methods in this section.
-
+    //[UserMethods]
     enum TransportState{
         Stopped,
         Starting,
@@ -70,22 +69,22 @@ public:
         ShiftyLooping
     };
 
-    float gain;
-    juce::Logger* masterLogger;
-
+    //State and Looping Methods
     void changeState(TransportState newState);
-    void changeListenerCallback(ChangeBroadcaster* src);
-    void shiftyLooping();
     void printCurrentState(String s);
-
-
+    void shiftyLooping();
+    void toggleLoop(Loop& loop);
+    //void pivot(Loop& loop, bool forward);
+    
+    //File Player Methods
+    void changeListenerCallback(ChangeBroadcaster* src);
     void fileChanged(drow::AudioFilePlayer* player) override;
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
 
     WaveformDisplay waveform;
-    //ScopedPointer<drow::PositionableWaveDisplay> posDisplay;
+
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -99,24 +98,34 @@ public:
 
 
 private:
-    //[UserVariables]   -- You can add your own custom variables in this section.
+    //[UserVariables]
     const int APP_WIDTH = 700, APP_HEIGHT = 750;
     const int MarkovIterations = 9;
+    
+    //Audio Device Vars
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
     drow::AudioFilePlayerExt mediaPlayer;
     drow::AudioFilePlayer::Listener* listener;
-    std::vector<essentia::Real> markov_chain;
 
+    //State & Loop Vars
     TransportState state;
     std::string AUDIO_FILENAME;
-    std::vector<Loop> crudeLoops;
-    juce::Random random;
-
     Loop* currentLoop;
+    std::vector<Loop> crudeLoops;
+    bool shifting, forward;
+
+    //Distance and Markov Vars
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
+    std::vector<essentia::Real> markov_chain;
+    
+    //Utility Vars
+    float gain;
+    juce::Random random;
+    juce::Logger* masterLogger;
     //MemoryInputStream stream;
+    
     //[/UserVariables]
 
     //==============================================================================
@@ -137,7 +146,7 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
-
+#define VAR essentia::Real
 //[/EndFile]
 
 #endif   // __JUCE_HEADER_63FD855A234897E__
