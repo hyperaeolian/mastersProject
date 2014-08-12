@@ -31,7 +31,6 @@ WaveformDisplay::~WaveformDisplay(){}
 void WaveformDisplay::resized(){
     //const int w = getWidth();
     //const int h = getHeight();
-    int m = 5;
     const int bevelSize = 2;
     
     Rectangle<int> posBounds(50,50,600,80);

@@ -393,11 +393,13 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     }
 }
 
+
 void AudioApp::shiftyLooping(){
+    
     for (int i = 0; i < markov_chain.size(); ++i) {
         currentLoop = &crudeLoops[markov_chain[i]];
-//        std::thread t1(std::bind(&AudioApp::toggleLoop, this, this), std::ref(*currentLoop));
-//        t1.join();
+        std::thread t1(std::bind(&AudioApp::toggleLoop, this, *currentLoop), std::ref(*currentLoop));
+        t1.join();
         if (markov_chain[i+1] > markov_chain[i]) {
             shifting = forward = true;
         } else if (markov_chain[i+1] < markov_chain[i]) {
@@ -406,8 +408,8 @@ void AudioApp::shiftyLooping(){
         } else {
             shifting = false;
         }
-//        std::thread t2(std::bind(&AudioApp::toggleLoop, this, this), std::ref(*currentLoop));
-//        t2.join();
+        std::thread t2(std::bind(&AudioApp::toggleLoop, this, *currentLoop), std::ref(*currentLoop));
+        t2.join();
         if (ShiftyLooping != state) break;
     }
 
@@ -415,6 +417,7 @@ void AudioApp::shiftyLooping(){
 }
 
 void AudioApp::toggleLoop(Loop& loop){
+    
     if (shifting) {
         if (forward) {
             mediaPlayer.setLoopTimes(loop.prev->end, loop.end);

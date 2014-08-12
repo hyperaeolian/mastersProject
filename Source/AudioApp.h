@@ -23,6 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <thread>
 #include <functional>
+#include <mutex>
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
 #include "WaveformDisplay.h"
@@ -124,6 +125,7 @@ private:
     float gain;
     juce::Random random;
     juce::Logger* masterLogger;
+    std::mutex _mutex;
     //MemoryInputStream stream;
     
     //[/UserVariables]
