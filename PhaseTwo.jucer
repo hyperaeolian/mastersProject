@@ -18,9 +18,6 @@
             file="Source/MainComponent.cpp"/>
       <FILE id="kUQbSr" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="vFbdZW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="HuZXaY" name="ShiftyLooping.h" compile="0" resource="0" file="Source/ShiftyLooping.h"/>
-      <FILE id="Vr0wMI" name="ShiftyLooping.cpp" compile="1" resource="0"
-            file="Source/ShiftyLooping.cpp"/>
       <FILE id="t7wNyK" name="Statistics.h" compile="0" resource="0" file="Source/Statistics.h"/>
       <FILE id="L9N4kP" name="Statistics.cpp" compile="1" resource="0" file="Source/Statistics.cpp"/>
       <FILE id="nx4hxF" name="WaveformDisplay.h" compile="0" resource="0"
