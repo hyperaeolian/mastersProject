@@ -50,7 +50,8 @@ class AudioApp  : public Component,
                   public ButtonListener,
                   public SliderListener,
                   public Timer,
-                  public drow::AudioFilePlayer::Listener
+                  public drow::AudioFilePlayer::Listener,
+                  public AudioIODeviceCallback
 {
 public:
     //==============================================================================
@@ -66,16 +67,26 @@ public:
         Pausing,
         Paused,
         Stopping,
+        Recording,
         Looping,
         ShiftyLooping
     };
+    
+    void audioDeviceIOCallback(const float** inputChannelData,
+							   int totalNumInputChannels,
+							   float** outputChannelData,
+							   int totalNumOutputChannels,
+							   int numSamples);
+	
+	void audioDeviceAboutToStart (AudioIODevice* device);
+    void audioDeviceStopped();
 
     //State and Looping Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
     void shiftyLooping();
-    void toggleLoop(Loop& loop);
-    //void pivot(Loop& loop, bool forward);
+    void playLoop(Loop& loop);
+    
     
     //File Player Methods
     void changeListenerCallback(ChangeBroadcaster* src);
@@ -107,7 +118,6 @@ private:
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
     drow::AudioFilePlayerExt mediaPlayer;
-    drow::AudioFilePlayer::Listener* listener;
 
     //State & Loop Vars
     TransportState state;
@@ -126,7 +136,7 @@ private:
     juce::Random random;
     juce::Logger* masterLogger;
     std::mutex _mutex;
-    //MemoryInputStream stream;
+    
     
     //[/UserVariables]
 
@@ -148,7 +158,7 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
-#define VAR essentia::Real
+#define _REAL essentia::Real
 //[/EndFile]
 
 #endif   // __JUCE_HEADER_63FD855A234897E__

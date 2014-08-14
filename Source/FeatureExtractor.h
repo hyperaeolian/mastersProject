@@ -14,7 +14,7 @@
 #include "JuceHeader.h"
 #include "essentia.h"
 #include "essentiamath.h"
-#include "AudioApp.h" /* Why do I need this include? */
+#include "AudioApp.h"
 #include "pool.h"
 #include "algorithmfactory.h"
 

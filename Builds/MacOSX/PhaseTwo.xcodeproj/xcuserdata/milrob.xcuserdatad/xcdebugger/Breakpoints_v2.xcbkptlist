@@ -38,11 +38,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/AudioApp.cpp"
-            timestampString = "429317950.412775"
+            timestampString = "429737554.568903"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "181"
-            endingLineNumber = "181"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
             landmarkName = "AudioApp::resized()"
             landmarkType = "5">
          </BreakpointContent>
@@ -133,13 +133,41 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../../Source/AudioApp.cpp"
-            timestampString = "429578220.18077"
+            filePath = "../../JuceLibraryCode/modules/dRowAudio/dRowAudio/audio/dRowAudio_AudioFilePlayer.h"
+            timestampString = "429738275.606075"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "401"
-            endingLineNumber = "401"
-            landmarkName = "AudioApp::shiftyLooping()"
+            startingLineNumber = "213"
+            endingLineNumber = "213">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Source/AudioApp.h"
+            timestampString = "429748645.202839"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "120"
+            endingLineNumber = "120">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Source/AudioApp.cpp"
+            timestampString = "429738321.393127"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "118"
+            endingLineNumber = "118"
+            landmarkName = "AudioApp::AudioApp ()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -150,12 +178,60 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/AudioApp.cpp"
-            timestampString = "429578220.18077"
+            timestampString = "429738322.099772"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "402"
-            endingLineNumber = "402"
-            landmarkName = "AudioApp::shiftyLooping()"
+            startingLineNumber = "119"
+            endingLineNumber = "119"
+            landmarkName = "AudioApp::AudioApp ()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Source/AudioApp.cpp"
+            timestampString = "429738322.82051"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "120"
+            endingLineNumber = "120"
+            landmarkName = "AudioApp::AudioApp ()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Source/AudioApp.cpp"
+            timestampString = "429738323.764722"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "121"
+            endingLineNumber = "121"
+            landmarkName = "AudioApp::AudioApp ()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Source/AudioApp.cpp"
+            timestampString = "429738324.517183"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "122"
+            endingLineNumber = "122"
+            landmarkName = "AudioApp::AudioApp ()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

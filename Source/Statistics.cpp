@@ -25,7 +25,7 @@ inline void initalize_matrix(const std::vector<Loop>& loops, MATRIX& mat){
     for (int i = 0; i < mat.rows(); ++i){
         for (int j = i + 1; j < mat.cols(); ++j){
             if (i == j){
-                mat(i,j) = 1.f;
+                mat(i,j) = 1;
                 continue;
             } else {
                 mat(i,j) = overlapExists(loops.at(i), loops.at(j));
@@ -42,7 +42,7 @@ void computeDistances(const std::vector<Loop>& loops, MATRIX& mat){
     std::vector<std::string> feature_names(fNames, fNames + numFeatures);
     for (int i = 0; i < mat.rows(); ++i) {
         for (int j = i + 1; j < mat.cols(); ++j) {
-            //if loop doesn't overlap or is on the diagnol, skip it
+            //if loop doesn't overlap or is on the diagnal, skip it
             if (mat(i,j) == 0 || i == j){
                 continue;
             } else {

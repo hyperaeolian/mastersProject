@@ -22,7 +22,7 @@ bool successfulExtraction = false;
 
 essentia::Pool* featureBin = new Pool;
 
-std::vector<VAR> computeGlobalBeatsOnsets(const std::string song){
+std::vector<_REAL> computeGlobalBeatsOnsets(const std::string song){
     essentia::init();
     juce::ScopedPointer<Algorithm> audiofile = AlgorithmFactory::create("MonoLoader", "filename", song,
                                                               "sampleRate", 44100);

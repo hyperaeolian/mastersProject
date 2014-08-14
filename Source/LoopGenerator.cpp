@@ -61,7 +61,7 @@ void createLoopPoints(const std::vector<float>& onsets, const std::vector<essent
             curr.start = onsets[i];
             lPoint     = onsets[i] + BAR_SIZE;
             curr.end   = quantizeToOnset(onsets, lPoint);
-            if (curr.start > curr.end)
+            if (curr.start < curr.end)
                 std::swap(curr.start, curr.end);
             curr.head = static_cast<int>(onsets[i] * SR);
             curr.tail = static_cast<int>(onsets[i+1] * SR);
@@ -83,7 +83,7 @@ void connectLoops(std::vector<Loop>& loops){
             loops[i].prev = &loops[i-1];
             loops[i].next = &loops[i+1];
         }
-        if (loops[i].end > loops[i].start) {
+        if (loops[i].end < loops[i].start) {
             std::swap(loops[i].end, loops[i].start);
         }
     }

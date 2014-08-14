@@ -7,30 +7,38 @@
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
       <FILE id="diD8rf" name="AudioApp.h" compile="0" resource="0" file="Source/AudioApp.h"/>
       <FILE id="Dv8Ih0" name="AudioApp.cpp" compile="1" resource="0" file="Source/AudioApp.cpp"/>
-      <FILE id="QwiGgh" name="FeatureExtractor.h" compile="0" resource="0"
-            file="Source/FeatureExtractor.h"/>
-      <FILE id="oCctHK" name="FeatureExtractor.cpp" compile="1" resource="0"
-            file="Source/FeatureExtractor.cpp"/>
-      <FILE id="YPZoLc" name="LoopGenerator.h" compile="0" resource="0" file="Source/LoopGenerator.h"/>
-      <FILE id="d4Rdnk" name="LoopGenerator.cpp" compile="1" resource="0"
-            file="Source/LoopGenerator.cpp"/>
+      <FILE id="EgLB2p" name="AudioAppProcessor.h" compile="0" resource="0"
+            file="Source/AudioAppProcessor.h"/>
+      <FILE id="E9Dh7p" name="AudioAppProcessor.cpp" compile="1" resource="0"
+            file="Source/AudioAppProcessor.cpp"/>
       <FILE id="jXOWTS" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="kUQbSr" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="vFbdZW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="t7wNyK" name="Statistics.h" compile="0" resource="0" file="Source/Statistics.h"/>
-      <FILE id="L9N4kP" name="Statistics.cpp" compile="1" resource="0" file="Source/Statistics.cpp"/>
-      <FILE id="nx4hxF" name="WaveformDisplay.h" compile="0" resource="0"
-            file="Source/WaveformDisplay.h"/>
-      <FILE id="IYP8CF" name="WaveformDisplay.cpp" compile="1" resource="0"
-            file="Source/WaveformDisplay.cpp"/>
-      <FILE id="v5MuI2" name="ProgressWindow.h" compile="0" resource="0"
-            file="Source/ProgressWindow.h"/>
+      <GROUP id="{D8ABD1DE-4DA2-161B-99ED-227FB9780BC6}" name="analysis">
+        <FILE id="YPZoLc" name="LoopGenerator.h" compile="0" resource="0" file="Source/LoopGenerator.h"/>
+        <FILE id="d4Rdnk" name="LoopGenerator.cpp" compile="1" resource="0"
+              file="Source/LoopGenerator.cpp"/>
+        <FILE id="QwiGgh" name="FeatureExtractor.h" compile="0" resource="0"
+              file="Source/FeatureExtractor.h"/>
+        <FILE id="oCctHK" name="FeatureExtractor.cpp" compile="1" resource="0"
+              file="Source/FeatureExtractor.cpp"/>
+        <FILE id="t7wNyK" name="Statistics.h" compile="0" resource="0" file="Source/Statistics.h"/>
+        <FILE id="L9N4kP" name="Statistics.cpp" compile="1" resource="0" file="Source/Statistics.cpp"/>
+      </GROUP>
       <GROUP id="{A0E85984-9B1A-0199-299F-3F19A6CFB6A0}" name="matrix">
         <FILE id="vga2Nf" name="VECTOR.cpp" compile="1" resource="0" file="../../Coursework/patternformation/cymatics/VECTOR.cpp"/>
         <FILE id="bPfTSg" name="VECTOR.h" compile="0" resource="0" file="../../Coursework/patternformation/cymatics/VECTOR.h"/>
         <FILE id="C0kzOd" name="MATRIX.cpp" compile="1" resource="0" file="../../Coursework/patternformation/cymatics/MATRIX.cpp"/>
         <FILE id="Girf6V" name="MATRIX.h" compile="0" resource="0" file="../../Coursework/patternformation/cymatics/MATRIX.h"/>
+      </GROUP>
+      <GROUP id="{A3D9E5C7-DAD1-6C2D-0A20-CAAE38B1851D}" name="views">
+        <FILE id="nx4hxF" name="WaveformDisplay.h" compile="0" resource="0"
+              file="Source/WaveformDisplay.h"/>
+        <FILE id="IYP8CF" name="WaveformDisplay.cpp" compile="1" resource="0"
+              file="Source/WaveformDisplay.cpp"/>
+        <FILE id="v5MuI2" name="ProgressWindow.h" compile="0" resource="0"
+              file="Source/ProgressWindow.h"/>
       </GROUP>
       <GROUP id="{BA030AEE-B583-ADA7-433E-0F4ED845CCEE}" name="essentia">
         <FILE id="ybXtkJ" name="algorithm.h" compile="0" resource="0" file="/usr/local/include/essentia/algorithm.h"/>
@@ -165,11 +173,11 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="default"
                        isDebug="1" optimisation="1" targetName="PhaseTwo" libraryPath="/usr/local/lib&#10;"
-                       headerPath="/usr/local/include&#10;../../Source&#10;../../matrix&#10;~/Desktop/Git_Repos/armadillo/include&#10;/System/Library/Frameworks/Accelerate.framework/Versions/A/Headers"
+                       headerPath="/usr/local/include&#10;../../Source&#10;../../matrix&#10;../../analysis&#10;../../views&#10;~/Desktop/Git_Repos/armadillo/include&#10;/System/Library/Frameworks/Accelerate.framework/Versions/A/Headers"
                        cppLibType="libc++"/>
         <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.8 SDK" osxArchitecture="default"
                        isDebug="0" optimisation="2" targetName="PhaseTwo" libraryPath="/usr/local/lib"
-                       headerPath="/usr/local/include&#10;../../Source&#10;../../matrix&#10;~/Desktop/Git_Repos/armadillo/include&#10;/System/Library/Frameworks/Accelerate.framework/Versions/A/Headers"/>
+                       headerPath="/usr/local/include&#10;../../Source&#10;../../matrix&#10;../../analysis&#10;../../views&#10;~/Desktop/Git_Repos/armadillo/include&#10;/System/Library/Frameworks/Accelerate.framework/Versions/A/Headers"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>

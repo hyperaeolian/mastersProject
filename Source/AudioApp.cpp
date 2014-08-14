@@ -127,6 +127,9 @@ AudioApp::AudioApp () : waveform(mediaPlayer)
     gain = 1.0f;
 
     addAndMakeVisible(waveform);
+    
+    MemoryInputStream stream(sl490x_pngSize, sl490x_png);
+    backgroundImg->setImage(ImageFileFormat::loadFrom(stream));
     //[/Constructor]
 }
 
@@ -205,12 +208,15 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             crudeLoops = computeLoops(AUDIO_FILENAME);
             int n = random.nextInt(crudeLoops.size() - 1);
             currentLoop = &crudeLoops[n];
+            
+            for (auto& loop : crudeLoops)
+                masterLogger->writeToLog("Current Loop: " + String(loop.start) + " to " + String(loop.end));
 
             similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
             computeDistances(crudeLoops, *similarity);
             transMat = new MATRIX(computeTransitionMatrix(*similarity));
             markov_chain = markov(*transMat, MarkovIterations, n);
-            std::cout << "Markov Chain: " << markov_chain << std::endl;
+           // std::cout << "Markov Chain: " << markov_chain << std::endl;
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
@@ -266,14 +272,9 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == shiftyLoopingButton)
     {
         //[UserButtonCode_shiftyLoopingButton] -- add your button handler code here..
-        VAR start = currentLoop->start;
-        VAR end = currentLoop->end;
-        if (start > end) std::swap(start, end);
-            mediaPlayer.setLoopTimes(static_cast<double>(start), static_cast<double>(end));
-            mediaPlayer.setPosition(static_cast<double>(start));
-            mediaPlayer.start();
+     
         changeState(ShiftyLooping);
-       // shiftyLoopingButton->triggerClick();
+       
         //[/UserButtonCode_shiftyLoopingButton]
     }
 
@@ -311,11 +312,19 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
     if (&deviceManager == src) {
         AudioDeviceManager::AudioDeviceSetup setup;
         deviceManager.getAudioDeviceSetup(setup);
-        setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr) :
-                                        sourcePlayer.setSource(&mediaPlayer);
+        setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr)
+                                      : sourcePlayer.setSource(&mediaPlayer);
     }
 
 }
+
+void AudioApp::audioDeviceIOCallback(const float** inputChannelData,
+                                              int totalNumInputChannels,
+                                              float** outputChannelData,
+                                              int totalNumOutputChannels,
+                                     int numSamples){}
+void AudioApp::audioDeviceAboutToStart(juce::AudioIODevice *device){}
+void AudioApp::audioDeviceStopped(){}
 
 void AudioApp::changeState(TransportState newState){
 
@@ -355,6 +364,8 @@ void AudioApp::changeState(TransportState newState){
                 loopButton->setEnabled(true);
                 mediaPlayer.setPosition(0.0);
                 break;
+            case Recording:
+                printCurrentState("Recording");
             case Looping:
                 printCurrentState(String("Looping..."));
                 stopButton->setEnabled(true);
@@ -369,9 +380,10 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
-                currentLoop = currentLoop->next;
-                //masterLogger->writeToLog("Current Loop: " + String(currentLoop->start) + " to " + String(currentLoop->end));
+                //mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
+                assert(currentLoop->start < currentLoop->end);
+                //playLoop(*currentLoop);
+                shiftyLooping();
                 break;
         }
 
@@ -396,41 +408,47 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 
 void AudioApp::shiftyLooping(){
     
-    for (int i = 0; i < markov_chain.size(); ++i) {
-        currentLoop = &crudeLoops[markov_chain[i]];
-        std::thread t1(std::bind(&AudioApp::toggleLoop, this, *currentLoop), std::ref(*currentLoop));
-        t1.join();
-        if (markov_chain[i+1] > markov_chain[i]) {
-            shifting = forward = true;
-        } else if (markov_chain[i+1] < markov_chain[i]) {
-            shifting = true;
-            forward = false;
-        } else {
-            shifting = false;
-        }
-        std::thread t2(std::bind(&AudioApp::toggleLoop, this, *currentLoop), std::ref(*currentLoop));
-        t2.join();
-        if (ShiftyLooping != state) break;
-    }
+    
+//        if (markov_chain[index+1] > markov_chain[index]) {
+//            shifting = forward = true;
+//        } else if (markov_chain[index+1] < markov_chain[index]) {
+//            shifting = true;
+//            forward = false;
+//        } else {
+//            shifting = false;
+//        }
+//   
+        //Did I start this var from the beginning?
 
     
 }
 
-void AudioApp::toggleLoop(Loop& loop){
+void AudioApp::playLoop(Loop& loop){
     
     if (shifting) {
         if (forward) {
+            std::cout << "Shifting Forward" << std::endl;
+            std::cout << "Current Loop: " << loop.start << " to " << loop.end << std::endl << "Prev: \t" << loop.prev->end << std::endl;
             mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
             mediaPlayer.setPosition(loop.prev->end);
         } else {
+            std::cout << "Shifting Backwards" << std::endl;
             mediaPlayer.setLoopTimes(loop.next->start, loop.end);
             mediaPlayer.setPosition(loop.next->start);
         }
     } else {
+        std::cout << "Looping" << std::endl;
         mediaPlayer.setLoopTimes(loop.start, loop.end);
         mediaPlayer.setPosition(loop.start);
     }
     mediaPlayer.start();
+    while (mediaPlayer.isPlaying()){
+        if (mediaPlayer.getCurrentPosition() < loop.end) {
+            continue;
+        } else {
+            break;
+        }
+    }
 }
 
 
