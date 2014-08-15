@@ -137,7 +137,9 @@ private:
     juce::Logger* masterLogger;
     std::mutex _mutex;
     
-    
+    //Playback Vars
+    AudioPlayHead* playHead;
+    AudioPlayHead::CurrentPositionInfo posInfo;
     //[/UserVariables]
 
     //==============================================================================

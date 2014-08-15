@@ -107,7 +107,7 @@ AudioApp::AudioApp () : waveform(mediaPlayer)
 
     //[Constructor] You can add your own custom stuff here..
 
-    startTimer(200);
+    startTimer(100);
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftyLoopingButton->setEnabled(false);
@@ -392,6 +392,7 @@ void AudioApp::changeState(TransportState newState){
 }
 
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
+    
     if (player == &mediaPlayer){
         gainSlider->setValue(static_cast<double>(sourcePlayer.getGain()));
         if (mediaPlayer.isPlaying()) {
@@ -407,17 +408,20 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 
 
 void AudioApp::shiftyLooping(){
+    //currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
+    mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+    mediaPlayer.setPosition(currentLoop->start);
+    mediaPlayer.start();
     
-    
-//        if (markov_chain[index+1] > markov_chain[index]) {
+//        if (markov_chain[i+1] > markov_chain[i]) {
 //            shifting = forward = true;
-//        } else if (markov_chain[index+1] < markov_chain[index]) {
+//        } else if (markov_chain[i+1] < markov_chain[i]) {
 //            shifting = true;
 //            forward = false;
 //        } else {
 //            shifting = false;
 //        }
-//   
+   
         //Did I start this var from the beginning?
 
     
@@ -449,12 +453,28 @@ void AudioApp::playLoop(Loop& loop){
             break;
         }
     }
+    
 }
 
 
 void AudioApp::fileChanged(drow::AudioFilePlayer* player){}
 void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
-void AudioApp::timerCallback(){}
+void AudioApp::timerCallback(){
+    
+    if (ShiftyLooping == state){
+        if (mediaPlayer.hasStreamFinished()) {
+            mediaPlayer.stop();
+            currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
+            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+            mediaPlayer.setPosition(currentLoop->start);
+           // mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
+            mediaPlayer.start();
+            masterLogger->writeToLog("StreamFinished");
+        }
+    }
+    
+    
+}
 
 //[/MiscUserCode]
 
