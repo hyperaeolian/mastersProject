@@ -12,29 +12,39 @@
 #define AUDIOPROCESSOR_H_INCLUDED
 
 #include "AudioApp.h"
+#include "LoopGenerator.h"
 
-/*
-class ShiftyLooping : public ChangeBroadcaster, public MessageListener, public Timer {
+class AppAudioProcessor : public ChangeBroadcaster, public ChangeListener, public drow::AudioFilePlayer::Listener {
 public:
     
-    ShiftyLooping(std::vector<int>& sequence, Loop& current);
-    ShiftyLooping(ShiftyLooping& sl);
-    ShiftyLooping& operator=(ShiftyLooping&& sl);
-    ~ShiftyLooping();
+    AppAudioProcessor(File& _file);
+    AppAudioProcessor(AppAudioProcessor& proc);
+    AppAudioProcessor& operator=(AppAudioProcessor&& proc);
+    ~AppAudioProcessor();
+
+    AudioDeviceManager       deviceManager;
+    AudioSourcePlayer        sourcePlayer;
+    drow::AudioFilePlayerExt mediaPlayer;
     
-    void startLoop();
-    void handleMessage(const Message& message) override;
-    
-    
-    
+    void initPlayback();
+    void gainChanged(ScopedPointer<Slider> gainSlider);
+    void changeListenerCallback(ChangeBroadcaster* src) override;
+    void shiftyLooping(Loop& currentLoop);
+ 
 private:
-    ShiftyLooping(); //Don't want this ctor used
+    AppAudioProcessor();
     Loop loop;
-    bool shifting, forward;
+   
+    float gain;
+    File file;
     
-    void timerCallback() override;
+    void fileChanged(drow::AudioFilePlayer* player) override ;
+    void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
+    void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
+
+    
 };
 
-*/
+
 
 #endif  // AUDIOPROCESSOR_H_INCLUDED

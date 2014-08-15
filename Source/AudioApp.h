@@ -24,6 +24,7 @@
 #include <thread>
 #include <functional>
 #include <mutex>
+#include "AudioAppProcessor.h"
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
 #include "WaveformDisplay.h"
@@ -45,13 +46,14 @@
 
                                                                     //[/Comments]
 */
+class AppAudioProcessor;
+
 class AudioApp  : public Component,
                   public ChangeListener,
                   public ButtonListener,
                   public SliderListener,
                   public Timer,
-                  public drow::AudioFilePlayer::Listener,
-                  public AudioIODeviceCallback
+                  public drow::AudioFilePlayer::Listener
 {
 public:
     //==============================================================================
@@ -72,15 +74,6 @@ public:
         ShiftyLooping
     };
     
-    void audioDeviceIOCallback(const float** inputChannelData,
-							   int totalNumInputChannels,
-							   float** outputChannelData,
-							   int totalNumOutputChannels,
-							   int numSamples);
-	
-	void audioDeviceAboutToStart (AudioIODevice* device);
-    void audioDeviceStopped();
-
     //State and Looping Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
@@ -95,7 +88,7 @@ public:
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
 
-    WaveformDisplay waveform;
+    //WaveformDisplay waveform;
 
     //[/UserMethods]
 
@@ -114,10 +107,12 @@ private:
     const int APP_WIDTH = 700, APP_HEIGHT = 750;
     const int MarkovIterations = 9;
     
+    AppAudioProcessor* AudioManager;
+    
     //Audio Device Vars
-    AudioDeviceManager       deviceManager;
-    AudioSourcePlayer        sourcePlayer;
-    drow::AudioFilePlayerExt mediaPlayer;
+//    AudioDeviceManager       deviceManager;
+//    AudioSourcePlayer        sourcePlayer;
+//    drow::AudioFilePlayerExt mediaPlayer;
 
     //State & Loop Vars
     TransportState state;
@@ -137,9 +132,7 @@ private:
     juce::Logger* masterLogger;
     std::mutex _mutex;
     
-    //Playback Vars
-    AudioPlayHead* playHead;
-    AudioPlayHead::CurrentPositionInfo posInfo;
+ 
     //[/UserVariables]
 
     //==============================================================================
