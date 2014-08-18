@@ -22,7 +22,7 @@ float LAST_ONSET;
 
 vector<Loop> computeLoops(const std::string audiofilename) {
     std::vector<Loop> theLoops;
-    const std::vector<essentia::Real> onsets(computeGlobalBeatsOnsets(audiofilename));
+    const std::vector<essentia::Real> onsets(computeGlobalBeatsOnsets(audiofilename)); //actually returning beats not onsets
     LAST_ONSET = onsets.back();
     
     essentia::init();
@@ -33,26 +33,29 @@ vector<Loop> computeLoops(const std::string audiofilename) {
         loader->compute();
     essentia::shutdown();
     
-    juce::String s("Initializing Loop Generator");
-    BackgroundThread progressWindow(static_cast<int>(onsets.size()), s);
-    
+    BackgroundThread progressWindow(static_cast<int>(onsets.size()), "Loop Generator");
     if (progressWindow.runThread()){
         progressWindow.setStatusMessage("Finding all possible loop points...");
         createLoopPoints(onsets, tempBuffer, theLoops);
         connectLoops(theLoops);
+        //Compute features for each loop
         progressWindow.setStatusMessage("Computing features for loops...");
         for (auto& lp : theLoops){
-            std::vector<essentia::Real> loopBuffer(tempBuffer.begin() + lp.head, tempBuffer.begin() + lp.tail);
+            std::vector<_REAL> loopBuffer(tempBuffer.begin() + lp.head, tempBuffer.begin() + lp.tail);
             computeFeaturesForLoop(lp, loopBuffer);
+            
+            //Find # of beats in each loop
+            for (const auto& b : onsets){
+                if (b*SR >= lp.head && b*SR <= lp.tail) lp.numBeats++;
+            }
         }
-    } else {
+    } else
         progressWindow.threadComplete(true);
-    }
-    
+   
     return theLoops;
 }
 
-void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER, std::vector<Loop>& loops){
+void createLoopPoints(const std::vector<float>& onsets, const std::vector<_REAL>& AUDIO_BUFFER, std::vector<Loop>& loops){
     float lPoint;
     Loop curr;
 
@@ -102,3 +105,22 @@ inline float quantizeToOnset(const vector<float>& onsets, float value){
     else               return onsets[limit.first - onsets.begin()];
 }
 
+/*
+ _REAL sum = 0;
+ for (auto x : theLoops) {
+ sum += x.end - x.start;
+ }
+ _REAL BarSize = sum / theLoops.size();
+ for (auto x : theLoops){
+ if (x.end - x.start > BarSize) {
+ //std::cout << "This Loop " << x.start << " to " << x.end << " is too long" << std::endl;
+ _REAL diff = (x.end - x.start) - BarSize;
+ x.end -= diff;
+ } else if (x.end - x.start < BarSize){
+ _REAL diff = BarSize - (x.end - x.start);
+ x.end += diff;
+ }
+ 
+ std::cout << "Diff: " << x.end - x.start << std::endl;
+ }
+ */

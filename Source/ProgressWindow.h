@@ -18,10 +18,10 @@
 class BackgroundThread : public ThreadWithProgressWindow{
 public:
     
-    BackgroundThread(const int N, juce::String msg) : ThreadWithProgressWindow("Exracting features...", true, true),
+    BackgroundThread(const int N, juce::String msg) : ThreadWithProgressWindow(msg, true, true),
                                     numFeatures(N), initMsg(msg)
     {
-        setStatusMessage(initMsg);
+        setStatusMessage("Initializing");
     }
     
     void run() override{

@@ -38,13 +38,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/AudioApp.cpp"
-            timestampString = "429737554.568903"
+            timestampString = "430090418.000332"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
-            landmarkName = "AudioApp::resized()"
-            landmarkType = "5">
+            startingLineNumber = "176"
+            endingLineNumber = "176">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -70,12 +68,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/LoopGenerator.cpp"
-            timestampString = "429253922.50093"
+            timestampString = "430087846.597457"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "61"
-            endingLineNumber = "61"
-            landmarkName = "createLoopPoints(const std::vector&lt;float&gt;&amp; onsets, const std::vector&lt;essentia::Real&gt;&amp; AUDIO_BUFFER, std::vector&lt;Loop&gt;&amp; loops)"
+            startingLineNumber = "64"
+            endingLineNumber = "64"
+            landmarkName = "createLoopPoints(const std::vector&lt;float&gt;&amp; onsets, const std::vector&lt;_REAL&gt;&amp; AUDIO_BUFFER, std::vector&lt;Loop&gt;&amp; loops)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -86,12 +84,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/LoopGenerator.cpp"
-            timestampString = "429253922.50093"
+            timestampString = "430087846.597457"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "63"
-            endingLineNumber = "63"
-            landmarkName = "createLoopPoints(const std::vector&lt;float&gt;&amp; onsets, const std::vector&lt;essentia::Real&gt;&amp; AUDIO_BUFFER, std::vector&lt;Loop&gt;&amp; loops)"
+            startingLineNumber = "66"
+            endingLineNumber = "66"
+            landmarkName = "createLoopPoints(const std::vector&lt;float&gt;&amp; onsets, const std::vector&lt;_REAL&gt;&amp; AUDIO_BUFFER, std::vector&lt;Loop&gt;&amp; loops)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -148,12 +146,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/AudioApp.cpp"
-            timestampString = "430073860.202363"
+            timestampString = "430090418.000332"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "378"
-            endingLineNumber = "378"
-            landmarkName = "AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player)"
+            startingLineNumber = "372"
+            endingLineNumber = "372"
+            landmarkName = "AudioApp::changeState(TransportState newState)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

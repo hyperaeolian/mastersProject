@@ -24,7 +24,6 @@
 #include <thread>
 #include <functional>
 #include <mutex>
-#include "AudioAppProcessor.h"
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
 #include "WaveformDisplay.h"
@@ -46,7 +45,6 @@
 
                                                                     //[/Comments]
 */
-
 class AudioApp  : public Component,
                   public ChangeListener,
                   public ButtonListener,
@@ -60,7 +58,7 @@ public:
     ~AudioApp();
 
     //==============================================================================
-    //[UserMethods]
+    //[UserMethods]     -- You can add your own custom methods in this section.
     enum TransportState{
         Stopped,
         Starting,
@@ -72,14 +70,23 @@ public:
         Looping,
         ShiftyLooping
     };
-    
+
+    void audioDeviceIOCallback(const float** inputChannelData,
+							   int totalNumInputChannels,
+							   float** outputChannelData,
+							   int totalNumOutputChannels,
+							   int numSamples);
+
+	void audioDeviceAboutToStart (AudioIODevice* device);
+    void audioDeviceStopped();
+
     //State and Looping Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
     void shiftyLooping();
     void playLoop(Loop& loop);
-    
-    
+
+
     //File Player Methods
     void changeListenerCallback(ChangeBroadcaster* src);
     void fileChanged(drow::AudioFilePlayer* player) override;
@@ -97,15 +104,15 @@ public:
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
     // Binary resources:
-    static const char* sl490x_png;
-    static const int sl490x_pngSize;
+    static const char* sl490x2_png;
+    static const int sl490x2_pngSize;
 
 
 private:
-    //[UserVariables]
+    //[UserVariables]   -- You can add your own custom variables in this section.
     const int APP_WIDTH = 700, APP_HEIGHT = 750;
     const int MarkovIterations = 9;
-    
+
     //Audio Device Vars
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
@@ -113,25 +120,27 @@ private:
 
     //State & Loop Vars
     TransportState state;
+    std::string AUDIO_FILENAME;
     Loop* currentLoop;
-    std::vector<Loop> loopRepo;
+    std::vector<Loop> crudeLoops;
     bool shifting, forward;
 
     //Distance and Markov Vars
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
     std::vector<essentia::Real> markov_chain;
-    
+
     //Utility Vars
     float gain;
     juce::Random random;
     juce::Logger* masterLogger;
     std::mutex _mutex;
-    
- 
+
+
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<ImageComponent> backgroundImg;
     ScopedPointer<Label> infoLabel;
     ScopedPointer<TextButton> loadButton;
     ScopedPointer<TextButton> playButton;
@@ -141,7 +150,6 @@ private:
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> gainLabel;
     ScopedPointer<ToggleButton> shiftyLoopingButton;
-    ScopedPointer<ImageComponent> backgroundImg;
 
 
     //==============================================================================

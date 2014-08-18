@@ -28,6 +28,7 @@ extern const float BAR_SIZE;
 struct Loop {
     float start, end;
     int head, tail;
+    int numBeats;
     Loop* prev;
     Loop* next;
     essentia::Pool bin;
