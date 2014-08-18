@@ -115,11 +115,11 @@ AudioApp::AudioApp ()
     loopButton->setEnabled(false);
 
     //Audio device setup
-//    deviceManager.initialise(0, 2, nullptr, true);
-//    deviceManager.addAudioCallback(&sourcePlayer);
-//    sourcePlayer.setSource(&mediaPlayer);
-//    deviceManager.addChangeListener(this);
-//    mediaPlayer.addListener(this);
+    deviceManager.initialise(0, 2, nullptr, true);
+    deviceManager.addAudioCallback(&sourcePlayer);
+    sourcePlayer.setSource(&mediaPlayer);
+    deviceManager.addChangeListener(this);
+    mediaPlayer.addListener(this);
     masterLogger = juce::Logger::getCurrentLogger();
 
     currentLoop = new Loop;
@@ -151,7 +151,7 @@ AudioApp::~AudioApp()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-    for (auto l : crudeLoops) { l.next = nullptr; l.prev = nullptr; }
+    for (auto l : loopRepo) { l.next = nullptr; l.prev = nullptr; }
     currentLoop = nullptr;
     masterLogger = nullptr;
     similarity = nullptr;
@@ -195,29 +195,23 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == loadButton)
-    {
-        //[UserButtonCode_loadButton] -- add your button handler code here..
+    if (buttonThatWasClicked == loadButton){
+        //[UserButtonCode_loadButton]
         FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
-            AudioManager = new AppAudioProcessor(file);
-            //mediaPlayer.setFile(file);
-
-            AUDIO_FILENAME = file.getFullPathName().toUTF8();
-
-            crudeLoops = computeLoops(AUDIO_FILENAME);
-            int n = random.nextInt(crudeLoops.size() - 1);
-            currentLoop = &crudeLoops[n];
+         
+            loopRepo = computeLoops(static_cast<std::string>(file.getFullPathName().toUTF8()));
+            int n = random.nextInt(loopRepo.size() - 1);
+            currentLoop = &loopRepo[n];
             
-            for (auto& loop : crudeLoops)
+            for (const auto& loop : loopRepo)
                 masterLogger->writeToLog("Current Loop: " + String(loop.start) + " to " + String(loop.end));
 
-            similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
-            computeDistances(crudeLoops, *similarity);
+            similarity = new MATRIX(loopRepo.size(), loopRepo.size());
+            computeDistances(loopRepo, *similarity);
             transMat = new MATRIX(computeTransitionMatrix(*similarity));
             markov_chain = markov(*transMat, MarkovIterations, n);
-           // std::cout << "Markov Chain: " << markov_chain << std::endl;
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
@@ -228,8 +222,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == playButton)
     {
-        //[UserButtonCode_playButton] -- add your button handler code here..
-
+        //[UserButtonCode_playButton] 
         if (Stopped == state || Paused == state) {
             changeState(Starting);
         } else if (Playing == state) {
@@ -255,7 +248,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         bool showChnlsAsStereoPairs =true;
         bool hideAdvancedOptions = false;
 
-        AudioDeviceSelectorComponent settings(AudioManager->deviceManager, 0,0,1,2,
+        AudioDeviceSelectorComponent settings(deviceManager, 0,0,1,2,
                                               showMidiInputOptions,
                                               showMidiOutputSelector,
                                               showChnlsAsStereoPairs,
@@ -291,9 +284,9 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
     if (sliderThatWasMoved == gainSlider)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
-        AudioManager->gainChanged(gainSlider);
-//        gain = static_cast<float>(gainSlider->getValue());
-//        sourcePlayer.setGain(gain);
+        
+        gain = static_cast<float>(gainSlider->getValue());
+        sourcePlayer.setGain(gain);
 
         //[/UserSliderCode_gainSlider]
     }
@@ -310,18 +303,15 @@ void AudioApp::printCurrentState(juce::String s) {
 }
 
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
-//
-//    if (&deviceManager == src) {
-//        AudioDeviceManager::AudioDeviceSetup setup;
-//        deviceManager.getAudioDeviceSetup(setup);
-//        setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr)
-//                                      : sourcePlayer.setSource(&mediaPlayer);
-//    }
-//
+    if (&deviceManager == src) {
+        AudioDeviceManager::AudioDeviceSetup setup;
+        deviceManager.getAudioDeviceSetup(setup);
+        setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr)
+        : sourcePlayer.setSource(&mediaPlayer);
+    }
 }
 
 void AudioApp::changeState(TransportState newState){
-    drow::AudioFilePlayerExt& mediaPlayer = AudioManager->mediaPlayer;
     if (state != newState) {
         state = newState;
         switch (state) {
@@ -378,7 +368,7 @@ void AudioApp::changeState(TransportState newState){
                 assert(currentLoop->start < currentLoop->end);
                 //playLoop(*currentLoop);
                 //shiftyLooping();
-                currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
+                currentLoop = &loopRepo[markov_chain[random.nextInt(markov_chain.size())]];
                 
                 break;
         }
@@ -389,9 +379,10 @@ void AudioApp::changeState(TransportState newState){
 
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     
-    if (player == &AudioManager->mediaPlayer){
-       // gainSlider->setValue(static_cast<double>(sourcePlayer.getGain()));
-        if (AudioManager->mediaPlayer.isPlaying()) {
+    if (player == &mediaPlayer){
+        gain = static_cast<float>(gainSlider->getValue());
+        sourcePlayer.setGain(gain);
+        if (mediaPlayer.isPlaying()) {
             ShiftyLooping == state ? changeState(ShiftyLooping) : changeState(Playing);
         }
         else {
@@ -404,20 +395,20 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 
 
 void AudioApp::shiftyLooping(){
-    //currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
-//    mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-//    mediaPlayer.setPosition(currentLoop->start);
-//    mediaPlayer.start();
+    currentLoop = &loopRepo[markov_chain[random.nextInt(markov_chain.size())]];
+    mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+    mediaPlayer.setPosition(currentLoop->start);
+    mediaPlayer.start();
     
-//        if (markov_chain[i+1] > markov_chain[i]) {
-//            shifting = forward = true;
-//        } else if (markov_chain[i+1] < markov_chain[i]) {
-//            shifting = true;
-//            forward = false;
-//        } else {
-//            shifting = false;
-//        }
-   
+//    if (markov_chain[i+1] > markov_chain[i]) {
+//        shifting = forward = true;
+//    } else if (markov_chain[i+1] < markov_chain[i]) {
+//        shifting = true;
+//        forward = false;
+//    } else {
+//        shifting = false;
+//    }
+//   
         //Did I start this var from the beginning?
 
     
@@ -425,19 +416,19 @@ void AudioApp::shiftyLooping(){
 
 void AudioApp::playLoop(Loop& loop){
     
-//    if (shifting) {
-//        if (forward) {
-//            mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
-//            mediaPlayer.setPosition(loop.prev->end);
-//        } else {
-//            mediaPlayer.setLoopTimes(loop.next->start, loop.end);
-//            mediaPlayer.setPosition(loop.next->start);
-//        }
-//    } else {
-//        mediaPlayer.setLoopTimes(loop.start, loop.end);
-//        mediaPlayer.setPosition(loop.start);
-//    }
-//    mediaPlayer.start();
+    if (shifting) {
+        if (forward) {
+            mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
+            mediaPlayer.setPosition(loop.prev->end);
+        } else {
+            mediaPlayer.setLoopTimes(loop.next->start, loop.end);
+            mediaPlayer.setPosition(loop.next->start);
+        }
+    } else {
+        mediaPlayer.setLoopTimes(loop.start, loop.end);
+        mediaPlayer.setPosition(loop.start);
+    }
+    mediaPlayer.start();
     
 }
 
@@ -447,17 +438,16 @@ void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int 
 void AudioApp::timerCallback(){
     
     if (ShiftyLooping == state){
-        currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
-        AudioManager->shiftyLooping(*currentLoop);
-//        if (mediaPlayer.hasStreamFinished()) {
-//            currentLoop = &crudeLoops[markov_chain[juce::Random::nextInt(markov_chain.size())]];
-//            mediaPlayer.stop();
-//            currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
-//            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-//            mediaPlayer.setPosition(currentLoop->start);
-//           // mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
-//            mediaPlayer.start();
-//        }
+        currentLoop = &loopRepo[markov_chain[random.nextInt(markov_chain.size())]];
+        if (mediaPlayer.hasStreamFinished()) {
+            currentLoop = &loopRepo[markov_chain[random.nextInt(markov_chain.size())]];
+            mediaPlayer.stop();
+            currentLoop = &loopRepo[markov_chain[random.nextInt(markov_chain.size())]];
+            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+            mediaPlayer.setPosition(currentLoop->start);
+            // mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
+            mediaPlayer.start();
+        }
     }
     
     

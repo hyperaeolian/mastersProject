@@ -30,6 +30,8 @@ public:
     void gainChanged(ScopedPointer<Slider> gainSlider);
     void changeListenerCallback(ChangeBroadcaster* src) override;
     void shiftyLooping(Loop& currentLoop);
+    
+    void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
  
 private:
     AppAudioProcessor();
@@ -40,7 +42,7 @@ private:
     
     void fileChanged(drow::AudioFilePlayer* player) override ;
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
-    void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
+    
 
     
 };

@@ -46,7 +46,6 @@
 
                                                                     //[/Comments]
 */
-class AppAudioProcessor;
 
 class AudioApp  : public Component,
                   public ChangeListener,
@@ -107,18 +106,15 @@ private:
     const int APP_WIDTH = 700, APP_HEIGHT = 750;
     const int MarkovIterations = 9;
     
-    AppAudioProcessor* AudioManager;
-    
     //Audio Device Vars
-//    AudioDeviceManager       deviceManager;
-//    AudioSourcePlayer        sourcePlayer;
-//    drow::AudioFilePlayerExt mediaPlayer;
+    AudioDeviceManager       deviceManager;
+    AudioSourcePlayer        sourcePlayer;
+    drow::AudioFilePlayerExt mediaPlayer;
 
     //State & Loop Vars
     TransportState state;
-    std::string AUDIO_FILENAME;
     Loop* currentLoop;
-    std::vector<Loop> crudeLoops;
+    std::vector<Loop> loopRepo;
     bool shifting, forward;
 
     //Distance and Markov Vars
