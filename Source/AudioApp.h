@@ -71,15 +71,6 @@ public:
         ShiftyLooping
     };
 
-    void audioDeviceIOCallback(const float** inputChannelData,
-							   int totalNumInputChannels,
-							   float** outputChannelData,
-							   int totalNumOutputChannels,
-							   int numSamples);
-
-	void audioDeviceAboutToStart (AudioIODevice* device);
-    void audioDeviceStopped();
-
     //State and Looping Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
@@ -129,6 +120,7 @@ private:
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
     std::vector<essentia::Real> markov_chain;
+    void generateMarkovChain();
 
     //Utility Vars
     float gain;

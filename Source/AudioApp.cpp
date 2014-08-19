@@ -110,7 +110,6 @@ AudioApp::AudioApp ()
 
     setSize(APP_WIDTH, APP_HEIGHT);
 
-    startTimer(50);
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
     shiftyLoopingButton->setEnabled(false);
@@ -216,11 +215,13 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             computeDistances(crudeLoops, *similarity);
             transMat = new MATRIX(computeTransitionMatrix(*similarity));
             markov_chain = markov(*transMat, MarkovIterations, n);
-           // std::cout << "Markov Chain: " << markov_chain << std::endl;
+           
 
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
             shiftyLoopingButton->setEnabled(true);
+            
+            startTimer(50);
 
         }
         //[/UserButtonCode_loadButton]
@@ -303,8 +304,13 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void AudioApp::printCurrentState(juce::String s) {
+inline void AudioApp::printCurrentState(juce::String s) {
     infoLabel->setText("Current State: " + s, sendNotification);
+}
+
+inline void AudioApp::generateMarkovChain(){
+    int n = random.nextInt(crudeLoops.size() - 1);
+    markov_chain = markov(*transMat, MarkovIterations, n);
 }
 
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
@@ -318,13 +324,6 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 
 }
 
-void AudioApp::audioDeviceIOCallback(const float** inputChannelData,
-                                              int totalNumInputChannels,
-                                              float** outputChannelData,
-                                              int totalNumOutputChannels,
-                                     int numSamples){}
-void AudioApp::audioDeviceAboutToStart(juce::AudioIODevice *device){}
-void AudioApp::audioDeviceStopped(){}
 
 void AudioApp::changeState(TransportState newState){
 
@@ -380,8 +379,6 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                //mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
-                assert(currentLoop->start < currentLoop->end);
                 playLoop(*currentLoop);
                // shiftyLooping();
                 break;
@@ -407,30 +404,33 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 
 
 void AudioApp::shiftyLooping(){
-    //currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
+    int c = random.nextInt(markov_chain.size() - 1);
+//    static int c = 0;
+//    if (c > markov_chain.size()) c %= c;
+//    if (c > 2 * markov_chain.size()){
+//        generateMarkovChain();
+//    }
+    currentLoop = &crudeLoops[markov_chain[c]];
     mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
     mediaPlayer.setPosition(currentLoop->start);
-    mediaPlayer.start();
-//        if (markov_chain[i+1] > markov_chain[i]) {
-//            shifting = forward = true;
-//        } else if (markov_chain[i+1] < markov_chain[i]) {
-//            shifting = true;
-//            forward = false;
-//        } else {
-//            shifting = false;
-//        }
-
-        //Did I start this var from the beginning?
-
-
+    
+    if (markov_chain.at(c+1) > markov_chain[c]) {
+        shifting = forward = true;
+    } else if (markov_chain.at(c+1) < markov_chain[c]) {
+        shifting = true;
+        forward = false;
+    } else {
+        shifting = false;
+    }
+    playLoop(*currentLoop);
+    //c++;
 }
 
 void AudioApp::playLoop(Loop& loop){
-
+    mediaPlayer.stop();
     if (shifting) {
         if (forward) {
             std::cout << "Shifting Forward" << std::endl;
-            std::cout << "Current Loop: " << loop.start << " to " << loop.end << std::endl << "Prev: \t" << loop.prev->end << std::endl;
             mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
             mediaPlayer.setPosition(loop.prev->end);
         } else {
@@ -444,13 +444,6 @@ void AudioApp::playLoop(Loop& loop){
         mediaPlayer.setPosition(loop.start);
     }
     mediaPlayer.start();
-    while (mediaPlayer.isPlaying()){
-        if (mediaPlayer.getCurrentPosition() < loop.end) {
-            continue;
-        } else {
-            break;
-        }
-    }
 
 }
 
@@ -458,15 +451,15 @@ void AudioApp::playLoop(Loop& loop){
 void AudioApp::fileChanged(drow::AudioFilePlayer* player){}
 void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
 void AudioApp::timerCallback(){
-    //if (mediaPlayer.getLoopBetweenTimes()) mediaPlayer.setLoopBetweenTimes(false);
+    //masterLogger->writeToLog("Playback Pos: " + String(mediaPlayer.getCurrentPosition()));
     if (ShiftyLooping == state){
         if (mediaPlayer.hasStreamFinished()) {
-            mediaPlayer.stop();
-            currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
-            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-            mediaPlayer.setPosition(currentLoop->start);
-            mediaPlayer.setLoopBetweenTimes(shiftyLoopingButton->getToggleState());
-            mediaPlayer.start();
+            shiftyLooping();
+//            mediaPlayer.stop();
+//            currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
+//            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
+//            mediaPlayer.setPosition(currentLoop->start);
+//            mediaPlayer.start();
         }
     }
 }
