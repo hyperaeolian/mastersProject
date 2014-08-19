@@ -103,8 +103,6 @@ AudioApp::AudioApp ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (600, 400);
-
 
     //[Constructor] You can add your own custom stuff here..
 
@@ -123,11 +121,13 @@ AudioApp::AudioApp ()
     deviceManager.addChangeListener(this);
     mediaPlayer.addListener(this);
     masterLogger = juce::Logger::getCurrentLogger();
+    
+    addAndMakeVisible(waveform = new Waveform(*mediaPlayer.getAudioFormatManager(), *mediaPlayer.getAudioTransportSource()));
+    waveform->addChangeListener(this);
 
     currentLoop = new Loop;
     state = Stopped;
-    gain = 1.0f;
-
+    
     MemoryInputStream stream(sl490x2_png, sl490x2_pngSize, false);
     backgroundImg->setImage(ImageFileFormat::loadFrom(stream));
     //[/Constructor]
@@ -156,6 +156,7 @@ AudioApp::~AudioApp()
     masterLogger = nullptr;
     similarity = nullptr;
     transMat = nullptr;
+    waveform->removeChangeListener(this);
     if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
     deviceManager.removeAudioCallback(&sourcePlayer);
     //[/Destructor]
@@ -201,7 +202,9 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
             mediaPlayer.setFile(file);
-
+            waveform->setBounds(50, 280, getWidth() - 20, getHeight()/4.0f);
+            waveform->setFile(file);
+            
             AUDIO_FILENAME = file.getFullPathName().toUTF8();
 
             crudeLoops = computeLoops(AUDIO_FILENAME);
@@ -450,17 +453,13 @@ void AudioApp::playLoop(Loop& loop){
 
 void AudioApp::fileChanged(drow::AudioFilePlayer* player){}
 void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
+
+
 void AudioApp::timerCallback(){
     //masterLogger->writeToLog("Playback Pos: " + String(mediaPlayer.getCurrentPosition()));
     if (ShiftyLooping == state){
-        if (mediaPlayer.hasStreamFinished()) {
+        if (mediaPlayer.hasStreamFinished())
             shiftyLooping();
-//            mediaPlayer.stop();
-//            currentLoop = &crudeLoops[markov_chain[random.nextInt(markov_chain.size())]];
-//            mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-//            mediaPlayer.setPosition(currentLoop->start);
-//            mediaPlayer.start();
-        }
     }
 }
 

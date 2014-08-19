@@ -33,10 +33,8 @@
         <FILE id="Girf6V" name="MATRIX.h" compile="0" resource="0" file="../../Coursework/patternformation/cymatics/MATRIX.h"/>
       </GROUP>
       <GROUP id="{A3D9E5C7-DAD1-6C2D-0A20-CAAE38B1851D}" name="views">
-        <FILE id="nx4hxF" name="WaveformDisplay.h" compile="0" resource="0"
-              file="Source/WaveformDisplay.h"/>
-        <FILE id="IYP8CF" name="WaveformDisplay.cpp" compile="1" resource="0"
-              file="Source/WaveformDisplay.cpp"/>
+        <FILE id="l2bQC4" name="AudioThumbnailComp.cpp" compile="1" resource="0"
+              file="Source/AudioThumbnailComp.cpp"/>
         <FILE id="v5MuI2" name="ProgressWindow.h" compile="0" resource="0"
               file="Source/ProgressWindow.h"/>
       </GROUP>

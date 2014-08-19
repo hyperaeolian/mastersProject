@@ -26,7 +26,7 @@
 #include <mutex>
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-#include "WaveformDisplay.h"
+#include "AudioThumbnailComp.cpp"
 #include "essentia.h"
 #include "algorithmfactory.h"
 #include "pool.h"
@@ -129,6 +129,7 @@ private:
     std::mutex _mutex;
 
 
+    ScopedPointer<Waveform> waveform;
     //[/UserVariables]
 
     //==============================================================================
