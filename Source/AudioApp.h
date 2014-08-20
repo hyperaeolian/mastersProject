@@ -111,11 +111,11 @@ private:
 
     //State & Loop Vars
     TransportState state;
-    std::string AUDIO_FILENAME;
     Loop* currentLoop;
     std::vector<Loop> crudeLoops;
     bool shifting, forward;
-
+    std::string audiofilename;
+    
     //Distance and Markov Vars
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
@@ -129,7 +129,7 @@ private:
     std::mutex _mutex;
 
 
-    ScopedPointer<Waveform> waveform;
+  //  ScopedPointer<Waveform> waveform;
     //[/UserVariables]
 
     //==============================================================================

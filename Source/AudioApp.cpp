@@ -122,8 +122,8 @@ AudioApp::AudioApp ()
     mediaPlayer.addListener(this);
     masterLogger = juce::Logger::getCurrentLogger();
     
-    addAndMakeVisible(waveform = new Waveform(*mediaPlayer.getAudioFormatManager(), *mediaPlayer.getAudioTransportSource()));
-    waveform->addChangeListener(this);
+//    addAndMakeVisible(waveform = new Waveform(*mediaPlayer.getAudioFormatManager(), *mediaPlayer.getAudioTransportSource()));
+//    waveform->addChangeListener(this);
 
     currentLoop = new Loop;
     state = Stopped;
@@ -156,7 +156,7 @@ AudioApp::~AudioApp()
     masterLogger = nullptr;
     similarity = nullptr;
     transMat = nullptr;
-    waveform->removeChangeListener(this);
+   // waveform->removeChangeListener(this);
     if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
     deviceManager.removeAudioCallback(&sourcePlayer);
     //[/Destructor]
@@ -202,12 +202,12 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         if (chooser.browseForFileToOpen()) {
             File file(chooser.getResult());
             mediaPlayer.setFile(file);
-            waveform->setBounds(50, 280, getWidth() - 20, getHeight()/4.0f);
-            waveform->setFile(file);
             
-            AUDIO_FILENAME = file.getFullPathName().toUTF8();
+            //waveform->setFile(file);
+           // waveform->setBounds(10, 80, getWidth() - 40, getHeight()/6.0f);
 
-            crudeLoops = computeLoops(AUDIO_FILENAME);
+            audiofilename = file.getFullPathName().toUTF8();
+            crudeLoops = computeLoops(audiofilename);
             int n = random.nextInt(crudeLoops.size() - 1);
             currentLoop = &crudeLoops[n];
 
@@ -217,6 +217,8 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
             computeDistances(crudeLoops, *similarity);
             transMat = new MATRIX(computeTransitionMatrix(*similarity));
+           // generateMarkovChain();
+            
             markov_chain = markov(*transMat, MarkovIterations, n);
            
 
@@ -413,7 +415,6 @@ void AudioApp::shiftyLooping(){
 //    if (c > 2 * markov_chain.size()){
 //        generateMarkovChain();
 //    }
-    currentLoop = &crudeLoops[markov_chain[c]];
     mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
     mediaPlayer.setPosition(currentLoop->start);
     
@@ -426,6 +427,7 @@ void AudioApp::shiftyLooping(){
         shifting = false;
     }
     playLoop(*currentLoop);
+    currentLoop = &crudeLoops[markov_chain[c]];
     //c++;
 }
 

@@ -104,7 +104,7 @@ private:
     
     void updateCursorPosition(){
         currentPos.setVisible(transportSource.isPlaying() || isMouseButtonDown());
-        currentPos.setRectangle(Rectangle<float>(timeToX(transportSource.getCurrentPosition()) - 1.5f, (float) (getHeight())));
+        currentPos.setRectangle(Rectangle<float> (timeToX(transportSource.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) getHeight() - 2.0f));
     }
 };
 
