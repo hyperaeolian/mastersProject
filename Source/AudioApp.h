@@ -32,6 +32,7 @@
 #include "pool.h"
 #include "Statistics.h"
 #include "MATRIX.h"
+#include "Design.cpp"
 //[/Headers]
 
 
@@ -97,6 +98,8 @@ public:
     // Binary resources:
     static const char* sl490x2_png;
     static const int sl490x2_pngSize;
+    static const char* knob_png;
+    static const int knob_pngSize;
 
 
 private:
@@ -115,7 +118,7 @@ private:
     std::vector<Loop> crudeLoops;
     bool shifting, forward;
     std::string audiofilename;
-    
+
     //Distance and Markov Vars
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
@@ -128,6 +131,10 @@ private:
     juce::Logger* masterLogger;
     std::mutex _mutex;
 
+
+
+    //Views
+    CustomLookAndFeel* design;
 
   //  ScopedPointer<Waveform> waveform;
     //[/UserVariables]
@@ -151,6 +158,8 @@ private:
 
 //[EndFile] You can add extra defines here...
 #define _REAL essentia::Real
+
+
 //[/EndFile]
 
 #endif   // __JUCE_HEADER_63FD855A234897E__
