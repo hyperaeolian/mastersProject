@@ -21,15 +21,9 @@
 #define __JUCE_HEADER_63FD855A234897E__
 
 //[Headers]     -- You can add your own extra header files here --
-#include <thread>
-#include <functional>
-#include <mutex>
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
 #include "AudioThumbnailComp.cpp"
-#include "essentia.h"
-#include "algorithmfactory.h"
-#include "pool.h"
 #include "Statistics.h"
 #include "MATRIX.h"
 #include "Design.cpp"
@@ -86,8 +80,6 @@ public:
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
 
-    //WaveformDisplay waveform;
-
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -96,10 +88,10 @@ public:
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
     // Binary resources:
-    static const char* sl490x2_png;
-    static const int sl490x2_pngSize;
     static const char* knob_png;
     static const int knob_pngSize;
+    static const char* background_png;
+    static const int background_pngSize;
 
 
 private:
@@ -129,14 +121,13 @@ private:
     float gain;
     juce::Random random;
     juce::Logger* masterLogger;
-    std::mutex _mutex;
 
 
 
     //Views
     CustomLookAndFeel* design;
-
-  //  ScopedPointer<Waveform> waveform;
+    ScopedPointer<Waveform> waveform;
+    
     //[/UserVariables]
 
     //==============================================================================

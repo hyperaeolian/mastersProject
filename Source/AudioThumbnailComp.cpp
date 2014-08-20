@@ -14,21 +14,28 @@ class Waveform :
     public Component,
     public ChangeListener,
     public ChangeBroadcaster,
+    private ScrollBar::Listener,
     private Timer
 {
 public:
-    Waveform(AudioFormatManager& formatManager, AudioTransportSource& _transportSource) :
+    Waveform(AudioFormatManager& formatManager,const AudioTransportSource& _transportSource) :
         transportSource(_transportSource),
+        scrollbar(false),
         cache(5),
         thumbnail(512, formatManager, cache),
         isFollowingTransport(false)
     {
         thumbnail.addChangeListener(this);
+        addAndMakeVisible(scrollbar);
+        scrollbar.setRangeLimits(visibleRange);
+        scrollbar.setAutoHide(false);
+        scrollbar.addListener(this);
         currentPos.setFill(Colours::white.withAlpha(0.85f));
         addAndMakeVisible(currentPos);
     }
     
     ~Waveform(){
+        scrollbar.removeListener(this);
         thumbnail.removeChangeListener(this);
     }
     
@@ -36,6 +43,7 @@ public:
         if (!file.isDirectory()) {
             thumbnail.setSource(new FileInputSource(file));
             const Range<double> newRange(0.0, thumbnail.getTotalLength());
+            scrollbar.setRangeLimits(newRange);
             setRange(newRange);
             startTimer(1000/40);
         }
@@ -51,6 +59,7 @@ public:
     
     void setRange(Range<double> newRange){
         visibleRange = newRange;
+        scrollbar.setCurrentRange(visibleRange);
         updateCursorPosition();
         repaint();
     }
@@ -61,15 +70,18 @@ public:
         g.fillAll(Colours::darkgrey);
         g.setColour(Colours::lightblue);
         if (thumbnail.getTotalLength() > 0.0) {
-           // Rectangle<int> thumbArea(getLocalBounds());
-            thumbnail.drawChannels(g, getLocalBounds().reduced(4), visibleRange.getStart(), visibleRange.getEnd(), 1.0f);
+            Rectangle<int> thumbArea(getLocalBounds());
+            thumbArea.removeFromBottom(scrollbar.getHeight() + 4);
+            thumbnail.drawChannels(g, thumbArea.reduced(4), visibleRange.getStart(), visibleRange.getEnd(), 1.0f);
         } else {
             g.setFont(14.0f);
             g.drawFittedText("No audio file selected", getLocalBounds(), Justification::centred, 2);
         }
     }
     
-    void resized() override {}
+    void resized() override {
+        scrollbar.setBounds(getLocalBounds().removeFromTop(14).reduced(2));
+    }
     
     void changeListenerCallback(ChangeBroadcaster*) override {
         repaint();
@@ -80,8 +92,8 @@ public:
     
 private:
    // Waveform();
-    AudioTransportSource& transportSource;
-    
+    const AudioTransportSource& transportSource;
+    ScrollBar scrollbar;
     AudioThumbnailCache cache;
     AudioThumbnail thumbnail;
     Range<double> visibleRange;
@@ -98,13 +110,19 @@ private:
         return (x / getWidth()) * (visibleRange.getLength()) + visibleRange.getStart();
     }
     
+    void scrollBarMoved(ScrollBar* scrollBarThatHasMoved, double newRangeStart) override {
+        if (scrollBarThatHasMoved == &scrollbar)
+            if (!(isFollowingTransport && transportSource.isPlaying()))
+                setRange(visibleRange.movedToStartAt(newRangeStart));
+    }
+    
     void timerCallback() override {
         setRange(visibleRange.movedToStartAt(transportSource.getCurrentPosition() - (visibleRange.getLength() / 2.0)));
     }
     
     void updateCursorPosition(){
         currentPos.setVisible(transportSource.isPlaying() || isMouseButtonDown());
-        currentPos.setRectangle(Rectangle<float> (timeToX(transportSource.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) getHeight() - 2.0f));
+        currentPos.setRectangle(Rectangle<float> (timeToX(transportSource.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
     }
 };
 

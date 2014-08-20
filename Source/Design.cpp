@@ -233,14 +233,15 @@ public:
         const float centreY = y + height * 0.5f;
         const float rx = centreX - radius;
         const float ry = centreY - radius;
-        const float rw = radius * 2.0f;
-        const float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-        const bool isMouseOver = slider.isMouseOverOrDragging() && slider.isEnabled();
         
         g.drawImage(gainKnob, (int)rx, (int)ry, 2 * (int)radius, 2 * (int)radius, 0,
                     frameIdx * gainKnob.getWidth(), gainKnob.getWidth(), gainKnob.getWidth());
         
         /*
+        const float rw = radius * 2.0f;
+        const float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+        const bool isMouseOver = slider.isMouseOverOrDragging() && slider.isEnabled();
+        
         if (slider.isEnabled())
             g.setColour (slider.findColour (Slider::rotarySliderFillColourId).withAlpha (isMouseOver ? 1.0f : 0.7f));
         else
