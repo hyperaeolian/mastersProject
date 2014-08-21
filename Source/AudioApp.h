@@ -131,6 +131,8 @@ private:
     CustomLookAndFeel* design;
     ScopedPointer<Waveform> waveform;
     
+    void updateChain(int x);
+    
     //[/UserVariables]
 
     //==============================================================================

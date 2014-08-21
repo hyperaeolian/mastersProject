@@ -10,6 +10,7 @@
 
 #include "JuceHeader.h"
 
+
 class Waveform :
     public Component,
     public ChangeListener,
@@ -17,14 +18,17 @@ class Waveform :
     private ScrollBar::Listener,
     private Timer
 {
+    
 public:
     Waveform(drow::AudioFilePlayerExt& afp) :
         audioFilePlayer(afp),
        // transportSource(_transportSource),
         scrollbar(false),
-        cache(5),
+        cache(10),
         thumbnail(512, *audioFilePlayer.getAudioFormatManager(), cache),
-        isFollowingTransport(false)
+        isFollowingTransport(false),
+        shifty(false),
+        endTime(0.0f)
     {
         thumbnail.addChangeListener(this);
         addAndMakeVisible(scrollbar);
@@ -32,7 +36,9 @@ public:
         scrollbar.setAutoHide(false);
         scrollbar.addListener(this);
         currentPos.setFill(Colours::white.withAlpha(0.85f));
+        endPos.setFill(Colours::white.withAlpha(0.85f));
         addAndMakeVisible(currentPos);
+        addAndMakeVisible(endPos);
     }
     
     ~Waveform(){
@@ -81,28 +87,29 @@ public:
     }
     
     void resized() override {
-        scrollbar.setBounds(getLocalBounds().removeFromTop(14).reduced(2));
+        scrollbar.setBounds(getLocalBounds().removeFromBottom(14).reduced(2));
     }
     
     void changeListenerCallback(ChangeBroadcaster*) override {
         repaint();
     }
     
+    void isShiftyLooping(bool shouldBeShifty){ shifty = shouldBeShifty; }
     
+    void setEndTime(float end){ endTime = end; }
     
     
 private:
-   // Waveform();
-   // const AudioTransportSource& transportSource;
     drow::AudioFilePlayerExt& audioFilePlayer;
     ScrollBar scrollbar;
     AudioThumbnailCache cache;
     AudioThumbnail thumbnail;
     Range<double> visibleRange;
-    bool isFollowingTransport;
+    bool isFollowingTransport, shifty;
+    float endTime;
    // File audioFile;
     
-    DrawableRectangle currentPos;
+    DrawableRectangle currentPos, endPos;
 
     float timeToX(const double time) const {
         return getWidth() * (float) ( (time - visibleRange.getStart()) / (visibleRange.getLength()));
@@ -118,14 +125,27 @@ private:
                 setRange(visibleRange.movedToStartAt(newRangeStart));
     }
     
+    bool canMoveTransport() const noexcept {
+        return !(isFollowingTransport && audioFilePlayer.isPlaying());
+    }
+    
     void timerCallback() override {
-        setRange(visibleRange.movedToStartAt(audioFilePlayer.getCurrentPosition() - (visibleRange.getLength() / 2.0)));
+        if (canMoveTransport())
+            updateCursorPosition();
+        else{
+            setRange(visibleRange.movedToStartAt(audioFilePlayer.getCurrentPosition() - (visibleRange.getLength() / 2.0)));
+        }
     }
     
     void updateCursorPosition(){
-        currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
-        currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+        if (shifty){
+            currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
+            endPos.setVisible(audioFilePlayer.isPlaying() || audioFilePlayer.getLoopBetweenTimes());
+            currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+            endPos.setRectangle(Rectangle<float>(timeToX(audioFilePlayer.getCurrentPosition() + endTime) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+        } else {
+            currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
+            currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+        }
     }
 };
-
-

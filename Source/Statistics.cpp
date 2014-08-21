@@ -42,7 +42,7 @@ void computeDistances(const std::vector<Loop>& loops, MATRIX& mat){
     std::vector<std::string> feature_names(fNames, fNames + numFeatures);
     for (int i = 0; i < mat.rows(); ++i) {
         for (int j = i + 1; j < mat.cols(); ++j) {
-            //if loop doesn't overlap or is on the diagnal, skip it
+            //if loop doesn't overlap or is on the diagnol, skip it
             if (mat(i,j) == 0 || i == j){
                 continue;
             } else {
@@ -62,7 +62,6 @@ MATRIX computeTransitionMatrix(const MATRIX& mat){
     MATRIX transitions(mat);
     for (int i = 0; i < transitions.rows(); ++i){
         essentia::Real rowSum = 0.f;
-        std::cout << std::endl;
         for (int j = 0; j < 2 * transitions.cols(); ++j){
             if (j < transitions.cols()){
                 rowSum += transitions(i,j);

@@ -156,7 +156,7 @@ AudioApp::~AudioApp()
     transMat     = nullptr;
     design       = nullptr;
     for (auto l : crudeLoops) { l.next = nullptr; l.prev = nullptr; }
-    waveform->removeChangeListener(this);
+   // waveform->removeChangeListener(this);
     mediaPlayer.removeListener(this);
     //if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
     deviceManager.removeAudioCallback(&sourcePlayer);
@@ -177,7 +177,7 @@ void AudioApp::paint (Graphics& g)
 
 void AudioApp::resized()
 {
-    backgroundImg->setBounds (70, 70, proportionOfWidth (1.5000f), proportionOfHeight (1.5000f));
+    backgroundImg->setBounds (0, 0, proportionOfWidth (1.0000f), proportionOfHeight (1.0000f));
     infoLabel->setBounds (40, 544, 664, 120);
     loadButton->setBounds (72, 384, 96, 56);
     playButton->setBounds (192, 384, 96, 56);
@@ -188,7 +188,7 @@ void AudioApp::resized()
     gainLabel->setBounds (560, 448, 150, 24);
     shiftyLoopingButton->setBounds (384, 224, 112, 40);
     //[UserResized] Add your own custom resize handling here..
-   backgroundImg->repaint();
+   //backgroundImg->repaint();
     //[/UserResized]
 }
 
@@ -225,7 +225,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             markov_chain = markov(*transMat, MarkovIterations, n);
 
             infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
-            mediaPlayer.setPosition(0.0);
+            
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
             shiftyLoopingButton->setEnabled(true);
@@ -234,7 +234,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             //settings.rate = static_cast<float>(Tempo);
             //mediaPlayer.setPlaybackSettings(settings);
             
-            startTimer(50);
+           // startTimer(50);
 
         }
         //[/UserButtonCode_loadButton]
@@ -334,6 +334,7 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
         setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr)
                                       : sourcePlayer.setSource(&mediaPlayer);
     }
+    repaint();
 
 }
 
@@ -342,6 +343,10 @@ void AudioApp::changeState(TransportState newState){
 
     if (state != newState) {
         state = newState;
+        if (ShiftyLooping != state){
+            waveform->isShiftyLooping(false);
+            stopTimer();
+        }
         switch (state) {
             case Starting:
                 printCurrentState(String("Starting..."));
@@ -387,13 +392,13 @@ void AudioApp::changeState(TransportState newState){
                 mediaPlayer.setLooping(true);
                 break;
             case ShiftyLooping:
-
                 printCurrentState(String("Shifty Looping..."));
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                playLoop(*currentLoop);
-               // shiftyLooping();
+                waveform->isShiftyLooping(true);
+                shiftyLooping();
+                startTimer(50);
                 break;
         }
 
@@ -417,43 +422,47 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 
 
 void AudioApp::shiftyLooping(){
-    //int c = random.nextInt(markov_chain.size() - 1);
-    mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
-    mediaPlayer.setPosition(currentLoop->start);
-    shifting = random.nextBool();
-    forward = random.nextBool();
-//    if (markov_chain.at(n+1) > markov_chain[n]) {
-//        shifting = forward = true;
-//    } else if (markov_chain.at(n+1) < markov_chain[n]) {
-//        shifting = true;
-//        forward = false;
-//    } else {
-//        shifting = false;
-//    }
+    //int n = random.nextInt(markov_chain.size() - 1);
+    static int n = 0;
+    currentLoop = &crudeLoops[markov_chain[n]];
+    if (markov_chain.at(n+1) > markov_chain[n]) {
+        shifting = forward = true;
+    } else if (markov_chain.at(n+1) < markov_chain[n]) {
+        shifting = true;
+        forward = false;
+    } else {
+        shifting = false;
+    }
     infoLabel->setText("Current loop is from: " + String(currentLoop->start) + " to " + String(currentLoop->end), sendNotification);
+    waveform->setEndTime(currentLoop->end);
     playLoop(*currentLoop);
-    //currentLoop = &crudeLoops[markov_chain[c]];
+    if (++n > markov_chain.size()){
+        generateMarkovChain();
+        n = 0;
+    }
+    n++;
 }
 
 void AudioApp::playLoop(Loop& loop){
-    //mediaPlayer.stop();
 
     if (shifting) {
         if (forward) {
-            currentLoop = currentLoop->next;
-            std::cout << "Shifting Forward" << std::endl;
+            printCurrentState("Shifting Forward");
+           // loop = *loop.next;
+            if (loop.prev->end >= loop.end) return;
             mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
             mediaPlayer.setPosition(loop.prev->end);
-            //assert(loop.prev->end < loop.end);
+            assert(loop.prev->end < loop.end);
             mediaPlayer.start();
             mediaPlayer.setLoopTimes(loop.start, loop.end);
             return;
         } else {
-            currentLoop = currentLoop->prev;
-            std::cout << "Shifting Backwards" << std::endl;
+            if (loop.next->start >= loop.end) return;
+            printCurrentState("Shifting Backwards");
+          //  loop = *loop.prev;
             mediaPlayer.setLoopTimes(loop.next->start, loop.end);
             mediaPlayer.setPosition(loop.next->start);
-            //assert(loop.next->start < loop.end);
+            assert(loop.next->start < loop.end);
             mediaPlayer.start();
             mediaPlayer.setLoopTimes(loop.start, loop.end);
             return;
@@ -463,7 +472,10 @@ void AudioApp::playLoop(Loop& loop){
         mediaPlayer.setLoopTimes(loop.start, loop.end);
         mediaPlayer.setPosition(loop.start);
     }
-
+    
+    if (mediaPlayer.getCurrentPosition() >= currentLoop->end) {
+        timerCallback();
+    }
 }
 
 
@@ -489,6 +501,7 @@ void AudioApp::timerCallback(){
     }
 }
 
+void AudioApp::updateChain(int x){ x++; }
 //[/MiscUserCode]
 
 
