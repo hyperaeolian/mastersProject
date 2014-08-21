@@ -10,11 +10,15 @@
 
 #include "JuceHeader.h"
 
-class CustomLookAndFeel : public LookAndFeel_V3 {
+class CustomLookAndFeel : public LookAndFeel_V3{
 public:
     CustomLookAndFeel(const char* _img, const int _imgSize) :
         knobImg(_img), knobImgSize(_imgSize)
     {}
+    
+    ~CustomLookAndFeel(){
+        knobImg = nullptr;
+    }
     
     void drawRoundThumb (Graphics& g, const float x, const float y,
                          const float diameter, const Colour& colour, float outlineThickness)
@@ -262,6 +266,7 @@ public:
         
         */
     }
+
 private:
     const char* knobImg;
     const int knobImgSize;

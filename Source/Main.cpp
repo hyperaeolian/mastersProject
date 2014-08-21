@@ -23,6 +23,7 @@ public:
     void initialise (const String& commandLine) override{
         // initialization code..
         mainWindow = new MainWindow();
+       
     
     }
 

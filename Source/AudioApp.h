@@ -47,10 +47,9 @@ class AudioApp  : public Component,
                   public Timer,
                   public drow::AudioFilePlayer::Listener
 {
-    
 public:
     //==============================================================================
-    AudioApp();
+    AudioApp ();
     ~AudioApp();
 
     //==============================================================================
@@ -81,6 +80,9 @@ public:
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
 
+    //Utility Methods
+    void loadFile();
+    void openAudioSettings();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -97,11 +99,11 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    
-    const int APP_WIDTH = 990, APP_HEIGHT = 690;
+
+    //const int APP_WIDTH = 990, APP_HEIGHT = 690;
     const int MarkovIterations = 9;
     essentia::Real Tempo;
-    
+    File* auxFile;
     //Audio Device Vars
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
@@ -130,22 +132,29 @@ private:
     //Views
     CustomLookAndFeel* design;
     ScopedPointer<Waveform> waveform;
-    
-    void updateChain(int x);
-    
+
+
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<ImageComponent> backgroundImg;
     ScopedPointer<Label> infoLabel;
-    ScopedPointer<TextButton> loadButton;
     ScopedPointer<TextButton> playButton;
     ScopedPointer<TextButton> stopButton;
-    ScopedPointer<TextButton> settingsButton;
+    ScopedPointer<TextButton> recordingButton;
     ScopedPointer<ToggleButton> loopButton;
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> gainLabel;
     ScopedPointer<ToggleButton> shiftyLoopingButton;
+    ScopedPointer<GroupComponent> ostinatoGroup;
+    ScopedPointer<GroupComponent> groupComponent2;
+    ScopedPointer<GroupComponent> pitchTempoGropu;
+    ScopedPointer<Slider> rateSlider;
+    ScopedPointer<Slider> pitchSlider;
+    ScopedPointer<Slider> tempoSlider;
+    ScopedPointer<Slider> varianceSlider;
+    ScopedPointer<Slider> barSizeSlider;
+    ScopedPointer<TextButton> reloopButton;
 
 
     //==============================================================================

@@ -25,30 +25,24 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-int n = 0;
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp () : stream(background_png, background_pngSize, false)
+AudioApp::AudioApp ()
+    : stream(background_png, background_pngSize, false)
 {
     addAndMakeVisible (backgroundImg = new ImageComponent());
     backgroundImg->setName ("backgroundImg");
-    
+
     addAndMakeVisible (infoLabel = new Label ("Info Label",
-                                              TRANS("Data")));
+                                              TRANS("Data...")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
-    infoLabel->setJustificationType (Justification::centredLeft);
+    infoLabel->setJustificationType (Justification::centred);
     infoLabel->setEditable (false, false, false);
     infoLabel->setColour (Label::backgroundColourId, Colour (0xff0d0d0d));
     infoLabel->setColour (Label::textColourId, Colour (0xff87ee20));
     infoLabel->setColour (TextEditor::textColourId, Colours::black);
     infoLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    addAndMakeVisible (loadButton = new TextButton ("Load Button"));
-    loadButton->setButtonText (TRANS("Load File..."));
-    loadButton->setConnectedEdges (Button::ConnectedOnLeft | Button::ConnectedOnRight);
-    loadButton->addListener (this);
-    loadButton->setColour (TextButton::buttonColourId, Colours::aliceblue);
 
     addAndMakeVisible (playButton = new TextButton ("Play Button"));
     playButton->setButtonText (TRANS("Play"));
@@ -62,11 +56,11 @@ AudioApp::AudioApp () : stream(background_png, background_pngSize, false)
     stopButton->addListener (this);
     stopButton->setColour (TextButton::buttonColourId, Colours::aliceblue);
 
-    addAndMakeVisible (settingsButton = new TextButton ("Settings Button"));
-    settingsButton->setButtonText (TRANS("Settings..."));
-    settingsButton->setConnectedEdges (Button::ConnectedOnLeft | Button::ConnectedOnRight);
-    settingsButton->addListener (this);
-    settingsButton->setColour (TextButton::buttonColourId, Colours::aliceblue);
+    addAndMakeVisible (recordingButton = new TextButton ("Recording"));
+    recordingButton->setButtonText (TRANS("Record"));
+    recordingButton->setConnectedEdges (Button::ConnectedOnLeft | Button::ConnectedOnRight);
+    recordingButton->addListener (this);
+    recordingButton->setColour (TextButton::buttonColourId, Colours::aliceblue);
 
     addAndMakeVisible (loopButton = new ToggleButton ("Loop Button"));
     loopButton->setButtonText (TRANS("Loop Sample"));
@@ -96,18 +90,85 @@ AudioApp::AudioApp () : stream(background_png, background_pngSize, false)
 
     addAndMakeVisible (shiftyLoopingButton = new ToggleButton ("Shifty Button"));
     shiftyLoopingButton->setButtonText (TRANS("Shifty Looping"));
+    shiftyLoopingButton->setConnectedEdges (Button::ConnectedOnLeft | Button::ConnectedOnRight | Button::ConnectedOnTop | Button::ConnectedOnBottom);
     shiftyLoopingButton->addListener (this);
     shiftyLoopingButton->setColour (ToggleButton::textColourId, Colour (0xfff3f3f3));
+
+    addAndMakeVisible (ostinatoGroup = new GroupComponent ("Affects",
+                                                           TRANS("Ostinato")));
+    ostinatoGroup->setTextLabelPosition (Justification::centred);
+    ostinatoGroup->setColour (GroupComponent::outlineColourId, Colour (0x66b8c1da));
+    ostinatoGroup->setColour (GroupComponent::textColourId, Colour (0xffd2d2ed));
+
+    addAndMakeVisible (groupComponent2 = new GroupComponent ("Pitch",
+                                                             TRANS("Pitch")));
+    groupComponent2->setTextLabelPosition (Justification::centredRight);
+
+    addAndMakeVisible (pitchTempoGropu = new GroupComponent ("PitchTempo",
+                                                             TRANS(" Pitch and Tempo")));
+    pitchTempoGropu->setTextLabelPosition (Justification::centredRight);
+    pitchTempoGropu->setColour (GroupComponent::outlineColourId, Colour (0x66c9cee1));
+    pitchTempoGropu->setColour (GroupComponent::textColourId, Colour (0xffd0d1df));
+
+    addAndMakeVisible (rateSlider = new Slider ("SampleRate"));
+    rateSlider->setRange (0, 1, 0.1);
+    rateSlider->setSliderStyle (Slider::RotaryVerticalDrag);
+    rateSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    rateSlider->setColour (Slider::thumbColourId, Colours::aquamarine);
+    rateSlider->setColour (Slider::trackColourId, Colours::aquamarine);
+    rateSlider->setColour (Slider::rotarySliderOutlineColourId, Colour (0xff5959e4));
+    rateSlider->addListener (this);
+    rateSlider->setSkewFactor (2);
+
+    addAndMakeVisible (pitchSlider = new Slider ("Pitch"));
+    pitchSlider->setRange (0, 1, 0.1);
+    pitchSlider->setSliderStyle (Slider::RotaryVerticalDrag);
+    pitchSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    pitchSlider->setColour (Slider::thumbColourId, Colours::aquamarine);
+    pitchSlider->setColour (Slider::trackColourId, Colours::aquamarine);
+    pitchSlider->setColour (Slider::rotarySliderOutlineColourId, Colour (0xff5959e4));
+    pitchSlider->addListener (this);
+    pitchSlider->setSkewFactor (2);
+
+    addAndMakeVisible (tempoSlider = new Slider ("tempo"));
+    tempoSlider->setRange (0, 1, 0.1);
+    tempoSlider->setSliderStyle (Slider::RotaryVerticalDrag);
+    tempoSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    tempoSlider->setColour (Slider::thumbColourId, Colours::aquamarine);
+    tempoSlider->setColour (Slider::trackColourId, Colours::aquamarine);
+    tempoSlider->setColour (Slider::rotarySliderOutlineColourId, Colour (0xff5959e4));
+    tempoSlider->addListener (this);
+    tempoSlider->setSkewFactor (2);
+
+    addAndMakeVisible (varianceSlider = new Slider ("Variance"));
+    varianceSlider->setRange (0, 10, 0);
+    varianceSlider->setSliderStyle (Slider::LinearHorizontal);
+    varianceSlider->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
+    varianceSlider->setColour (Slider::backgroundColourId, Colour (0x00450707));
+    varianceSlider->addListener (this);
+
+    addAndMakeVisible (barSizeSlider = new Slider ("BarSize"));
+    barSizeSlider->setRange (1, 5, 1);
+    barSizeSlider->setSliderStyle (Slider::LinearHorizontal);
+    barSizeSlider->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
+    barSizeSlider->setColour (Slider::backgroundColourId, Colour (0x00450707));
+    barSizeSlider->addListener (this);
+
+    addAndMakeVisible (reloopButton = new TextButton ("ResetLoops"));
+    reloopButton->setButtonText (TRANS("ReLoop"));
+    reloopButton->addListener (this);
+    reloopButton->setColour (TextButton::buttonColourId, Colour (0xff8181ab));
 
 
     //[UserPreSize]
     backgroundImg->setImage(ImageFileFormat::loadFrom(stream));
     //[/UserPreSize]
 
+    setSize (990, 690);
+
+
     //[Constructor] You can add your own custom stuff here..
 
-
-    setSize(APP_WIDTH, APP_HEIGHT);
     design = new CustomLookAndFeel(knob_png, knob_pngSize);
     LookAndFeel::setDefaultLookAndFeel(design);
 
@@ -123,11 +184,8 @@ AudioApp::AudioApp () : stream(background_png, background_pngSize, false)
     sourcePlayer.setSource(&mediaPlayer);
     deviceManager.addChangeListener(this);
     mediaPlayer.addListener(this);
-    masterLogger = juce::Logger::getCurrentLogger();
 
-    addAndMakeVisible(waveform = new Waveform(mediaPlayer));
-    waveform->addChangeListener(this);
-    
+    masterLogger = juce::Logger::getCurrentLogger();
     state = Stopped;
     //[/Constructor]
 }
@@ -139,27 +197,38 @@ AudioApp::~AudioApp()
 
     backgroundImg = nullptr;
     infoLabel = nullptr;
-    loadButton = nullptr;
     playButton = nullptr;
     stopButton = nullptr;
-    settingsButton = nullptr;
+    recordingButton = nullptr;
     loopButton = nullptr;
     gainSlider = nullptr;
     gainLabel = nullptr;
     shiftyLoopingButton = nullptr;
+    ostinatoGroup = nullptr;
+    groupComponent2 = nullptr;
+    pitchTempoGropu = nullptr;
+    rateSlider = nullptr;
+    pitchSlider = nullptr;
+    tempoSlider = nullptr;
+    varianceSlider = nullptr;
+    barSizeSlider = nullptr;
+    reloopButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
-    currentLoop  = nullptr;
+    stopTimer();
+    similarity = nullptr;
+    auxFile = nullptr;
+    //design = nullptr;
+    transMat = nullptr;
     masterLogger = nullptr;
-    similarity   = nullptr;
-    transMat     = nullptr;
-    design       = nullptr;
+    currentLoop = nullptr;
+    sourcePlayer.setSource(nullptr);
     for (auto l : crudeLoops) { l.next = nullptr; l.prev = nullptr; }
    // waveform->removeChangeListener(this);
     mediaPlayer.removeListener(this);
-    //if (mediaPlayer.hasStreamFinished()) mediaPlayer.removeListener(this);
     deviceManager.removeAudioCallback(&sourcePlayer);
+    delete design;
     //[/Destructor]
 }
 
@@ -172,23 +241,32 @@ void AudioApp::paint (Graphics& g)
     g.fillAll (Colour (0xff0f0f0f));
 
     //[UserPaint] Add your own custom painting code here..
+
     //[/UserPaint]
 }
 
 void AudioApp::resized()
 {
-    backgroundImg->setBounds (0, 0, proportionOfWidth (1.0000f), proportionOfHeight (1.0000f));
-    infoLabel->setBounds (40, 544, 664, 120);
-    loadButton->setBounds (72, 384, 96, 56);
-    playButton->setBounds (192, 384, 96, 56);
-    stopButton->setBounds (320, 384, 96, 56);
-    settingsButton->setBounds (440, 384, 96, 56);
-    loopButton->setBounds (120, 224, 120, 40);
-    gainSlider->setBounds (584, 280, 112, 160);
-    gainLabel->setBounds (560, 448, 150, 24);
-    shiftyLoopingButton->setBounds (384, 224, 112, 40);
+    backgroundImg->setBounds (0, -8, 990, 690);
+    infoLabel->setBounds (40, 632, 664, 40);
+    playButton->setBounds (216, 560, 96, 32);
+    stopButton->setBounds (312, 560, 96, 32);
+    recordingButton->setBounds (408, 560, 96, 32);
+    loopButton->setBounds (224, 448, 120, 40);
+    gainSlider->setBounds (584, 472, 96, 96);
+    gainLabel->setBounds (560, 592, 150, 24);
+    shiftyLoopingButton->setBounds (376, 448, 112, 40);
+    ostinatoGroup->setBounds (32, 192, 280, 240);
+    groupComponent2->setBounds (408, 200, 320, 104);
+    pitchTempoGropu->setBounds (408, 328, 320, 104);
+    rateSlider->setBounds (432, 352, 80, 64);
+    pitchSlider->setBounds (528, 352, 80, 64);
+    tempoSlider->setBounds (624, 352, 80, 64);
+    varianceSlider->setBounds (64, 224, 224, 24);
+    barSizeSlider->setBounds (64, 272, 224, 24);
+    reloopButton->setBounds (72, 320, 208, 32);
     //[UserResized] Add your own custom resize handling here..
-   //backgroundImg->repaint();
+
     //[/UserResized]
 }
 
@@ -197,49 +275,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == loadButton)
-    {
-        //[UserButtonCode_loadButton] -- add your button handler code here..
-        FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
-        if (chooser.browseForFileToOpen()) {
-            File file(chooser.getResult());
-            mediaPlayer.setFile(file);
-
-            waveform->setFile(file);
-            waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
-
-            audiofilename = file.getFullPathName().toUTF8();
-            crudeLoops = computeLoops(audiofilename, Tempo);
-            //int n = random.nextInt(crudeLoops.size() - 1);
-
-            currentLoop = &crudeLoops[n];
-
-            for (auto& loop : crudeLoops)
-                masterLogger->writeToLog("Current Loop: " + String(loop.start) + " to " + String(loop.end));
-
-            similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
-            computeDistances(crudeLoops, *similarity);
-            transMat = new MATRIX(computeTransitionMatrix(*similarity));
-           // generateMarkovChain();
-
-            markov_chain = markov(*transMat, MarkovIterations, n);
-
-            infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
-            
-            playButton->setEnabled(true);
-            loopButton->setEnabled(true);
-            shiftyLoopingButton->setEnabled(true);
-            
-            drow::SoundTouchProcessor::PlaybackSettings settings(mediaPlayer.getPlaybackSettings());
-            //settings.rate = static_cast<float>(Tempo);
-            //mediaPlayer.setPlaybackSettings(settings);
-            
-           // startTimer(50);
-
-        }
-        //[/UserButtonCode_loadButton]
-    }
-    else if (buttonThatWasClicked == playButton)
+    if (buttonThatWasClicked == playButton)
     {
         //[UserButtonCode_playButton] -- add your button handler code here..
 
@@ -260,22 +296,11 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             loopButton->setToggleState(false, dontSendNotification);
         //[/UserButtonCode_stopButton]
     }
-    else if (buttonThatWasClicked == settingsButton)
+    else if (buttonThatWasClicked == recordingButton)
     {
-        //[UserButtonCode_settingsButton] -- add your button handler code here..
-        bool showMidiInputOptions = false;
-        bool showMidiOutputSelector = false;
-        bool showChnlsAsStereoPairs =true;
-        bool hideAdvancedOptions = false;
-
-        AudioDeviceSelectorComponent settings(deviceManager, 0,0,1,2,
-                                              showMidiInputOptions,
-                                              showMidiOutputSelector,
-                                              showChnlsAsStereoPairs,
-                                              hideAdvancedOptions);
-        settings.setSize(500,400);
-        DialogWindow::showModalDialog(String("Audio Settings"), &settings, TopLevelWindow::getTopLevelWindow(0), Colours::white, true);
-        //[/UserButtonCode_settingsButton]
+        //[UserButtonCode_recordingButton] -- add your button handler code here..
+        changeState(Recording);
+        //[/UserButtonCode_recordingButton]
     }
     else if (buttonThatWasClicked == loopButton)
     {
@@ -290,6 +315,12 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         changeState(ShiftyLooping);
 
         //[/UserButtonCode_shiftyLoopingButton]
+    }
+    else if (buttonThatWasClicked == reloopButton)
+    {
+        //[UserButtonCode_reloopButton] -- add your button handler code here..
+        markov_chain = markov(*transMat, MarkovIterations, random.nextInt(crudeLoops.size()-1));
+        //[/UserButtonCode_reloopButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -306,8 +337,35 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
         gain = static_cast<float>(gainSlider->getValue());
         sourcePlayer.setGain(gain);
-
         //[/UserSliderCode_gainSlider]
+    }
+    else if (sliderThatWasMoved == rateSlider)
+    {
+        //[UserSliderCode_rateSlider] -- add your slider handling code here..
+        drow::SoundTouchProcessor::PlaybackSettings settings(mediaPlayer.getPlaybackSettings());
+        settings.rate = static_cast<float>(rateSlider->getValue());
+        mediaPlayer.setPlaybackSettings(settings);
+        //[/UserSliderCode_rateSlider]
+    }
+    else if (sliderThatWasMoved == pitchSlider)
+    {
+        //[UserSliderCode_pitchSlider] -- add your slider handling code here..
+        //[/UserSliderCode_pitchSlider]
+    }
+    else if (sliderThatWasMoved == tempoSlider)
+    {
+        //[UserSliderCode_tempoSlider] -- add your slider handling code here..
+        //[/UserSliderCode_tempoSlider]
+    }
+    else if (sliderThatWasMoved == varianceSlider)
+    {
+        //[UserSliderCode_varianceSlider] -- add your slider handling code here..
+        //[/UserSliderCode_varianceSlider]
+    }
+    else if (sliderThatWasMoved == barSizeSlider)
+    {
+        //[UserSliderCode_barSizeSlider] -- add your slider handling code here..
+        //[/UserSliderCode_barSizeSlider]
     }
 
     //[UsersliderValueChanged_Post]
@@ -317,12 +375,62 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void AudioApp::loadFile(){
+    FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
+    if (chooser.browseForFileToOpen())
+        auxFile = new File(chooser.getResult());
+        mediaPlayer.setFile(*auxFile);
+
+    // addAndMakeVisible(waveform = new Waveform(mediaPlayer));
+    // waveform->addChangeListener(this);
+    // waveform->setFile(file);
+    // waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
+
+    audiofilename = auxFile->getFullPathName().toUTF8();
+    crudeLoops = computeLoops(audiofilename, Tempo);
+    int n = random.nextInt(crudeLoops.size() - 1);
+
+    currentLoop = &crudeLoops[n];
+
+    for (auto& loop : crudeLoops)
+        masterLogger->writeToLog("Current Loop: " + String(loop.start) + " to " + String(loop.end));
+
+    similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
+    computeDistances(crudeLoops, *similarity);
+    transMat = new MATRIX(computeTransitionMatrix(*similarity));
+    // generateMarkovChain();
+
+    markov_chain = markov(*transMat, MarkovIterations, n);
+
+    infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
+
+    playButton->setEnabled(true);
+    loopButton->setEnabled(true);
+    shiftyLoopingButton->setEnabled(true);
+
+}
+
+void AudioApp::openAudioSettings(){
+    bool showMidiInputOptions = false;
+    bool showMidiOutputSelector = false;
+    bool showChnlsAsStereoPairs =true;
+    bool hideAdvancedOptions = false;
+
+    AudioDeviceSelectorComponent settings(deviceManager, 0,0,1,2,
+                                          showMidiInputOptions,
+                                          showMidiOutputSelector,
+                                          showChnlsAsStereoPairs,
+                                          hideAdvancedOptions);
+    settings.setSize(500,400);
+    DialogWindow::showModalDialog(String("Audio Settings"), &settings, TopLevelWindow::getTopLevelWindow(0), Colours::white, true);
+}
+
 inline void AudioApp::printCurrentState(juce::String s) {
     infoLabel->setText("Current State: " + s, sendNotification);
 }
 
 inline void AudioApp::generateMarkovChain(){
-    n = random.nextInt(crudeLoops.size() - 1);
+    int n = random.nextInt(crudeLoops.size() - 1);
     markov_chain = markov(*transMat, MarkovIterations, n);
 }
 
@@ -344,7 +452,7 @@ void AudioApp::changeState(TransportState newState){
     if (state != newState) {
         state = newState;
         if (ShiftyLooping != state){
-            waveform->isShiftyLooping(false);
+          //  waveform->isShiftyLooping(false);
             stopTimer();
         }
         switch (state) {
@@ -396,7 +504,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                waveform->isShiftyLooping(true);
+              //  waveform->isShiftyLooping(true);
                 shiftyLooping();
                 startTimer(50);
                 break;
@@ -434,7 +542,7 @@ void AudioApp::shiftyLooping(){
         shifting = false;
     }
     infoLabel->setText("Current loop is from: " + String(currentLoop->start) + " to " + String(currentLoop->end), sendNotification);
-    waveform->setEndTime(currentLoop->end);
+   // waveform->setEndTime(currentLoop->end);
     playLoop(*currentLoop);
     if (++n > markov_chain.size()){
         generateMarkovChain();
@@ -448,18 +556,19 @@ void AudioApp::playLoop(Loop& loop){
     if (shifting) {
         if (forward) {
             printCurrentState("Shifting Forward");
-           // loop = *loop.next;
+            loop = *loop.next;
             if (loop.prev->end >= loop.end) return;
             mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
             mediaPlayer.setPosition(loop.prev->end);
             assert(loop.prev->end < loop.end);
             mediaPlayer.start();
+            usleep(loop.end - loop.prev->end * 1000);
             mediaPlayer.setLoopTimes(loop.start, loop.end);
             return;
         } else {
             if (loop.next->start >= loop.end) return;
             printCurrentState("Shifting Backwards");
-          //  loop = *loop.prev;
+            loop = *loop.prev;
             mediaPlayer.setLoopTimes(loop.next->start, loop.end);
             mediaPlayer.setPosition(loop.next->start);
             assert(loop.next->start < loop.end);
@@ -472,7 +581,7 @@ void AudioApp::playLoop(Loop& loop){
         mediaPlayer.setLoopTimes(loop.start, loop.end);
         mediaPlayer.setPosition(loop.start);
     }
-    
+
     if (mediaPlayer.getCurrentPosition() >= currentLoop->end) {
         timerCallback();
     }
@@ -501,7 +610,6 @@ void AudioApp::timerCallback(){
     }
 }
 
-void AudioApp::updateChain(int x){ x++; }
 //[/MiscUserCode]
 
 
@@ -516,52 +624,82 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="AudioApp" componentName=""
                  parentClasses="public Component, public ChangeListener, public ButtonListener, public SliderListener, public Timer, public drow::AudioFilePlayer::Listener"
-                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="600"
-                 initialHeight="400">
+                 constructorParams="" variableInitialisers="stream(background_png, background_pngSize, false)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="1" initialWidth="990" initialHeight="690">
   <BACKGROUND backgroundColour="ff0f0f0f"/>
   <GENERICCOMPONENT name="backgroundImg" id="72aa7502c65b2396" memberName="backgroundImg"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 100% 100.708%"
-                    class="ImageComponent" params=""/>
+                    virtualName="" explicitFocusOrder="0" pos="0 -8 990 690" class="ImageComponent"
+                    params=""/>
   <LABEL name="Info Label" id="2fc17cbb62c7782f" memberName="infoLabel"
-         virtualName="" explicitFocusOrder="0" pos="40 544 664 120" bkgCol="ff0d0d0d"
-         textCol="ff87ee20" edTextCol="ff000000" edBkgCol="0" labelText="Data"
+         virtualName="" explicitFocusOrder="0" pos="40 632 664 40" bkgCol="ff0d0d0d"
+         textCol="ff87ee20" edTextCol="ff000000" edBkgCol="0" labelText="Data..."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Apple LiSung" fontsize="17.899999999999998579" bold="0"
-         italic="0" justification="33"/>
-  <TEXTBUTTON name="Load Button" id="a79aafbaa2e02f08" memberName="loadButton"
-              virtualName="" explicitFocusOrder="0" pos="72 384 96 56" bgColOff="fff0f8ff"
-              buttonText="Load File..." connectedEdges="3" needsCallback="1"
-              radioGroupId="0"/>
+         italic="0" justification="36"/>
   <TEXTBUTTON name="Play Button" id="aa045a593e226508" memberName="playButton"
-              virtualName="" explicitFocusOrder="0" pos="192 384 96 56" bgColOff="fff0f8ff"
+              virtualName="" explicitFocusOrder="0" pos="216 560 96 32" bgColOff="fff0f8ff"
               buttonText="Play" connectedEdges="3" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="Stop Button" id="e3f6aa07147c05" memberName="stopButton"
-              virtualName="" explicitFocusOrder="0" pos="320 384 96 56" bgColOff="fff0f8ff"
+              virtualName="" explicitFocusOrder="0" pos="312 560 96 32" bgColOff="fff0f8ff"
               buttonText="Stop" connectedEdges="3" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="Settings Button" id="f5cdf9e0260e09a2" memberName="settingsButton"
-              virtualName="" explicitFocusOrder="0" pos="440 384 96 56" bgColOff="fff0f8ff"
-              buttonText="Settings..." connectedEdges="3" needsCallback="1"
-              radioGroupId="0"/>
+  <TEXTBUTTON name="Recording" id="f5cdf9e0260e09a2" memberName="recordingButton"
+              virtualName="" explicitFocusOrder="0" pos="408 560 96 32" bgColOff="fff0f8ff"
+              buttonText="Record" connectedEdges="3" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="Loop Button" id="a5b4e832ce1021b5" memberName="loopButton"
-                virtualName="" explicitFocusOrder="0" pos="120 224 120 40" txtcol="ffe8d8d8"
+                virtualName="" explicitFocusOrder="0" pos="224 448 120 40" txtcol="ffe8d8d8"
                 buttonText="Loop Sample" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <SLIDER name="Gain Slider" id="9d008628b8772a4d" memberName="gainSlider"
-          virtualName="" explicitFocusOrder="0" pos="584 280 112 160" thumbcol="ff7fffd4"
+          virtualName="" explicitFocusOrder="0" pos="584 472 96 96" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <LABEL name="Gain Label" id="d9d519cd8dc043ff" memberName="gainLabel"
-         virtualName="" explicitFocusOrder="0" pos="560 448 150 24" textCol="fff0ffff"
+         virtualName="" explicitFocusOrder="0" pos="560 592 150 24" textCol="fff0ffff"
          edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="GAIN"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
          italic="0" justification="36"/>
   <TOGGLEBUTTON name="Shifty Button" id="717b6864ee8b9341" memberName="shiftyLoopingButton"
-                virtualName="" explicitFocusOrder="0" pos="384 224 112 40" txtcol="fff3f3f3"
-                buttonText="Shifty Looping" connectedEdges="0" needsCallback="1"
+                virtualName="" explicitFocusOrder="0" pos="376 448 112 40" txtcol="fff3f3f3"
+                buttonText="Shifty Looping" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
+  <GROUPCOMPONENT name="Affects" id="9ab3a0160a4c89f8" memberName="ostinatoGroup"
+                  virtualName="" explicitFocusOrder="0" pos="32 192 280 240" outlinecol="66b8c1da"
+                  textcol="ffd2d2ed" title="Ostinato" textpos="36"/>
+  <GROUPCOMPONENT name="Pitch" id="146c887bf69968d0" memberName="groupComponent2"
+                  virtualName="" explicitFocusOrder="0" pos="408 200 320 104" title="Pitch"
+                  textpos="34"/>
+  <GROUPCOMPONENT name="PitchTempo" id="6cbab5f86507196" memberName="pitchTempoGropu"
+                  virtualName="" explicitFocusOrder="0" pos="408 328 320 104" outlinecol="66c9cee1"
+                  textcol="ffd0d1df" title=" Pitch and Tempo" textpos="34"/>
+  <SLIDER name="SampleRate" id="4efa3000244a03a3" memberName="rateSlider"
+          virtualName="" explicitFocusOrder="0" pos="432 352 80 64" thumbcol="ff7fffd4"
+          trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
+          int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
+  <SLIDER name="Pitch" id="f2465aa0b705eb82" memberName="pitchSlider" virtualName=""
+          explicitFocusOrder="0" pos="528 352 80 64" thumbcol="ff7fffd4"
+          trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
+          int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
+  <SLIDER name="tempo" id="3148e5d6f1593c42" memberName="tempoSlider" virtualName=""
+          explicitFocusOrder="0" pos="624 352 80 64" thumbcol="ff7fffd4"
+          trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
+          int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
+  <SLIDER name="Variance" id="d028e9a4b754eaf9" memberName="varianceSlider"
+          virtualName="" explicitFocusOrder="0" pos="64 224 224 24" bkgcol="450707"
+          min="0" max="10" int="0" style="LinearHorizontal" textBoxPos="NoTextBox"
+          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+  <SLIDER name="BarSize" id="2783238b83d804ef" memberName="barSizeSlider"
+          virtualName="" explicitFocusOrder="0" pos="64 272 224 24" bkgcol="450707"
+          min="1" max="5" int="1" style="LinearHorizontal" textBoxPos="NoTextBox"
+          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+  <TEXTBUTTON name="ResetLoops" id="5c4e26e3e4d3321a" memberName="reloopButton"
+              virtualName="" explicitFocusOrder="0" pos="72 320 208 32" bgColOff="ff8181ab"
+              buttonText="ReLoop" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

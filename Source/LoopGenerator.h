@@ -11,7 +11,6 @@
 #ifndef LOOPGEN_H_INCLUDED
 #define LOOPGEN_H_INCLUDED
 
-//#include <iostream>
 #include <vector>
 #include "JuceHeader.h"
 #include "pool.h"
