@@ -20,9 +20,9 @@ const float BAR_SIZE = 1.0;
 float LAST_ONSET;
 
 
-vector<Loop> computeLoops(const std::string audiofilename) {
+vector<Loop> computeLoops(const std::string audiofilename, essentia::Real& bpm) {
     std::vector<Loop> theLoops;
-    const std::vector<essentia::Real> onsets(computeGlobalBeatsOnsets(audiofilename)); //actually returning beats not onsets
+    const std::vector<essentia::Real> onsets(computeGlobalBeatsOnsets(audiofilename, bpm)); //actually returning beats not onsets
     LAST_ONSET = onsets.back();
     
     essentia::init();

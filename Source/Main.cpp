@@ -23,6 +23,7 @@ public:
     void initialise (const String& commandLine) override{
         // initialization code..
         mainWindow = new MainWindow();
+    
     }
 
     void shutdown() override{
@@ -50,7 +51,7 @@ public:
     */
     class MainWindow : public DocumentWindow{
     public:
-        MainWindow()  : DocumentWindow ("PhaseTwo",
+        MainWindow()  : DocumentWindow ("Ostinato",
                                         Colours::lightgrey,
                                         DocumentWindow::allButtons)
         {

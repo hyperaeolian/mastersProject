@@ -47,9 +47,10 @@ class AudioApp  : public Component,
                   public Timer,
                   public drow::AudioFilePlayer::Listener
 {
+    
 public:
     //==============================================================================
-    AudioApp ();
+    AudioApp();
     ~AudioApp();
 
     //==============================================================================
@@ -96,9 +97,11 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    const int APP_WIDTH = 700, APP_HEIGHT = 750;
+    
+    const int APP_WIDTH = 990, APP_HEIGHT = 690;
     const int MarkovIterations = 9;
-
+    essentia::Real Tempo;
+    
     //Audio Device Vars
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
@@ -121,7 +124,7 @@ private:
     float gain;
     juce::Random random;
     juce::Logger* masterLogger;
-
+    MemoryInputStream stream;
 
 
     //Views

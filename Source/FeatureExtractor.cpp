@@ -22,25 +22,38 @@ bool successfulExtraction = false;
 
 essentia::Pool* featureBin = new Pool;
 
-std::vector<_REAL> computeGlobalBeatsOnsets(const std::string song){
+std::vector<_REAL> computeGlobalBeatsOnsets(const std::string song, essentia::Real& bpm){
     essentia::init();
     juce::ScopedPointer<Algorithm> audiofile = AlgorithmFactory::create("MonoLoader", "filename", song,
                                                               "sampleRate", 44100);
     juce::ScopedPointer<Algorithm> _onsetRate = AlgorithmFactory::create("OnsetRate"),
-                                   _beatTrack = AlgorithmFactory::create("BeatTrackerMultiFeature");
-    std::vector<Real> buffer, onsetTimes, beats;
-    Real rate, conf;
+                                   _beatTrack = AlgorithmFactory::create("BeatTrackerMultiFeature"),
+                                   _tempo     = AlgorithmFactory::create("RhythmExtractor2013");
+    std::vector<Real> buffer, onsetTimes, beats, ticks, estimates, bpmIntervals;
+    Real rate, conf, tempo, confidence;
     audiofile->output("audio").set(buffer);
     _onsetRate->input("signal").set(buffer);
     _onsetRate->output("onsets").set(onsetTimes);
     _onsetRate->output("onsetRate").set(rate);
+    
+    /* TODO: replace this with rhythmextractor2013 */
     _beatTrack->input("signal").set(buffer);
     _beatTrack->output("ticks").set(beats);
     _beatTrack->output("confidence").set(conf);
     
+    _tempo->input("signal").set(buffer);
+    _tempo->output("bpm").set(tempo);
+    _tempo->output("ticks").set(ticks);
+    _tempo->output("confidence").set(confidence);
+    _tempo->output("estimates").set(estimates);
+    _tempo->output("bpmIntervals").set(bpmIntervals);
+    
     audiofile->compute();
     _onsetRate->compute();
     _beatTrack->compute();
+    _tempo->compute();
+    
+    bpm = tempo;
     
     essentia::shutdown();
     //return onsetTimes for precision in start and end points for the loop

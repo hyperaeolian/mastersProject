@@ -18,11 +18,12 @@ class Waveform :
     private Timer
 {
 public:
-    Waveform(AudioFormatManager& formatManager,const AudioTransportSource& _transportSource) :
-        transportSource(_transportSource),
+    Waveform(drow::AudioFilePlayerExt& afp) :
+        audioFilePlayer(afp),
+       // transportSource(_transportSource),
         scrollbar(false),
         cache(5),
-        thumbnail(512, formatManager, cache),
+        thumbnail(512, *audioFilePlayer.getAudioFormatManager(), cache),
         isFollowingTransport(false)
     {
         thumbnail.addChangeListener(this);
@@ -92,7 +93,8 @@ public:
     
 private:
    // Waveform();
-    const AudioTransportSource& transportSource;
+   // const AudioTransportSource& transportSource;
+    drow::AudioFilePlayerExt& audioFilePlayer;
     ScrollBar scrollbar;
     AudioThumbnailCache cache;
     AudioThumbnail thumbnail;
@@ -112,17 +114,17 @@ private:
     
     void scrollBarMoved(ScrollBar* scrollBarThatHasMoved, double newRangeStart) override {
         if (scrollBarThatHasMoved == &scrollbar)
-            if (!(isFollowingTransport && transportSource.isPlaying()))
+            if (!(isFollowingTransport && audioFilePlayer.isPlaying()))
                 setRange(visibleRange.movedToStartAt(newRangeStart));
     }
     
     void timerCallback() override {
-        setRange(visibleRange.movedToStartAt(transportSource.getCurrentPosition() - (visibleRange.getLength() / 2.0)));
+        setRange(visibleRange.movedToStartAt(audioFilePlayer.getCurrentPosition() - (visibleRange.getLength() / 2.0)));
     }
     
     void updateCursorPosition(){
-        currentPos.setVisible(transportSource.isPlaying() || isMouseButtonDown());
-        currentPos.setRectangle(Rectangle<float> (timeToX(transportSource.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+        currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
+        currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
     }
 };
 

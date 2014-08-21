@@ -25,15 +25,15 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-
+int n = 0;
 //[/MiscUserDefs]
 
 //==============================================================================
-AudioApp::AudioApp ()
+AudioApp::AudioApp () : stream(background_png, background_pngSize, false)
 {
     addAndMakeVisible (backgroundImg = new ImageComponent());
     backgroundImg->setName ("backgroundImg");
-
+    
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -101,10 +101,8 @@ AudioApp::AudioApp ()
 
 
     //[UserPreSize]
+    backgroundImg->setImage(ImageFileFormat::loadFrom(stream));
     //[/UserPreSize]
-
-    setSize (600, 400);
-
 
     //[Constructor] You can add your own custom stuff here..
 
@@ -127,14 +125,10 @@ AudioApp::AudioApp ()
     mediaPlayer.addListener(this);
     masterLogger = juce::Logger::getCurrentLogger();
 
-    addAndMakeVisible(waveform = new Waveform(*mediaPlayer.getAudioFormatManager(), *mediaPlayer.getAudioTransportSource()));
+    addAndMakeVisible(waveform = new Waveform(mediaPlayer));
     waveform->addChangeListener(this);
-
-    currentLoop = new Loop;
+    
     state = Stopped;
-
-    MemoryInputStream stream(background_png, background_pngSize, false);
-    backgroundImg->setImage(ImageFileFormat::loadFrom(stream));
     //[/Constructor]
 }
 
@@ -183,7 +177,7 @@ void AudioApp::paint (Graphics& g)
 
 void AudioApp::resized()
 {
-    backgroundImg->setBounds (0, 0, proportionOfWidth (1.0000f), proportionOfHeight (1.0071f));
+    backgroundImg->setBounds (70, 70, proportionOfWidth (1.5000f), proportionOfHeight (1.5000f));
     infoLabel->setBounds (40, 544, 664, 120);
     loadButton->setBounds (72, 384, 96, 56);
     playButton->setBounds (192, 384, 96, 56);
@@ -194,7 +188,7 @@ void AudioApp::resized()
     gainLabel->setBounds (560, 448, 150, 24);
     shiftyLoopingButton->setBounds (384, 224, 112, 40);
     //[UserResized] Add your own custom resize handling here..
-    backgroundImg->setBounds(0, 0, getWidth(), getHeight());
+   backgroundImg->repaint();
     //[/UserResized]
 }
 
@@ -215,8 +209,9 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
             waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
 
             audiofilename = file.getFullPathName().toUTF8();
-            crudeLoops = computeLoops(audiofilename);
-            int n = random.nextInt(crudeLoops.size() - 1);
+            crudeLoops = computeLoops(audiofilename, Tempo);
+            //int n = random.nextInt(crudeLoops.size() - 1);
+
             currentLoop = &crudeLoops[n];
 
             for (auto& loop : crudeLoops)
@@ -229,12 +224,16 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 
             markov_chain = markov(*transMat, MarkovIterations, n);
 
-
+            infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
             mediaPlayer.setPosition(0.0);
             playButton->setEnabled(true);
             loopButton->setEnabled(true);
             shiftyLoopingButton->setEnabled(true);
-
+            
+            drow::SoundTouchProcessor::PlaybackSettings settings(mediaPlayer.getPlaybackSettings());
+            //settings.rate = static_cast<float>(Tempo);
+            //mediaPlayer.setPlaybackSettings(settings);
+            
             startTimer(50);
 
         }
@@ -323,7 +322,7 @@ inline void AudioApp::printCurrentState(juce::String s) {
 }
 
 inline void AudioApp::generateMarkovChain(){
-    int n = random.nextInt(crudeLoops.size() - 1);
+    n = random.nextInt(crudeLoops.size() - 1);
     markov_chain = markov(*transMat, MarkovIterations, n);
 }
 
@@ -418,58 +417,74 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
 
 
 void AudioApp::shiftyLooping(){
-    int c = random.nextInt(markov_chain.size() - 1);
-//    static int c = 0;
-//    if (c > markov_chain.size()) c %= c;
-//    if (c > 2 * markov_chain.size()){
-//        generateMarkovChain();
-//    }
+    //int c = random.nextInt(markov_chain.size() - 1);
     mediaPlayer.setLoopTimes(currentLoop->start, currentLoop->end);
     mediaPlayer.setPosition(currentLoop->start);
-
-    if (markov_chain.at(c+1) > markov_chain[c]) {
-        shifting = forward = true;
-    } else if (markov_chain.at(c+1) < markov_chain[c]) {
-        shifting = true;
-        forward = false;
-    } else {
-        shifting = false;
-    }
+    shifting = random.nextBool();
+    forward = random.nextBool();
+//    if (markov_chain.at(n+1) > markov_chain[n]) {
+//        shifting = forward = true;
+//    } else if (markov_chain.at(n+1) < markov_chain[n]) {
+//        shifting = true;
+//        forward = false;
+//    } else {
+//        shifting = false;
+//    }
+    infoLabel->setText("Current loop is from: " + String(currentLoop->start) + " to " + String(currentLoop->end), sendNotification);
     playLoop(*currentLoop);
-    currentLoop = &crudeLoops[markov_chain[c]];
-    //c++;
+    //currentLoop = &crudeLoops[markov_chain[c]];
 }
 
 void AudioApp::playLoop(Loop& loop){
-    mediaPlayer.stop();
+    //mediaPlayer.stop();
+
     if (shifting) {
         if (forward) {
+            currentLoop = currentLoop->next;
             std::cout << "Shifting Forward" << std::endl;
             mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
             mediaPlayer.setPosition(loop.prev->end);
+            //assert(loop.prev->end < loop.end);
+            mediaPlayer.start();
+            mediaPlayer.setLoopTimes(loop.start, loop.end);
+            return;
         } else {
+            currentLoop = currentLoop->prev;
             std::cout << "Shifting Backwards" << std::endl;
             mediaPlayer.setLoopTimes(loop.next->start, loop.end);
             mediaPlayer.setPosition(loop.next->start);
+            //assert(loop.next->start < loop.end);
+            mediaPlayer.start();
+            mediaPlayer.setLoopTimes(loop.start, loop.end);
+            return;
         }
     } else {
         std::cout << "Looping" << std::endl;
         mediaPlayer.setLoopTimes(loop.start, loop.end);
         mediaPlayer.setPosition(loop.start);
     }
-    mediaPlayer.start();
 
 }
 
 
-void AudioApp::fileChanged(drow::AudioFilePlayer* player){}
+void AudioApp::fileChanged(drow::AudioFilePlayer* player){
+    if (player == &mediaPlayer) {
+        mediaPlayer.stop();
+    }
+}
 void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
 
 
 void AudioApp::timerCallback(){
     //masterLogger->writeToLog("Playback Pos: " + String(mediaPlayer.getCurrentPosition()));
     if (ShiftyLooping == state){
+        if (mediaPlayer.getCurrentPosition() >= currentLoop->end) {
+            masterLogger->writeToLog("this");
+         mediaPlayer.stop();
+            shiftyLooping();
+        }
         if (mediaPlayer.hasStreamFinished())
+            masterLogger->writeToLog("that");
             shiftyLooping();
     }
 }

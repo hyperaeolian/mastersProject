@@ -36,7 +36,7 @@ struct Loop {
 };
 
 
-std::vector<Loop> computeLoops(const std::string audiofilename);
+std::vector<Loop> computeLoops(const std::string audiofilename, essentia::Real& bpm);
 void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER, std::vector<Loop>& loops);
 void connectLoops(std::vector<Loop>& loops);
 void findOverlaps(std::vector<Loop>& loops);
