@@ -28,10 +28,12 @@ public:
             ScopedPointer<FileOutputStream> fileStream(file.createOutputStream());
             if (fileStream != nullptr) {
                 WavAudioFormat wavFormat;
-                AudioFormatWriter* writer = wavFormat.createWriterFor(fileStream, sampleRate, 1, 16, StringPairArray(), 0);
+                AudioFormatWriter* writer = wavFormat.createWriterFor(fileStream,
+                                                                      sampleRate, 1, 16, StringPairArray(), 0);
                 if (writer != nullptr) {
                     fileStream.release();
-                    threadedWriter = new AudioFormatWriter::ThreadedWriter(writer, backgroundThread, 32768);
+                    threadedWriter = new AudioFormatWriter::ThreadedWriter(writer,
+                                                                           backgroundThread, 32768);
                    // thumbnail.reset(writer->getNumChannels(), writer->getSampleRate());
                     nextSampleNum = 0;
                     const ScopedLock sl(writerLock);
@@ -59,11 +61,14 @@ public:
     
     void audioDeviceStopped() override { sampleRate = 0; }
     
-    void audioDeviceIOCallback(const float** inputChannelData, int, float** outputChannelData, int numOutputChannels, int numSamples) override {
+    void audioDeviceIOCallback(const float** inputChannelData, int, float** outputChannelData,
+                               int numOutputChannels, int numSamples) override
+    {
         const ScopedLock sl(writerLock);
         if (activeWriter != nullptr) {
             activeWriter->write(inputChannelData, numSamples);
-            const AudioSampleBuffer buffer(const_cast<float**>(inputChannelData), numOutputChannels, numSamples);
+            const AudioSampleBuffer buffer(const_cast<float**>(inputChannelData),
+                                           numOutputChannels, numSamples);
           //  thumbnail.addBlock(nextSampleNum, buffer, 0, numSamples);
             nextSampleNum += numSamples;
         }

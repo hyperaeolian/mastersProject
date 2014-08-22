@@ -141,11 +141,14 @@ private:
         if (shifty){
             currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
             endPos.setVisible(audioFilePlayer.isPlaying() || audioFilePlayer.getLoopBetweenTimes());
-            currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
-            endPos.setRectangle(Rectangle<float>(timeToX(audioFilePlayer.getCurrentPosition() + endTime) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+            currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f,
+                                                      0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+            endPos.setRectangle(Rectangle<float>(timeToX(audioFilePlayer.getCurrentPosition() + endTime) - 0.75f,
+                                                 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
         } else {
             currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
-            currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f, 0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+            currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f,
+                                                      0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
         }
     }
 };

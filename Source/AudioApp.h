@@ -152,7 +152,6 @@ private:
     ScopedPointer<Label> gainLabel;
     ScopedPointer<ToggleButton> shiftyLoopingButton;
     ScopedPointer<GroupComponent> ostinatoGroup;
-    ScopedPointer<GroupComponent> groupComponent2;
     ScopedPointer<GroupComponent> pitchTempoGropu;
     ScopedPointer<Slider> rateSlider;
     ScopedPointer<Slider> pitchSlider;
@@ -160,6 +159,11 @@ private:
     ScopedPointer<Slider> varianceSlider;
     ScopedPointer<Slider> barSizeSlider;
     ScopedPointer<TextButton> reloopButton;
+    ScopedPointer<Label> varianceLabel;
+    ScopedPointer<Label> barSizeLabel;
+    ScopedPointer<Label> rateLabel;
+    ScopedPointer<Label> pitchLabel;
+    ScopedPointer<Label> tempoLabel;
 
 
     //==============================================================================

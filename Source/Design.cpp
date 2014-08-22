@@ -93,8 +93,11 @@ public:
     {
         const float boxSize = w * 0.7f;
 
-        bool isDownOrDragging = component.isEnabled() && (component.isMouseOverOrDragging() || component.isMouseButtonDown());
-        const Colour colour (component.findColour (TextButton::buttonColourId).withMultipliedSaturation ((component.hasKeyboardFocus (false) || isDownOrDragging) ? 1.3f : 0.9f)
+        bool isDownOrDragging = component.isEnabled() && (component.isMouseOverOrDragging() ||
+                                                          component.isMouseButtonDown());
+        const Colour colour (component.findColour (TextButton::buttonColourId)
+                             .withMultipliedSaturation((component.hasKeyboardFocus (false) ||
+                                                        isDownOrDragging) ? 1.3f : 0.9f)
                              .withMultipliedAlpha (component.isEnabled() ? 1.0f : 0.7f));
 
         drawRoundThumb (g, x, y + (h - boxSize) * 0.5f, boxSize, colour,
