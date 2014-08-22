@@ -31,10 +31,6 @@
 AudioApp::AudioApp ()
     : MarkovIterations(15), stream(background_png, background_pngSize, false)
 {
-   // addAndMakeVisible (backgroundImg = new ImageComponent());
-    backgroundImg = new ImageComponent();
-    backgroundImg->setName ("backgroundImg");
-
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data...")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -162,14 +158,15 @@ AudioApp::AudioApp ()
 
 
     //[UserPreSize]
-    backgroundImg->setImage(ImageFileFormat::loadFrom(stream));
+backgroundImage = new ImageComponent();
     //[/UserPreSize]
 
     setSize (990, 690);
 
 
     //[Constructor] You can add your own custom stuff here..
-
+    backgroundImage->setImage(ImageFileFormat::loadFrom(stream));
+    
     design = new CustomLookAndFeel(knob_png, knob_pngSize);
     LookAndFeel::setDefaultLookAndFeel(design);
 
@@ -201,7 +198,6 @@ AudioApp::~AudioApp()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    backgroundImg = nullptr;
     infoLabel = nullptr;
     playButton = nullptr;
     stopButton = nullptr;
@@ -223,6 +219,7 @@ AudioApp::~AudioApp()
 
     //[Destructor]. You can add your own custom destruction code here..
     stopTimer();
+    backgroundImage = nullptr;
     similarity = nullptr;
     transMat = nullptr;
     masterLogger = nullptr;
@@ -247,32 +244,31 @@ void AudioApp::paint (Graphics& g)
     g.fillAll (Colour (0xff0f0f0f));
 
     //[UserPaint] Add your own custom painting code here..
-    g.drawImage(backgroundImg->getImage(), -70, -40, getWidth()+70, getHeight()+50, 0, 0, backgroundImg->getWidth(), backgroundImg->getHeight(), false);
+    g.drawImage(backgroundImage->getImage(), -70, -40, getWidth()+70, getHeight()+40, 0, 0, backgroundImage->getWidth(), backgroundImage->getHeight(), false);
     //[/UserPaint]
 }
 
 void AudioApp::resized()
 {
-    backgroundImg->setBounds (0, 0, 990, 690);
-    infoLabel->setBounds (40, 632, 664, 40);
-    playButton->setBounds (216, 560, 96, 32);
-    stopButton->setBounds (312, 560, 96, 32);
-    recordingButton->setBounds (408, 560, 96, 32);
-    loopButton->setBounds (224, 448, 120, 40);
-    gainSlider->setBounds (584, 472, 96, 96);
-    gainLabel->setBounds (560, 592, 150, 24);
-    shiftyLoopingButton->setBounds (376, 448, 112, 40);
-    ostinatoGroup->setBounds (32, 192, 280, 240);
-    groupComponent2->setBounds (408, 200, 320, 104);
-    pitchTempoGropu->setBounds (408, 328, 320, 104);
-    rateSlider->setBounds (432, 352, 80, 64);
-    pitchSlider->setBounds (528, 352, 80, 64);
-    tempoSlider->setBounds (624, 352, 80, 64);
-    varianceSlider->setBounds (64, 224, 224, 24);
-    barSizeSlider->setBounds (64, 272, 224, 24);
-    reloopButton->setBounds (72, 320, 208, 32);
+    infoLabel->setBounds (176, 552, 664, 40);
+    playButton->setBounds (352, 480, 96, 32);
+    stopButton->setBounds (448, 480, 96, 32);
+    recordingButton->setBounds (544, 480, 96, 32);
+    loopButton->setBounds (360, 368, 120, 40);
+    gainSlider->setBounds (720, 392, 96, 96);
+    gainLabel->setBounds (696, 512, 150, 24);
+    shiftyLoopingButton->setBounds (512, 368, 112, 40);
+    ostinatoGroup->setBounds (168, 112, 280, 240);
+    groupComponent2->setBounds (544, 120, 320, 104);
+    pitchTempoGropu->setBounds (544, 248, 320, 104);
+    rateSlider->setBounds (568, 272, 80, 64);
+    pitchSlider->setBounds (664, 272, 80, 64);
+    tempoSlider->setBounds (760, 272, 80, 64);
+    varianceSlider->setBounds (200, 144, 224, 24);
+    barSizeSlider->setBounds (200, 192, 224, 24);
+    reloopButton->setBounds (208, 240, 208, 32);
     //[UserResized] Add your own custom resize handling here..
-    
+    backgroundImage->setBounds(0,0,getWidth(), getHeight());
     //[/UserResized]
 }
 
@@ -390,29 +386,29 @@ void AudioApp::loadFile(){
 //=======================================
 void AudioApp::initialize(){
     mediaPlayer.setFile(*auxFile);
-    
+
     addAndMakeVisible(waveform = new Waveform(mediaPlayer));
     waveform->addChangeListener(this);
     waveform->setFile(*auxFile);
     waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
-    
+
     audiofilename = auxFile->getFullPathName().toUTF8();
     crudeLoops = computeLoops(audiofilename, Tempo);
     int n = random.nextInt(crudeLoops.size() - 1);
-    
+
     currentLoop = &crudeLoops[n];
-    
+
     for (auto& loop : crudeLoops)
         masterLogger->writeToLog("Current Loop: " + String(loop.start) + " to " + String(loop.end));
-    
+
     similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
     computeDistances(crudeLoops, *similarity);
     transMat = new MATRIX(computeTransitionMatrix(*similarity));
-    
+
     markov_chain = markov(*transMat, MarkovIterations, n);
-    
+
     infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
-    
+
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
     shiftyLoopingButton->setEnabled(true);
@@ -653,77 +649,74 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="990" initialHeight="690">
   <BACKGROUND backgroundColour="ff0f0f0f"/>
-  <GENERICCOMPONENT name="backgroundImg" id="72aa7502c65b2396" memberName="backgroundImg"
-                    virtualName="" explicitFocusOrder="0" pos="0 -8 990 690" class="ImageComponent"
-                    params=""/>
   <LABEL name="Info Label" id="2fc17cbb62c7782f" memberName="infoLabel"
-         virtualName="" explicitFocusOrder="0" pos="40 632 664 40" bkgCol="ff0d0d0d"
+         virtualName="" explicitFocusOrder="0" pos="176 552 664 40" bkgCol="ff0d0d0d"
          textCol="ff87ee20" edTextCol="ff000000" edBkgCol="0" labelText="Data..."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Apple LiSung" fontsize="17.899999999999998579" bold="0"
          italic="0" justification="36"/>
   <TEXTBUTTON name="Play Button" id="aa045a593e226508" memberName="playButton"
-              virtualName="" explicitFocusOrder="0" pos="216 560 96 32" bgColOff="fff0f8ff"
+              virtualName="" explicitFocusOrder="0" pos="352 480 96 32" bgColOff="fff0f8ff"
               buttonText="Play" connectedEdges="3" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="Stop Button" id="e3f6aa07147c05" memberName="stopButton"
-              virtualName="" explicitFocusOrder="0" pos="312 560 96 32" bgColOff="fff0f8ff"
+              virtualName="" explicitFocusOrder="0" pos="448 480 96 32" bgColOff="fff0f8ff"
               buttonText="Stop" connectedEdges="3" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="Recording" id="f5cdf9e0260e09a2" memberName="recordingButton"
-              virtualName="" explicitFocusOrder="0" pos="408 560 96 32" bgColOff="fff0f8ff"
+              virtualName="" explicitFocusOrder="0" pos="544 480 96 32" bgColOff="fff0f8ff"
               buttonText="Record" connectedEdges="3" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="Loop Button" id="a5b4e832ce1021b5" memberName="loopButton"
-                virtualName="" explicitFocusOrder="0" pos="224 448 120 40" txtcol="ffe8d8d8"
+                virtualName="" explicitFocusOrder="0" pos="360 368 120 40" txtcol="ffe8d8d8"
                 buttonText="Loop Sample" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <SLIDER name="Gain Slider" id="9d008628b8772a4d" memberName="gainSlider"
-          virtualName="" explicitFocusOrder="0" pos="584 472 96 96" thumbcol="ff7fffd4"
+          virtualName="" explicitFocusOrder="0" pos="720 392 96 96" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <LABEL name="Gain Label" id="d9d519cd8dc043ff" memberName="gainLabel"
-         virtualName="" explicitFocusOrder="0" pos="560 592 150 24" textCol="fff0ffff"
+         virtualName="" explicitFocusOrder="0" pos="696 512 150 24" textCol="fff0ffff"
          edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="GAIN"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
          italic="0" justification="36"/>
   <TOGGLEBUTTON name="Shifty Button" id="717b6864ee8b9341" memberName="shiftyLoopingButton"
-                virtualName="" explicitFocusOrder="0" pos="376 448 112 40" txtcol="fff3f3f3"
+                virtualName="" explicitFocusOrder="0" pos="512 368 112 40" txtcol="fff3f3f3"
                 buttonText="Shifty Looping" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <GROUPCOMPONENT name="Affects" id="9ab3a0160a4c89f8" memberName="ostinatoGroup"
-                  virtualName="" explicitFocusOrder="0" pos="32 192 280 240" outlinecol="66b8c1da"
+                  virtualName="" explicitFocusOrder="0" pos="168 112 280 240" outlinecol="66b8c1da"
                   textcol="ffd2d2ed" title="Ostinato" textpos="36"/>
   <GROUPCOMPONENT name="Pitch" id="146c887bf69968d0" memberName="groupComponent2"
-                  virtualName="" explicitFocusOrder="0" pos="408 200 320 104" title="Pitch"
+                  virtualName="" explicitFocusOrder="0" pos="544 120 320 104" title="Pitch"
                   textpos="34"/>
   <GROUPCOMPONENT name="PitchTempo" id="6cbab5f86507196" memberName="pitchTempoGropu"
-                  virtualName="" explicitFocusOrder="0" pos="408 328 320 104" outlinecol="66c9cee1"
+                  virtualName="" explicitFocusOrder="0" pos="544 248 320 104" outlinecol="66c9cee1"
                   textcol="ffd0d1df" title=" Pitch and Tempo" textpos="34"/>
   <SLIDER name="SampleRate" id="4efa3000244a03a3" memberName="rateSlider"
-          virtualName="" explicitFocusOrder="0" pos="432 352 80 64" thumbcol="ff7fffd4"
+          virtualName="" explicitFocusOrder="0" pos="568 272 80 64" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <SLIDER name="Pitch" id="f2465aa0b705eb82" memberName="pitchSlider" virtualName=""
-          explicitFocusOrder="0" pos="528 352 80 64" thumbcol="ff7fffd4"
+          explicitFocusOrder="0" pos="664 272 80 64" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <SLIDER name="tempo" id="3148e5d6f1593c42" memberName="tempoSlider" virtualName=""
-          explicitFocusOrder="0" pos="624 352 80 64" thumbcol="ff7fffd4"
+          explicitFocusOrder="0" pos="760 272 80 64" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <SLIDER name="Variance" id="d028e9a4b754eaf9" memberName="varianceSlider"
-          virtualName="" explicitFocusOrder="0" pos="64 224 224 24" bkgcol="450707"
+          virtualName="" explicitFocusOrder="0" pos="200 144 224 24" bkgcol="450707"
           min="0" max="10" int="0" style="LinearHorizontal" textBoxPos="NoTextBox"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="BarSize" id="2783238b83d804ef" memberName="barSizeSlider"
-          virtualName="" explicitFocusOrder="0" pos="64 272 224 24" bkgcol="450707"
+          virtualName="" explicitFocusOrder="0" pos="200 192 224 24" bkgcol="450707"
           min="1" max="5" int="1" style="LinearHorizontal" textBoxPos="NoTextBox"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <TEXTBUTTON name="ResetLoops" id="5c4e26e3e4d3321a" memberName="reloopButton"
-              virtualName="" explicitFocusOrder="0" pos="72 320 208 32" bgColOff="ff8181ab"
+              virtualName="" explicitFocusOrder="0" pos="208 240 208 32" bgColOff="ff8181ab"
               buttonText="ReLoop" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 

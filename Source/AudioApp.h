@@ -80,7 +80,7 @@ public:
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
-    
+
     //Recording
     void startRecording();
     void stopRecording();
@@ -93,8 +93,8 @@ public:
 
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked) override;
-    void sliderValueChanged (Slider* sliderThatWasMoved) override;
+    void buttonClicked (Button* buttonThatWasClicked);
+    void sliderValueChanged (Slider* sliderThatWasMoved);
 
     // Binary resources:
     static const char* knob_png;
@@ -139,12 +139,10 @@ private:
     //Views
     CustomLookAndFeel* design;
     ScopedPointer<Waveform> waveform;
-
-
+    ScopedPointer<ImageComponent> backgroundImage;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ImageComponent> backgroundImg;
     ScopedPointer<Label> infoLabel;
     ScopedPointer<TextButton> playButton;
     ScopedPointer<TextButton> stopButton;
