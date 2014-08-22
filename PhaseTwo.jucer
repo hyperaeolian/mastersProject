@@ -7,10 +7,8 @@
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
       <FILE id="diD8rf" name="AudioApp.h" compile="0" resource="1" file="Source/AudioApp.h"/>
       <FILE id="Dv8Ih0" name="AudioApp.cpp" compile="1" resource="1" file="Source/AudioApp.cpp"/>
-      <FILE id="EgLB2p" name="AudioAppProcessor.h" compile="0" resource="0"
-            file="Source/AudioAppProcessor.h"/>
-      <FILE id="E9Dh7p" name="AudioAppProcessor.cpp" compile="1" resource="0"
-            file="Source/AudioAppProcessor.cpp"/>
+      <FILE id="hZpixY" name="AudioRecorder.cpp" compile="1" resource="0"
+            file="Source/AudioRecorder.cpp"/>
       <FILE id="jXOWTS" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="kUQbSr" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>

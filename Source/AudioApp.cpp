@@ -29,9 +29,10 @@
 
 //==============================================================================
 AudioApp::AudioApp ()
-    : stream(background_png, background_pngSize, false)
+    : MarkovIterations(15), stream(background_png, background_pngSize, false)
 {
-    addAndMakeVisible (backgroundImg = new ImageComponent());
+   // addAndMakeVisible (backgroundImg = new ImageComponent());
+    backgroundImg = new ImageComponent();
     backgroundImg->setName ("backgroundImg");
 
     addAndMakeVisible (infoLabel = new Label ("Info Label",
@@ -177,10 +178,15 @@ AudioApp::AudioApp ()
     shiftyLoopingButton->setEnabled(false);
     shiftyLoopingButton->setClickingTogglesState(true);
     loopButton->setEnabled(false);
+    pitchSlider->setEnabled(false);
+    tempoSlider->setEnabled(false);
+    rateSlider->setEnabled(false);
+    recordingButton->setEnabled(false);
 
     //Audio device setup
     deviceManager.initialise(0, 2, nullptr, true);
     deviceManager.addAudioCallback(&sourcePlayer);
+    deviceManager.addAudioCallback(&recorder);
     sourcePlayer.setSource(&mediaPlayer);
     deviceManager.addChangeListener(this);
     mediaPlayer.addListener(this);
@@ -218,17 +224,17 @@ AudioApp::~AudioApp()
     //[Destructor]. You can add your own custom destruction code here..
     stopTimer();
     similarity = nullptr;
-    auxFile = nullptr;
-    //design = nullptr;
     transMat = nullptr;
     masterLogger = nullptr;
     currentLoop = nullptr;
     sourcePlayer.setSource(nullptr);
-    for (auto l : crudeLoops) { l.next = nullptr; l.prev = nullptr; }
-   // waveform->removeChangeListener(this);
+    //for (auto l : crudeLoops) { l.next = nullptr; l.prev = nullptr; }
+    //waveform->removeChangeListener(this);
     mediaPlayer.removeListener(this);
     deviceManager.removeAudioCallback(&sourcePlayer);
+    deviceManager.removeAudioCallback(&recorder);
     delete design;
+    delete auxFile;
     //[/Destructor]
 }
 
@@ -241,13 +247,13 @@ void AudioApp::paint (Graphics& g)
     g.fillAll (Colour (0xff0f0f0f));
 
     //[UserPaint] Add your own custom painting code here..
-
+    g.drawImage(backgroundImg->getImage(), -70, -40, getWidth()+70, getHeight()+50, 0, 0, backgroundImg->getWidth(), backgroundImg->getHeight(), false);
     //[/UserPaint]
 }
 
 void AudioApp::resized()
 {
-    backgroundImg->setBounds (0, -8, 990, 690);
+    backgroundImg->setBounds (0, 0, 990, 690);
     infoLabel->setBounds (40, 632, 664, 40);
     playButton->setBounds (216, 560, 96, 32);
     stopButton->setBounds (312, 560, 96, 32);
@@ -266,7 +272,7 @@ void AudioApp::resized()
     barSizeSlider->setBounds (64, 272, 224, 24);
     reloopButton->setBounds (72, 320, 208, 32);
     //[UserResized] Add your own custom resize handling here..
-
+    
     //[/UserResized]
 }
 
@@ -379,37 +385,43 @@ void AudioApp::loadFile(){
     FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
     if (chooser.browseForFileToOpen())
         auxFile = new File(chooser.getResult());
-        mediaPlayer.setFile(*auxFile);
-
-    // addAndMakeVisible(waveform = new Waveform(mediaPlayer));
-    // waveform->addChangeListener(this);
-    // waveform->setFile(file);
-    // waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
-
+    initialize();
+}
+//=======================================
+void AudioApp::initialize(){
+    mediaPlayer.setFile(*auxFile);
+    
+    addAndMakeVisible(waveform = new Waveform(mediaPlayer));
+    waveform->addChangeListener(this);
+    waveform->setFile(*auxFile);
+    waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
+    
     audiofilename = auxFile->getFullPathName().toUTF8();
     crudeLoops = computeLoops(audiofilename, Tempo);
     int n = random.nextInt(crudeLoops.size() - 1);
-
+    
     currentLoop = &crudeLoops[n];
-
+    
     for (auto& loop : crudeLoops)
         masterLogger->writeToLog("Current Loop: " + String(loop.start) + " to " + String(loop.end));
-
+    
     similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
     computeDistances(crudeLoops, *similarity);
     transMat = new MATRIX(computeTransitionMatrix(*similarity));
-    // generateMarkovChain();
-
+    
     markov_chain = markov(*transMat, MarkovIterations, n);
-
+    
     infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
-
+    
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
     shiftyLoopingButton->setEnabled(true);
-
+    pitchSlider->setEnabled(true);
+    tempoSlider->setEnabled(true);
+    rateSlider->setEnabled(true);
+    recordingButton->setEnabled(true);
 }
-
+//=======================================
 void AudioApp::openAudioSettings(){
     bool showMidiInputOptions = false;
     bool showMidiOutputSelector = false;
@@ -424,7 +436,7 @@ void AudioApp::openAudioSettings(){
     settings.setSize(500,400);
     DialogWindow::showModalDialog(String("Audio Settings"), &settings, TopLevelWindow::getTopLevelWindow(0), Colours::white, true);
 }
-
+//=======================================
 inline void AudioApp::printCurrentState(juce::String s) {
     infoLabel->setText("Current State: " + s, sendNotification);
 }
@@ -433,7 +445,7 @@ inline void AudioApp::generateMarkovChain(){
     int n = random.nextInt(crudeLoops.size() - 1);
     markov_chain = markov(*transMat, MarkovIterations, n);
 }
-
+//=======================================
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 
     if (&deviceManager == src) {
@@ -445,7 +457,7 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
     repaint();
 
 }
-
+//=======================================
 
 void AudioApp::changeState(TransportState newState){
 
@@ -491,6 +503,7 @@ void AudioApp::changeState(TransportState newState){
                 break;
             case Recording:
                 printCurrentState("Recording");
+                recorder.isRecording() ? stopRecording() : startRecording();
             case Looping:
                 printCurrentState(String("Looping..."));
                 stopButton->setEnabled(true);
@@ -513,7 +526,7 @@ void AudioApp::changeState(TransportState newState){
     }
 
 }
-
+//=======================================
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &mediaPlayer){
         gainSlider->setValue(static_cast<double>(sourcePlayer.getGain()));
@@ -528,7 +541,7 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     }
 }
 
-
+//=======================================
 void AudioApp::shiftyLooping(){
     //int n = random.nextInt(markov_chain.size() - 1);
     static int n = 0;
@@ -547,10 +560,10 @@ void AudioApp::shiftyLooping(){
     if (++n > markov_chain.size()){
         generateMarkovChain();
         n = 0;
-    }
-    n++;
+    } else
+        n++;
 }
-
+//=======================================
 void AudioApp::playLoop(Loop& loop){
 
     if (shifting) {
@@ -586,7 +599,19 @@ void AudioApp::playLoop(Loop& loop){
         timerCallback();
     }
 }
+//=======================================
+void AudioApp::startRecording(){
+    const File file(File::getSpecialLocation(File::userMusicDirectory).getNonexistentChildFile("OstinatoRecording", ".wav"));
+    recorder.startRecording(file);
+    recordingButton->setButtonText("Stop Recording");
+}
 
+void AudioApp::stopRecording(){
+    recorder.stop();
+    recordingButton->setButtonText("Record");
+}
+
+//=======================================
 
 void AudioApp::fileChanged(drow::AudioFilePlayer* player){
     if (player == &mediaPlayer) {
@@ -624,7 +649,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="AudioApp" componentName=""
                  parentClasses="public Component, public ChangeListener, public ButtonListener, public SliderListener, public Timer, public drow::AudioFilePlayer::Listener"
-                 constructorParams="" variableInitialisers="stream(background_png, background_pngSize, false)"
+                 constructorParams="" variableInitialisers="MarkovIterations(15), stream(background_png, background_pngSize, false)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="990" initialHeight="690">
   <BACKGROUND backgroundColour="ff0f0f0f"/>

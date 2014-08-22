@@ -105,6 +105,7 @@ inline float quantizeToOnset(const vector<float>& onsets, float value){
     else               return onsets[limit.first - onsets.begin()];
 }
 
+
 /*
  _REAL sum = 0;
  for (auto x : theLoops) {

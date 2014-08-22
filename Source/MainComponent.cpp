@@ -6,6 +6,7 @@ MainContentComponent::MainContentComponent() : menuBar(this){
     addAndMakeVisible(&app);
     addAndMakeVisible(&menuBar);
     setSize (app.getWidth(), app.getHeight());
+
 }
 
 MainContentComponent::~MainContentComponent(){}

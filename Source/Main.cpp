@@ -60,7 +60,7 @@ public:
 
             centreWithSize (getWidth(), getHeight());
             setVisible (true);
-            setResizable(true, true);
+            setResizable(false, false);
         }
 
         void closeButtonPressed(){

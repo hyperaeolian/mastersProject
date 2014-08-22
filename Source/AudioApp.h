@@ -27,6 +27,7 @@
 #include "Statistics.h"
 #include "MATRIX.h"
 #include "Design.cpp"
+#include "AudioRecorder.cpp"
 //[/Headers]
 
 
@@ -79,16 +80,21 @@ public:
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
+    
+    //Recording
+    void startRecording();
+    void stopRecording();
 
     //Utility Methods
     void loadFile();
+    void initialize();
     void openAudioSettings();
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
-    void sliderValueChanged (Slider* sliderThatWasMoved);
+    void buttonClicked (Button* buttonThatWasClicked) override;
+    void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
     // Binary resources:
     static const char* knob_png;
@@ -100,14 +106,14 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-    //const int APP_WIDTH = 990, APP_HEIGHT = 690;
-    const int MarkovIterations = 9;
     essentia::Real Tempo;
     File* auxFile;
+
     //Audio Device Vars
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
     drow::AudioFilePlayerExt mediaPlayer;
+    AudioRecorder            recorder;
 
     //State & Loop Vars
     TransportState state;
@@ -117,6 +123,7 @@ private:
     std::string audiofilename;
 
     //Distance and Markov Vars
+    const int MarkovIterations;
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
     std::vector<essentia::Real> markov_chain;

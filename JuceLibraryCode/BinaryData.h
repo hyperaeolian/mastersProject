@@ -10,13 +10,13 @@
 namespace BinaryData
 {
     extern const char*   AudioApp_h;
-    const int            AudioApp_hSize = 4989;
+    const int            AudioApp_hSize = 5289;
 
     extern const char*   AudioApp_cpp;
-    const int            AudioApp_cppSize = 2076473;
+    const int            AudioApp_cppSize = 1502226;
 
     extern const char*   Design_cpp;
-    const int            Design_cppSize = 10812;
+    const int            Design_cppSize = 11632;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];
