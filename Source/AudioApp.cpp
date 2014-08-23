@@ -29,7 +29,7 @@
 
 //==============================================================================
 AudioApp::AudioApp ()
-    : MarkovIterations(15), stream(background_png, background_pngSize, false)
+    : tableEnabled(false), MarkovIterations(15), stream(background_png, background_pngSize, false)
 {
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data...")));
@@ -240,6 +240,7 @@ AudioApp::AudioApp ()
 
     masterLogger = juce::Logger::getCurrentLogger();
     state = Stopped;
+    
     //[/Constructor]
 }
 
@@ -273,6 +274,7 @@ AudioApp::~AudioApp()
 
     //[Destructor]. You can add your own custom destruction code here..
     stopTimer();
+    if (tableEnabled) loopTable = nullptr;
     backgroundImage = nullptr;
     similarity = nullptr;
     transMat = nullptr;
@@ -446,6 +448,7 @@ void AudioApp::loadFile(){
 }
 //==============================================================================
 void AudioApp::initialize(){
+    //TODO: Amend this method, too much going on
     mediaPlayer.setFile(*auxFile);
 
     addAndMakeVisible(waveform = new Waveform(mediaPlayer));
@@ -478,6 +481,9 @@ void AudioApp::initialize(){
     tempoSlider->setEnabled(true);
     rateSlider->setEnabled(true);
     recordingButton->setEnabled(true);
+    
+    tableEnabled = true;
+   // loopTable = new LoopTable(crudeLoops);
 }
 //==============================================================================
 void AudioApp::openAudioSettings(){
@@ -523,10 +529,6 @@ void AudioApp::changeState(TransportState newState){
 
     if (state != newState) {
         state = newState;
-        if (ShiftyLooping != state){
-          //  waveform->isShiftyLooping(false);
-            stopTimer();
-        }
         switch (state) {
             case Starting:
                 printCurrentState(String("Starting..."));
@@ -680,6 +682,10 @@ void AudioApp::startRecording(){
 void AudioApp::stopRecording(){
     recorder.stop();
     recordingButton->setButtonText("Record");
+}
+
+void AudioApp::showLoopTable(){
+    
 }
 
 //==============================================================================

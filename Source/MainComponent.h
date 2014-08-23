@@ -27,7 +27,9 @@ public:
     enum MenuIDs {
         LabelClear = 1000,
         Open,
-        Settings
+        Save,
+        Settings,
+        Options
     };
     
     

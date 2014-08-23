@@ -28,6 +28,7 @@
 #include "MATRIX.h"
 #include "Design.cpp"
 #include "AudioRecorder.cpp"
+#include "LoopList.cpp"
 //[/Headers]
 
 
@@ -67,6 +68,7 @@ public:
         ShiftyLooping
     };
 
+     bool tableEnabled;
     //State and Looping Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
@@ -89,6 +91,7 @@ public:
     void loadFile();
     void initialize();
     void openAudioSettings();
+    void showLoopTable();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -108,7 +111,8 @@ private:
 
     essentia::Real Tempo;
     File* auxFile;
-
+   
+    
     //Audio Device Vars
     AudioDeviceManager       deviceManager;
     AudioSourcePlayer        sourcePlayer;
@@ -140,6 +144,7 @@ private:
     CustomLookAndFeel* design;
     ScopedPointer<Waveform> waveform;
     ScopedPointer<ImageComponent> backgroundImage;
+    ScopedPointer<LoopTable> loopTable;
     //[/UserVariables]
 
     //==============================================================================
