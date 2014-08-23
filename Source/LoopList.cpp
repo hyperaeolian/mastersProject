@@ -12,25 +12,15 @@
 #include "LoopGenerator.h"
 #include <algorithm>
 
-class TableWindow : public DocumentWindow {
-public:
-    TableWindow(const String& name, Colour backgroundColour, int buttonsNeeded):
-    DocumentWindow(name, backgroundColour, buttonsNeeded) {}
-    
-    void closedButtonPressed(){ delete this; }
-    
-private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TableWindow);
-};
 
 class LoopTable : public Component, public TableListBoxModel {
 public:
     LoopTable(const std::vector<Loop>& loops) :
         font(14.0f), loopData(loops)
     {
+        loadData();
             columnList = {"Loop", "Start", "End", "Length",
                           "Duration (s)", "Audition", "Discard"};
-            setNumRows(loopData.size());
             //Create table and add it to this component
             addAndMakeVisible(table);
             table.setModel(this);
@@ -38,25 +28,24 @@ public:
             //give table a border
             table.setColour(ListBox::outlineColourId, Colours::cornflowerblue);
             table.setOutlineThickness(2);
-            table.setOpaque(true);
+        
             
             //Add columns to the table header
             for (int i = 0; i < columnList.size(); ++i) {
-                table.getHeader().addColumn(columnList[i], i+1, 0, 50, 400,
+                table.getHeader().addColumn(columnList[i], i+1, 40, 50, 400,
                                             TableHeaderComponent::defaultFlags);
+                table.getHeader().setColumnVisible(i+1, false);
             }
         
         table.getHeader().setSortColumnId(1, true); //sort by column id
-        table.getHeader().setColumnVisible(7, false);
         
         //stretch to fit
-        table.getHeader().setStretchToFitActive(true);
+        //table.getHeader().setStretchToFitActive(true);
         table.setMultipleSelectionEnabled(true);
         
     }
     
     int getNumRows() override { return numRows; }
-    void setNumRows(int rows)  { numRows = rows; }
     
     void paintRowBackground(Graphics& g, int, int, int, bool rowIsSelected) override {
         if (rowIsSelected) {
@@ -67,8 +56,10 @@ public:
     void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool) override {
         g.setColour(Colours::black);
         g.setFont(font);
-        //Draw loop data here
-        
+        const String rowElement = data[rowNumber];
+        if (rowNumber != 0){
+            g.drawText(rowElement, 2, 0, width-4, height, Justification::centred, true);
+        }
         g.setColour((Colours::black.withAlpha(0.2f)));
         g.fillRect(width - 1, 0, 1, height);
     }
@@ -79,17 +70,119 @@ public:
         }
     }
     
+    
     Component* refreshComponentForCell(int rowNumber, int columnId, bool,
                                        Component* existingComponentToUpdate) override
     {
-        //add Discard and Audition buttons here
+        if (columnId == 6 || columnId == 7){
+            AuditionDiscardColumns* audDisc = (AuditionDiscardColumns*) existingComponentToUpdate;
+            if (audDisc == 0)
+                audDisc = new AuditionDiscardColumns(*this);
+            
+            audDisc->setRowAndColumn(rowNumber, columnId);
+            return audDisc;
+        } else {
+            jassert(existingComponentToUpdate == 0);
+            return 0;
+        }
         Component* foo = new Component();
         return foo;
+    }
+    
+    int getColumnAutoSizeWidth(int columnId) override {
+        if (columnId == 6 || columnId == 7) return 100;
+        int widest = 32;
+        for (int i = data.size() ; --i >=0;){
+            const String rowElement = data[i];
+            if (i != 0) {
+                widest = jmax(widest, font.getStringWidth(rowElement));
+            }
+        }
+        return widest + 8;
     }
     
     void resized() override {
         table.setBoundsInset(BorderSize<int>(8));
     }
+    
+    void loadData(){
+        int id = 1;
+        for (auto x : loopData){
+            String s;
+            s << String(x.start) << " " << String(x.end) << " "
+              << String((x.end - x.start) * 44100) << " "
+              << String(x.end - x.start) << " ";
+            data.insert(std::pair<int, juce::String>(id, s));
+            id++;
+        }
+        numRows = loopData.size();
+    }
+    
+private:
+    TableListBox table;
+    Font font;
+    std::vector<Loop> loopData;
+
+    int numRows;
+    std::vector<std::string> columnList;
+    std::map<int, juce::String> data;
+    
+    class AuditionDiscardColumns :
+        public Component, public ButtonListener
+    {
+        
+    public:
+        AuditionDiscardColumns(LoopTable& _owner) : owner(_owner){
+            addAndMakeVisible(auditionButton = new TextButton("Audition Button"));
+            auditionButton->setButtonText("play");
+            auditionButton->addListener(this);
+            
+            addAndMakeVisible(discardButton = new TextButton("Discard Button"));
+            discardButton->setButtonText("discard");
+            discardButton->addListener(this);
+        }
+        
+        ~AuditionDiscardColumns(){
+            auditionButton = nullptr;
+            discardButton = nullptr;
+        }
+        
+        void resized() override {
+            auditionButton->setBoundsInset(BorderSize<int>(2));
+            discardButton->setBoundsInset(BorderSize<int>(2));
+        }
+        
+        void setRowAndColumn(const int newRow, const int newColumn){
+            row = newRow;
+            columnId = newColumn;
+        }
+        
+        void buttonClicked(Button* buttonThatWasClicked) override {
+            if (buttonThatWasClicked == auditionButton){
+                //playLoop routine
+            } else if (buttonThatWasClicked == discardButton){
+                //discard the Loop
+                //need undo functionality
+            }
+        }
+        
+    private:
+            LoopTable& owner;
+            ScopedPointer<TextButton> auditionButton;
+            ScopedPointer<TextButton> discardButton;
+            int row, columnId;
+    };
+   
+};
+
+class TableWindow : public DocumentWindow {
+public:
+    TableWindow(const String& name, Colour backgroundColour, int buttonsNeeded, std::vector<Loop> l):
+    DocumentWindow(name, backgroundColour, buttonsNeeded) {
+        table = new LoopTable(l);
+        openTableWindow();
+    }
+    
     
     void openTableWindow(){
         DialogWindow::LaunchOptions options;
@@ -98,9 +191,9 @@ public:
         label->setColour(Label::textColourId, Colours::whitesmoke);
         options.content.setNonOwned(label);
         
-        int margin = 10;
-        Rectangle<int> area(0,0,table.getWidth() + margin, table.getHeight() + margin);
-        options.content->setSize(area.getWidth(), area.getHeight());
+        //int margin = 10;
+        //Rectangle<int> area(0,0,table.getWidth() + margin, table.getHeight() + margin);
+        options.content->setSize(800, 600);
         
         options.dialogTitle = "Loop List";
         options.dialogBackgroundColour = Colours::floralwhite;
@@ -108,24 +201,16 @@ public:
         options.useNativeTitleBar = true;
         options.resizable = true;
         
+        options.content.set(table, true);
+    
         const RectanglePlacement placement(RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
         DialogWindow* dw = options.launchAsync();
-        dw->centreWithSize(area.getWidth(), area.getHeight());
+        dw->centreWithSize(800, 600);
     }
     
+    void closedButtonPressed(){ delete this; }
     
 private:
-    TableListBox table;
-    Font font;
-    std::vector<Loop> loopData;
-    
-//    XmlElement* columnList;
-//    XmlElement* dataList;
-    int numRows;
-    std::vector<std::string> columnList;
-    
-    OwnedArray<TextButton> auditionButtons;
-    OwnedArray<ToggleButton> keepOrDiscardButtons;
-    
-   
+    LoopTable* table;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TableWindow);
 };

@@ -31,7 +31,7 @@ StringArray MainContentComponent::getMenuBarNames(){
 
 PopupMenu MainContentComponent::getMenuForIndex(int index, const juce::String &name){
     PopupMenu menu;
-    if (name == "File"){
+   if (name == "File"){
         menu.addItem(LabelClear, "Clear");
         menu.addItem(Open, "Open...");
         menu.addItem(Save, "Save");

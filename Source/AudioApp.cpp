@@ -441,10 +441,13 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void AudioApp::loadFile(){
-    FileChooser chooser("Select a wav file to play", File::nonexistent, "*.wav");
-    if (chooser.browseForFileToOpen())
+    FileChooser chooser("Select a wav file to play", File::getSpecialLocation(File::userMusicDirectory), "*.wav");
+    if (chooser.browseForFileToOpen()){
         auxFile = new File(chooser.getResult());
-    initialize();
+        initialize();
+    } else {
+        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "No File Selected", "You did not choose a file to open");
+    }
 }
 //==============================================================================
 void AudioApp::initialize(){
@@ -483,7 +486,7 @@ void AudioApp::initialize(){
     recordingButton->setEnabled(true);
     
     tableEnabled = true;
-   // loopTable = new LoopTable(crudeLoops);
+    
 }
 //==============================================================================
 void AudioApp::openAudioSettings(){
@@ -664,7 +667,7 @@ void AudioApp::playLoop(Loop& loop){
 }
 //==============================================================================
 void AudioApp::startRecording(){
-    FileChooser chooser("Save recording as...", File::getCurrentWorkingDirectory(),"wav",true);
+    FileChooser chooser("Save recording as...", File::getSpecialLocation(File::userMusicDirectory),"wav",true);
     if (chooser.browseForFileToSave(true)){
         const File file(chooser.getResult());
         recorder.startRecording(file);
@@ -686,6 +689,7 @@ void AudioApp::stopRecording(){
 
 void AudioApp::showLoopTable(){
     
+    loopTable = new TableWindow("Loop List", Colours::silver, 1, crudeLoops);
 }
 
 //==============================================================================
@@ -707,9 +711,10 @@ void AudioApp::timerCallback(){
          mediaPlayer.stop();
             shiftyLooping();
         }
-        if (mediaPlayer.hasStreamFinished())
+        if (mediaPlayer.hasStreamFinished()){
             masterLogger->writeToLog("that");
             shiftyLooping();
+        }
     }
 }
 

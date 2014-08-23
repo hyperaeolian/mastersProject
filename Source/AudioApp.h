@@ -144,7 +144,7 @@ private:
     CustomLookAndFeel* design;
     ScopedPointer<Waveform> waveform;
     ScopedPointer<ImageComponent> backgroundImage;
-    ScopedPointer<LoopTable> loopTable;
+    ScopedPointer<TableWindow> loopTable;
     //[/UserVariables]
 
     //==============================================================================

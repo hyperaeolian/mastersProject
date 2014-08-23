@@ -52,7 +52,7 @@ public:
     */
     class MainWindow : public DocumentWindow{
     public:
-        MainWindow()  : DocumentWindow ("Ostinato",
+        MainWindow()  : DocumentWindow ("Shifty Looping",
                                         Colours::lightgrey,
                                         DocumentWindow::allButtons)
         {

@@ -20,6 +20,7 @@
 		7D8F95C2DC21FC7D22CD093B = {isa = PBXBuildFile; fileRef = 01620353467C9D8010CB2F96; };
 		477CF0E63B47EA3BB1244946 = {isa = PBXBuildFile; fileRef = DEA7B1BB899E2D6E19362684; };
 		780C40FEE031E982D2B567BD = {isa = PBXBuildFile; fileRef = 1AB9838C1A5D167CACAECC0E; };
+		ABD5E4952ECA7A352AB864A5 = {isa = PBXBuildFile; fileRef = 1C5E9C9285F7DA9840D74EDF; };
 		6E2B48509A2C0EED7911E2B2 = {isa = PBXBuildFile; fileRef = 32FD49244706C0760D1800C0; };
 		976485919C3FB855FB52107E = {isa = PBXBuildFile; fileRef = 9EC69FF3D4953DCDAEE10BBF; };
 		2013F9028F983E26C00C7499 = {isa = PBXBuildFile; fileRef = F9BCEDCA1D866FE5293CFB01; };
@@ -150,6 +151,7 @@
 		1C226545F98AE69B6F584AC3 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_Javascript.h"; path = "../../JuceLibraryCode/modules/juce_core/javascript/juce_Javascript.h"; sourceTree = "SOURCE_ROOT"; };
 		1C3BD0DAA9FB3B4426EBA039 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = betools.h; path = ../../../../../../../usr/local/include/essentia/utils/betools.h; sourceTree = "SOURCE_ROOT"; };
 		1C45F316574E810BB50BCF6C = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_ActiveXControlComponent.h"; path = "../../JuceLibraryCode/modules/juce_gui_extra/embedding/juce_ActiveXControlComponent.h"; sourceTree = "SOURCE_ROOT"; };
+		1C5E9C9285F7DA9840D74EDF = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ShiftyLooping.cpp; path = ../../Source/ShiftyLooping.cpp; sourceTree = "SOURCE_ROOT"; };
 		1C6CE8AC1D2C99A1CCCCC918 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_mac_CoreMidi.cpp"; path = "../../JuceLibraryCode/modules/juce_audio_devices/native/juce_mac_CoreMidi.cpp"; sourceTree = "SOURCE_ROOT"; };
 		1CD79181434FB5F5297D604E = {isa = PBXFileReference; lastKnownFileType = file; name = "juce_module_info"; path = "../../../JUCE/modules/juce_cryptography/juce_module_info"; sourceTree = "SOURCE_ROOT"; };
 		1D03FFBC2AEC85D3FAA17F52 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_RenderingHelpers.h"; path = "../../JuceLibraryCode/modules/juce_graphics/native/juce_RenderingHelpers.h"; sourceTree = "SOURCE_ROOT"; };
@@ -1272,6 +1274,7 @@
 					E306341F3FAC8DB5EF9BF092,
 					129003532E63A17027BEFA3A, ); name = essentia; sourceTree = "<group>"; };
 		A635FFDCBB3C5D807527A818 = {isa = PBXGroup; children = (
+					1C5E9C9285F7DA9840D74EDF,
 					B639A5DF7D919BE32C9F253C,
 					32FD49244706C0760D1800C0,
 					9EC69FF3D4953DCDAEE10BBF,
@@ -2605,6 +2608,7 @@
 		E91C9E7173CD62C3330903E3 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
 					780C40FEE031E982D2B567BD, ); runOnlyForDeploymentPostprocessing = 0; };
 		20B30340FA753B57EF3F87D6 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+					ABD5E4952ECA7A352AB864A5,
 					6E2B48509A2C0EED7911E2B2,
 					976485919C3FB855FB52107E,
 					2013F9028F983E26C00C7499,
