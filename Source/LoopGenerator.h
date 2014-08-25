@@ -18,7 +18,7 @@
 #include "pool.h"
 #include "essentia.h"
 #include "algorithmfactory.h"
-#include "ProgressWindow.h"
+#include "ProgressWindow.cpp"
 
 struct Loop {
     float start, end;
@@ -62,6 +62,7 @@ private:
 };
     
 //namespace (non-member) helper functions
+    static _REAL bpm;
     std::vector<_REAL> initAudio(const std::string audiofilename);
     std::vector<Loop> constructLoops(const std::vector<_REAL>& buffer);
 }

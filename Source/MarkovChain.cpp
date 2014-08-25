@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "Statistics.h"
+#include "MarkovChain.h"
 
 namespace mkov{
 

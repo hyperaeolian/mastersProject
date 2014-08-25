@@ -10,7 +10,7 @@
 
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-#include <stdexcept>
+
 
 class ShiftyLooper : public drow::AudioFilePlayer::Listener, public Timer {
     

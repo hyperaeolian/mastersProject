@@ -461,15 +461,20 @@ void AudioApp::initialize(){
     
     std::string audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
     crudeLoops = lgen::constructLoops(lgen::initAudio(audiofilename));
-    markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
+    
+    std::vector<std::string> vals = {"Foo", "Preparing for Analysis", " distances to calculate",
+                                    "Finding similarity", "You canceled the similarity calculation",
+                                    "Similary Metrics Complete!"};
+
+    BackgroundThread simThread(crudeLoops.size(), vals);
+    if (simThread.runThread())
+        markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
+    else
+        simThread.threadComplete(true);
     
     currentLoop = &crudeLoops[markov_chain[0]];
     
-    for (auto& loop : crudeLoops)
-        masterLogger->writeToLog("Current Loop: " + String(loop.start) + " to "
-                                 + String(loop.end));
-    
-    infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
+    infoLabel->setText("Tempo is: " + String(lgen::bpm), sendNotification);
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
     shiftyLoopingButton->setEnabled(true);

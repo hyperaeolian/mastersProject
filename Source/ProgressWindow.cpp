@@ -1,61 +1,57 @@
 /*
   ==============================================================================
 
-    ProgressWindow.h
-    Created: 28 Jul 2014 1:45:18pm
+    ProgressWindow.cpp
+    Created: 25 Aug 2014 4:22:11pm
     Author:  milrob
 
   ==============================================================================
 */
 
-#ifndef PROGRESSWINDOW_H_INCLUDED
-#define PROGRESSWINDOW_H_INCLUDED
-
 #include "JuceHeader.h"
-
-/* This needs to be more generic */
 
 class BackgroundThread : public ThreadWithProgressWindow{
 public:
     
-    BackgroundThread(const int N, juce::String msg) : ThreadWithProgressWindow(msg, true, true),
-                                    numFeatures(N), initMsg(msg)
+    BackgroundThread(const int N, const std::vector<std::string> vals) :
+     ThreadWithProgressWindow("Progress", true, true),numFeatures(N)
     {
-        setStatusMessage("Initializing");
+        std::vector<std::string> keys = {"title", "init","remaining", "cleanUp", "cancel", "success" };
+        for (int i = 0; i < keys.size(); ++i){
+            statusMsgs.set(keys[i], vals[i]);
+        }
+        setStatusMessage(statusMsgs["init"]);
+
     }
     
     void run() override{
         setProgress (-0.5);
-        //setStatusMessage ("Preparing file for Feature Extraction");
+        //setStatusMessage (statusMsgs["init"]);
         wait (2000);
-        //const int features = 25;
-        
         for (int i = 0; i < numFeatures; ++i){
             if (threadShouldExit()) return;
             setProgress (i / (double) numFeatures);
-            setStatusMessage (String (numFeatures - i) + " remaining loops to create...");
+            setStatusMessage (String (numFeatures - i) + statusMsgs["remaining"]);
             wait (500);
         }
         
         setProgress (-0.5);
-        setStatusMessage ("Cleaning Up");
+        setStatusMessage (statusMsgs["cleanUp"]);
        // wait (2000);
     }
     
     void threadComplete(bool userPressedCancel) override {
         if (userPressedCancel) {
-            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Progress Window", "Cancelling feature extraction");
+            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Progress Window", statusMsgs["cancel"]);
         } else {
-            setStatusMessage("Extraction Successful!");
+            setStatusMessage(statusMsgs["success"]);
             AlertWindow::showMessageBoxAsync(AlertWindow::NoIcon, "Progress Window", "Feature Extraction Successful!");
         }
     }
 private:
     const int numFeatures;
-    juce::String initMsg;
+    //Need 6 status messages
+    /* title, init, remaining, cleanUp, cancel, success */
+    juce::StringPairArray statusMsgs;
     
 };
-
-
-
-#endif  // PROGRESSWINDOW_H_INCLUDED

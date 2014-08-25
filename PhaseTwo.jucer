@@ -5,8 +5,6 @@
               jucerVersion="3.1.0" companyName="Phases">
   <MAINGROUP id="E0wmuP" name="PhaseTwo">
     <GROUP id="{0FB00397-425A-C16D-E939-F860956365BB}" name="Source">
-      <FILE id="hQFxHg" name="ShiftyLooping.cpp" compile="1" resource="0"
-            file="Source/ShiftyLooping.cpp"/>
       <FILE id="diD8rf" name="AudioApp.h" compile="0" resource="1" file="Source/AudioApp.h"/>
       <FILE id="Dv8Ih0" name="AudioApp.cpp" compile="1" resource="1" file="Source/AudioApp.cpp"/>
       <FILE id="hZpixY" name="AudioRecorder.cpp" compile="1" resource="0"
@@ -15,6 +13,8 @@
             file="Source/MainComponent.cpp"/>
       <FILE id="kUQbSr" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="vFbdZW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="hQFxHg" name="ShiftyLooping.cpp" compile="1" resource="0"
+            file="Source/ShiftyLooping.cpp"/>
       <GROUP id="{D8ABD1DE-4DA2-161B-99ED-227FB9780BC6}" name="analysis">
         <FILE id="YPZoLc" name="LoopGenerator.h" compile="0" resource="0" file="Source/LoopGenerator.h"/>
         <FILE id="d4Rdnk" name="LoopGenerator.cpp" compile="1" resource="0"
@@ -23,8 +23,8 @@
               file="Source/FeatureExtractor.h"/>
         <FILE id="oCctHK" name="FeatureExtractor.cpp" compile="1" resource="0"
               file="Source/FeatureExtractor.cpp"/>
-        <FILE id="t7wNyK" name="Statistics.h" compile="0" resource="0" file="Source/Statistics.h"/>
-        <FILE id="L9N4kP" name="Statistics.cpp" compile="1" resource="0" file="Source/Statistics.cpp"/>
+        <FILE id="t7wNyK" name="MarkovChain.h" compile="0" resource="0" file="Source/MarkovChain.h"/>
+        <FILE id="L9N4kP" name="MarkovChain.cpp" compile="1" resource="0" file="Source/MarkovChain.cpp"/>
       </GROUP>
       <GROUP id="{A0E85984-9B1A-0199-299F-3F19A6CFB6A0}" name="matrix">
         <FILE id="vga2Nf" name="VECTOR.cpp" compile="1" resource="0" file="../../Coursework/patternformation/cymatics/VECTOR.cpp"/>
@@ -33,12 +33,12 @@
         <FILE id="Girf6V" name="MATRIX.h" compile="0" resource="0" file="../../Coursework/patternformation/cymatics/MATRIX.h"/>
       </GROUP>
       <GROUP id="{A3D9E5C7-DAD1-6C2D-0A20-CAAE38B1851D}" name="views">
-        <FILE id="l2bQC4" name="AudioThumbnailComp.cpp" compile="1" resource="0"
-              file="Source/AudioThumbnailComp.cpp"/>
+        <FILE id="l2bQC4" name="AudioWaveform.cpp" compile="1" resource="0"
+              file="Source/AudioWaveform.cpp"/>
         <FILE id="JndRVd" name="Design.cpp" compile="1" resource="1" file="Source/Design.cpp"/>
         <FILE id="C0KyhE" name="LoopList.cpp" compile="1" resource="0" file="Source/LoopList.cpp"/>
-        <FILE id="v5MuI2" name="ProgressWindow.h" compile="0" resource="0"
-              file="Source/ProgressWindow.h"/>
+        <FILE id="jaAwcT" name="ProgressWindow.cpp" compile="1" resource="0"
+              file="Source/ProgressWindow.cpp"/>
       </GROUP>
       <GROUP id="{BA030AEE-B583-ADA7-433E-0F4ED845CCEE}" name="essentia">
         <FILE id="ybXtkJ" name="algorithm.h" compile="0" resource="0" file="/usr/local/include/essentia/algorithm.h"/>

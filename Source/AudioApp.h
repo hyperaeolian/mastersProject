@@ -23,8 +23,8 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-#include "AudioThumbnailComp.cpp"
-#include "Statistics.h"
+#include "AudioWaveform.cpp"
+#include "MarkovChain.h"
 #include "MATRIX.h"
 #include "Design.cpp"
 #include "AudioRecorder.cpp"

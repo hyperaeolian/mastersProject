@@ -107,21 +107,22 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
             //Can use either onsets or beats as loop points
             //xtractor.findOnsets();
             xtractor.findBeats();
-        
+            std::vector<std::string> vals = {"Loop Generator", "Initializing", " remaining loops to create",
+                                             "Finishing last loop", "You canceled the loop generator",
+                                             "Loop Construction Successful!"};
+            
             LoopGenerator loopGen(buffer, xtractor.getBeats());
-            BackgroundThread progressWindow(static_cast<int>(loopGen.getNumLoopsToCreate()), "Loop Generator");
+            BackgroundThread progressWindow(static_cast<int>(loopGen.getNumLoopsToCreate()), vals);
             if (progressWindow.runThread()){
-                progressWindow.setStatusMessage("Finding all possible loop points...");
                 loopGen.createLoopPoints();
                 loopGen.connectLoops();
                
                 //Compute features for each loop
-                progressWindow.setStatusMessage("Computing features for loops...");
-                for (auto& lp : loopGen.getLoops())
-                    xtractor.computeFeaturesForLoop(lp);
+                for (auto& lp : loopGen.getLoops()) xtractor.computeFeaturesForLoop(lp);
             } else
                 progressWindow.threadComplete(true);
             
+            lgen::bpm = xtractor.getTempo();
             return loopGen.getLoops();
         }
         
