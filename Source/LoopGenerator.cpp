@@ -25,20 +25,27 @@ LoopGenerator::~LoopGenerator(){}
 
 void LoopGenerator::createLoopPoints(){
     
-    Loop curr;
+    std::cout << "Size: " << AudioBuffer.size() << std::endl;
     for (int i = 0; i < delimiters.size(); ++i) {
+        //std::cout << "Delim: " << delimiters[i] << "Less: " << delimiters[i] + BarSize << "Last: " << lastDelimiter << std::endl;
         if (delimiters[i] + BarSize <= lastDelimiter) {
+            Loop curr;
             curr.start  = delimiters[i];
             _REAL point = delimiters[i] + BarSize;
             curr.end    = quantizeToDelimiter(point);
-            if (curr.start < curr.end)
+            if (curr.start > curr.end)
                 std::swap(curr.start, curr.end);
-            curr.head = static_cast<int>(curr.start * SR);
-            curr.tail = static_cast<int>(curr.end * SR);
-            //curr.head = static_cast<int>(delimiters[i] * SR);
-            //curr.tail = static_cast<int>(delimiters[i+1] * SR);
+            if (static_cast<int>(curr.start * SR) > AudioBuffer.size()) {
+                continue;
+            } else
+                curr.head = static_cast<int>(curr.start * SR);
+            curr.tail = static_cast<int>(curr.end * SR) > AudioBuffer.size() ?
+            AudioBuffer.size() : static_cast<int>(curr.end * SR);
+          //  curr.head = static_cast<int>(delimiters[i] * SR);
+          //  curr.tail = static_cast<int>(delimiters[i+1] * SR);
             _Loops.push_back(curr);
-        }
+        } else
+            return;
     }
 }
 
@@ -93,33 +100,32 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
     }
     
 //==========================Compute Loops=======================================
-    std::vector<Loop> computeLoops(const std::vector<_REAL>& buffer){
-        
+    std::vector<Loop> constructLoops(const std::vector<_REAL>& buffer){
+    
         if (lgen::audioBuffered){
-            std::unique_ptr<FeatureExtractor> xtractor(new FeatureExtractor(buffer));
-            
+            FeatureExtractor xtractor(buffer);
             //Can use either onsets or beats as loop points
-            //xtractor->findOnsets();
-            xtractor->findBeats();
-            
-            std::unique_ptr<LoopGenerator> loopGen(new LoopGenerator(buffer,
-                                                                     xtractor->getBeats()));
+            //xtractor.findOnsets();
+            xtractor.findBeats();
         
-            BackgroundThread progressWindow(static_cast<int>(loopGen->getNumLoopsToCreate()), "Loop Generator");
+            LoopGenerator loopGen(buffer, xtractor.getBeats());
+            BackgroundThread progressWindow(static_cast<int>(loopGen.getNumLoopsToCreate()), "Loop Generator");
             if (progressWindow.runThread()){
                 progressWindow.setStatusMessage("Finding all possible loop points...");
-                loopGen->createLoopPoints();
-                loopGen->connectLoops();
-         
+                loopGen.createLoopPoints();
+                loopGen.connectLoops();
+               
                 //Compute features for each loop
                 progressWindow.setStatusMessage("Computing features for loops...");
-                for (auto& lp : loopGen->getLoops()) xtractor->computeFeaturesForLoop(lp);
+                for (auto& lp : loopGen.getLoops())
+                    xtractor.computeFeaturesForLoop(lp);
             } else
                 progressWindow.threadComplete(true);
             
-            return loopGen->getLoops();
+            return loopGen.getLoops();
         }
         
+        //TODO: Handle case where !lgen::audioBuffered
     }
     
     

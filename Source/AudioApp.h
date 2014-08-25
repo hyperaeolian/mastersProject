@@ -132,7 +132,6 @@ private:
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
     std::vector<essentia::Real> markov_chain;
-    void generateMarkovChain();
 
     //Utility Vars
     float gain;

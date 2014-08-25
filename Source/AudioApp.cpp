@@ -460,27 +460,16 @@ void AudioApp::initialize(){
     waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
     
     std::string audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
-    crudeLoops = lgen::computeLoops(lgen::initAudio(audiofilename));
-    mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
-/*
-    audiofilename = auxFile->getFullPathName().toUTF8();
-    crudeLoops = computeLoops(audiofilename, Tempo);
-    int n = random.nextInt(crudeLoops.size() - 1);
-
-    currentLoop = &crudeLoops[n];
-
+    crudeLoops = lgen::constructLoops(lgen::initAudio(audiofilename));
+    markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
+    
+    currentLoop = &crudeLoops[markov_chain[0]];
+    
     for (auto& loop : crudeLoops)
         masterLogger->writeToLog("Current Loop: " + String(loop.start) + " to "
                                  + String(loop.end));
-
-    similarity = new MATRIX(crudeLoops.size(), crudeLoops.size());
-    computeDistances(crudeLoops, *similarity);
-    transMat = new MATRIX(computeTransitionMatrix(*similarity));
-
-    markov_chain = markov(*transMat, MarkovIterations, n);
-
+    
     infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
-*/
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
     shiftyLoopingButton->setEnabled(true);
@@ -514,10 +503,6 @@ inline void AudioApp::printCurrentState(juce::String s) {
     infoLabel->setText("Current State: " + s, sendNotification);
 }
 
-inline void AudioApp::generateMarkovChain(){
-    int n = random.nextInt(crudeLoops.size() - 1);
-    //markov_chain = markov(*transMat, MarkovIterations, n);
-}
 //==============================================================================
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 
@@ -628,7 +613,7 @@ void AudioApp::shiftyLooping(){
    // waveform->setEndTime(currentLoop->end);
     playLoop(*currentLoop);
     if (++n > markov_chain.size()){
-        generateMarkovChain();
+        //generateMarkovChain();
         n = 0;
     } else
         n++;

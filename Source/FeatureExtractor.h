@@ -64,8 +64,7 @@ public:
     std::vector<Real> getBeats()  const { return beats; }
     
 private:
-    
-    AlgorithmFactory& factory;
+
     const std::vector<Real> AudioBuffer;
     std::vector<Real> onsets, beats;
     const int SR, FrameSize, HopSize;

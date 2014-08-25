@@ -18,8 +18,8 @@ class ShiftyLooper : public drow::AudioFilePlayer::Listener, public Timer {
 public:
     ShiftyLooper(drow::AudioFilePlayerExt& afp, const std::vector<Loop>& _loops,
                   Loop& current, std::vector<int> seq) :
-                    requestForSeqUpdate(false), player(afp), loops(_loops),
-                    currentLoop(current), sequence(seq), seqIdx(0)
+                     player(afp),loops(_loops),
+                    currentLoop(current), sequence(seq), requestForSeqUpdate(false), seqIdx(0)
     {
         start();
     }

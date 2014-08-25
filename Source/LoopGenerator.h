@@ -63,7 +63,7 @@ private:
     
 //namespace (non-member) helper functions
     std::vector<_REAL> initAudio(const std::string audiofilename);
-    std::vector<Loop> computeLoops(const std::vector<_REAL>& buffer);
+    std::vector<Loop> constructLoops(const std::vector<_REAL>& buffer);
 }
 
 

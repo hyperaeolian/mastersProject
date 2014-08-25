@@ -14,9 +14,8 @@
 using namespace essentia;
 using namespace essentia::standard;
 
-FeatureExtractor::FeatureExtractor(const std::vector<_REAL>& buffer) : SR(44100),
-    AudioBuffer(buffer), FrameSize(2048), HopSize(FrameSize/2),
-    factory(essentia::standard::AlgorithmFactory::instance())
+FeatureExtractor::FeatureExtractor(const std::vector<_REAL>& buffer) :
+    AudioBuffer(buffer), SR(44100), FrameSize(2048), HopSize(FrameSize/2)
 
 {
     essentia::init();
@@ -27,6 +26,7 @@ FeatureExtractor::~FeatureExtractor(){
 }
 
 void FeatureExtractor::findOnsets(){
+    AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
     juce::ScopedPointer<Algorithm> onsDet = factory.create("OnsetRate");
     Real rate;
     
@@ -38,6 +38,7 @@ void FeatureExtractor::findOnsets(){
 }
 
 void FeatureExtractor::findBeats(){
+    AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
     juce::ScopedPointer<Algorithm> _beatTracker = factory.create("RhythmExtractor2013");
     
     std::vector<Real> estimates, bpmIntervals;
@@ -51,12 +52,18 @@ void FeatureExtractor::findBeats(){
     _beatTracker->output("bpmIntervals").set(bpmIntervals);
 
     _beatTracker->compute();
+    
 }
 
 
 void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
-    std::vector<_REAL> loopBuffer(AudioBuffer.begin() + loop.head,
-                                  AudioBuffer.begin() + loop.tail);
+    AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
+
+    auto first = AudioBuffer.begin() + loop.head;
+    auto second = AudioBuffer.begin() + loop.tail;
+
+    std::vector<_REAL> loopBuffer(first, second);
+   
     juce::ScopedPointer<Algorithm>
             _dur            = factory.create("Duration"),
             fc              = factory.create("FrameCutter", "frameSize", FrameSize,
@@ -85,10 +92,6 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
         /* ========= RHYTHM FEATURES ===================== */
         Real bpm, beatsConfidence;
         std::vector<Real> tempogram, beats, beatIntervals;
-
-//        _onsetRate->input("signal")       .set(loopBuffer);
-//        _onsetRate->output("onsets")      .set(onsetTimes);
-//        _onsetRate->output("onsetRate")   .set(onsetRate);
 
         _rhythmExt->input("signal")       .set(loopBuffer);
         _rhythmExt->output("bpm")         .set(bpm);
@@ -141,10 +144,9 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
 
 
 
-        /* ========= COMPUTE AND STORE FEATURES ===================== */
+        /* ========= EXTRACT AND STORE FEATURES ===================== */
 
-
-        _onsetRate->compute();
+        //Temporal Features
         _rhythmExt->compute();
         _tonalExtractor->compute();
 
@@ -154,10 +156,6 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
         loop.bin.set("rhythm.conf", beatsConfidence);
         loop.bin.set("rhythm.intervals", beatIntervals);
         loop.bin.set("rhythm.tempogram", tempogram);
-//        loop.bin.set("rhythm.onsets", onsetTimes);
-//        loop.bin.set("rhythm.rate", onsetRate);
-
-
 
         loop.bin.set("tonal.chordrate", chords_ChangeRate);
         loop.bin.set("tonal.histo", chords_Histogram);
@@ -170,8 +168,9 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
         //loop.bin.set("tonal.highres", hpcp_HighRes);
         loop.bin.set("tonal.key", key_Key);
         loop.bin.set("tonal.scale", key_Scale);
-    loop.bin.set("tonal.keyStr", key_Strength);
+        loop.bin.set("tonal.keyStr", key_Strength);
 
+        //Spectral Features
         fc->compute();
         w->compute();
 
@@ -187,7 +186,6 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
         loop.bin.set("timbre.mfcc", mfccs);
         loop.bin.set("timbre.cent", centroid);
 
-   
 }
 
 
