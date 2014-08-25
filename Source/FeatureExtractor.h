@@ -14,7 +14,7 @@
 #include "JuceHeader.h"
 #include "essentia.h"
 #include "essentiamath.h"
-#include "AudioApp.h"
+#include "LoopGenerator.h"
 #include "pool.h"
 #include "algorithmfactory.h"
 
@@ -41,14 +41,6 @@
 |                                                                               |
 *//*=========================================================================== */
 
-//
-//extern const int FRAME_SIZE, HOP, NumFeatures;
-//extern bool successfulExtraction, onlyRhythm;
-//extern essentia::Pool* featureBin;
-//
-//
-//void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& BUFFER);
-//std::vector<essentia::Real> computeGlobalBeatsOnsets(const std::string song, essentia::Real& bpm);
 
 using namespace essentia;
 using namespace essentia::standard;
@@ -60,6 +52,7 @@ public:
     FeatureExtractor();
     ~FeatureExtractor();
     
+    //allow for alternate delimiters
     //virtual void findDelimiters() = 0;
     
     void findOnsets();

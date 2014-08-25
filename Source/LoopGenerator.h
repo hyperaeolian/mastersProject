@@ -20,12 +20,6 @@
 #include "algorithmfactory.h"
 #include "ProgressWindow.h"
 
-
-
-//extern const int SR;
-//extern const float BAR_SIZE;
-
-
 struct Loop {
     float start, end;
     int head, tail;
@@ -67,20 +61,11 @@ private:
     LoopGenerator& operator=(LoopGenerator&&);
 };
     
-    
-    std::vector<_REAL> AudioBuffer;
-    void initAudio(const std::string audiofilename);
-    std::vector<Loop> computeLoops();
+//namespace (non-member) helper functions
+    std::vector<_REAL> initAudio(const std::string audiofilename);
+    std::vector<Loop> computeLoops(const std::vector<_REAL>& buffer);
 }
 
-/*
- std::vector<Loop> computeLoops(const std::string audiofilename, essentia::Real& bpm);
- void createLoopPoints(const std::vector<float>& onsets, const std::vector<essentia::Real>& AUDIO_BUFFER, std::vector<Loop>& loops);
- void connectLoops(std::vector<Loop>& loops);
- //void findOverlaps(std::vector<Loop>& loops);
- float quantizeToOnset(const std::vector<float>& onsets, float value);
- //void printBuffer(Loop& a);
- */
 
 
 #endif  // LOOPGEN_H_INCLUDED

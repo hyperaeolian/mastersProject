@@ -384,7 +384,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == reloopButton)
     {
         //[UserButtonCode_reloopButton] -- add your button handler code here..
-        markov_chain = markov(*transMat, MarkovIterations, random.nextInt(crudeLoops.size()-1));
+        //markov_chain = markov(*transMat, MarkovIterations, random.nextInt(crudeLoops.size()-1));
         //[/UserButtonCode_reloopButton]
     }
 
@@ -451,14 +451,18 @@ void AudioApp::loadFile(){
 }
 //==============================================================================
 void AudioApp::initialize(){
-    //TODO: Amend this method, too much going on
+    
     mediaPlayer.setFile(*auxFile);
 
     addAndMakeVisible(waveform = new Waveform(mediaPlayer));
     waveform->addChangeListener(this);
     waveform->setFile(*auxFile);
     waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
-
+    
+    std::string audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
+    crudeLoops = lgen::computeLoops(lgen::initAudio(audiofilename));
+    mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
+/*
     audiofilename = auxFile->getFullPathName().toUTF8();
     crudeLoops = computeLoops(audiofilename, Tempo);
     int n = random.nextInt(crudeLoops.size() - 1);
@@ -476,7 +480,7 @@ void AudioApp::initialize(){
     markov_chain = markov(*transMat, MarkovIterations, n);
 
     infoLabel->setText("Tempo is: " + String(Tempo), sendNotification);
-
+*/
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
     shiftyLoopingButton->setEnabled(true);
@@ -512,7 +516,7 @@ inline void AudioApp::printCurrentState(juce::String s) {
 
 inline void AudioApp::generateMarkovChain(){
     int n = random.nextInt(crudeLoops.size() - 1);
-    markov_chain = markov(*transMat, MarkovIterations, n);
+    //markov_chain = markov(*transMat, MarkovIterations, n);
 }
 //==============================================================================
 void AudioApp::changeListenerCallback(ChangeBroadcaster* src){

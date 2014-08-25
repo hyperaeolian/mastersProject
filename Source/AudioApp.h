@@ -148,10 +148,10 @@ private:
     ScopedPointer<TableWindow> loopTable;
     
     //unwanted constructors
-    AudioApp(const AudioApp&);
-    AudioApp(AudioApp&&);
-    AudioApp& operator=(const AudioApp&);
-    AudioApp& operator=(AudioApp&&);
+//    AudioApp(const AudioApp&);
+//    AudioApp(AudioApp&&);
+//    AudioApp& operator=(const AudioApp&);
+//    AudioApp& operator=(AudioApp&&);
     //[/UserVariables]
 
     //==============================================================================
