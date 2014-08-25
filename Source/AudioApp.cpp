@@ -688,7 +688,7 @@ void AudioApp::stopRecording(){
 }
 
 void AudioApp::showLoopTable(){
-    
+    //use a smart pointer and declare & init here
     loopTable = new TableWindow("Loop List", Colours::silver, 1, crudeLoops);
 }
 

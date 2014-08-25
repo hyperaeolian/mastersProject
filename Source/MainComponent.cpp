@@ -56,7 +56,7 @@ void MainContentComponent::menuItemSelected(int menuID, int index){
             app.openAudioSettings();
             break;
         case Options:
-            app.tableEnabled ? app.showLoopTable() :
+            app.isTableEnabled() ? app.showLoopTable() :
                 AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
                                                  "Table Unavailable", "You must load a sound file first");
             break;

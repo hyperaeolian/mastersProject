@@ -12,11 +12,11 @@
 #include "LoopGenerator.h"
 #include <stdexcept>
 
-class ShiftyLooping : public drow::AudioFilePlayer::Listener, public Timer {
+class ShiftyLooper : public drow::AudioFilePlayer::Listener, public Timer {
     
     
 public:
-    ShiftyLooping(drow::AudioFilePlayerExt& afp, const std::vector<Loop>& _loops,
+    ShiftyLooper(drow::AudioFilePlayerExt& afp, const std::vector<Loop>& _loops,
                   Loop& current, std::vector<int> seq) :
                     requestForSeqUpdate(false), player(afp), loops(_loops),
                     currentLoop(current), sequence(seq), seqIdx(0)
@@ -24,9 +24,7 @@ public:
         start();
     }
     
-    ~ShiftyLooping(){}
-    
-    bool requestForSeqUpdate;
+    ~ShiftyLooper(){}
     
     void start(){
         startTimer(50);
@@ -52,11 +50,16 @@ public:
     }
     
 private:
+    ShiftyLooper(const ShiftyLooper& sl) = delete;
+    ShiftyLooper(ShiftyLooper&& sl) = delete;
+    ShiftyLooper& operator=(const ShiftyLooper& rhs) = default;
+    ShiftyLooper& operator=(ShiftyLooper&& rhs) = delete;
+    
     drow::AudioFilePlayerExt& player;
     std::vector<Loop> loops;
     Loop& currentLoop;
     std::vector<int> sequence;
-    bool shifting, forward;
+    bool shifting, forward, requestForSeqUpdate;
     int seqIdx;
     Random r;
     

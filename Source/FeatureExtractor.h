@@ -41,15 +41,50 @@
 |                                                                               |
 *//*=========================================================================== */
 
+//
+//extern const int FRAME_SIZE, HOP, NumFeatures;
+//extern bool successfulExtraction, onlyRhythm;
+//extern essentia::Pool* featureBin;
+//
+//
+//void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& BUFFER);
+//std::vector<essentia::Real> computeGlobalBeatsOnsets(const std::string song, essentia::Real& bpm);
 
-extern const int FRAME_SIZE, HOP, NumFeatures;
-extern bool successfulExtraction, onlyRhythm;
-extern essentia::Pool* featureBin;
+using namespace essentia;
+using namespace essentia::standard;
 
 
-void computeFeaturesForLoop(Loop& loop, const std::vector<essentia::Real>& BUFFER);
-std::vector<essentia::Real> computeGlobalBeatsOnsets(const std::string song, essentia::Real& bpm);
-
-
+class FeatureExtractor {
+public:
+    FeatureExtractor(const std::vector<Real>& buffer);
+    FeatureExtractor();
+    ~FeatureExtractor();
+    
+    //virtual void findDelimiters() = 0;
+    
+    void findOnsets();
+    void findBeats();
+    void computeFeaturesForLoop(Loop& loop);
+    
+    Real getTempo()               const { return bpm; }
+    std::vector<Real> getOnsets() const { return onsets; }
+    std::vector<Real> getBeats()  const { return beats; }
+    
+private:
+    
+    AlgorithmFactory& factory;
+    const std::vector<Real> AudioBuffer;
+    std::vector<Real> onsets, beats;
+    const int SR, FrameSize, HopSize;
+    bool successfulExtraction;
+    Real bpm;
+    
+ //unwanted constructors
+    FeatureExtractor(const FeatureExtractor&);
+    FeatureExtractor(FeatureExtractor&&);
+    FeatureExtractor& operator=(const FeatureExtractor&);
+    FeatureExtractor& operator=(FeatureExtractor&&);
+};
+    
 
 #endif  // FEATUREEXTRACTOR_H_INCLUDED

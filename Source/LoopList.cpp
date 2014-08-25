@@ -178,17 +178,22 @@ private:
 class TableWindow : public DocumentWindow {
 public:
     TableWindow(const String& name, Colour backgroundColour, int buttonsNeeded, std::vector<Loop> l):
-    DocumentWindow(name, backgroundColour, buttonsNeeded) {
-        table = new LoopTable(l);
+    DocumentWindow(name, backgroundColour, buttonsNeeded), table(new LoopTable(l)){
+        setContentOwned(table, true);
         openTableWindow();
     }
     
     
     void openTableWindow(){
+       
         DialogWindow::LaunchOptions options;
+        //Label* label = new Label();
+        //label->setText("Table", dontSendNotification);
+        //label->setColour(Label::textColourId, Colours::whitesmoke);
+        //options.content.setNonOwned(label);
         Label* label = new Label();
-        label->setText("Table", dontSendNotification);
         label->setColour(Label::textColourId, Colours::whitesmoke);
+        label->setText("The Table will go here", sendNotification);
         options.content.setNonOwned(label);
         
         //int margin = 10;
@@ -201,14 +206,24 @@ public:
         options.useNativeTitleBar = true;
         options.resizable = true;
         
-        options.content.set(table, true);
-    
+        
         const RectanglePlacement placement(RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
         DialogWindow* dw = options.launchAsync();
-        dw->centreWithSize(800, 600);
+        
+        
+        bool native = true;
+        Rectangle<int> area (0, 0, 800, 600);
+        const RectanglePlacement place ((native ? RectanglePlacement::centred : RectanglePlacement::xRight)
+                                            + RectanglePlacement::yTop + RectanglePlacement::doNotResize);
+        Rectangle<int> result (place.appliedTo (area, Desktop::getInstance().getDisplays().getMainDisplay().userArea.reduced (20)));
+        dw->setBounds (result);
+        dw->setVisible(true);
     }
     
-    void closedButtonPressed(){ delete this; }
+    void closedButtonPressed(){
+        delete table;
+        delete this;
+    }
     
 private:
     LoopTable* table;

@@ -68,7 +68,7 @@ public:
         ShiftyLooping
     };
 
-     bool tableEnabled;
+    
     //State and Looping Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
@@ -92,6 +92,7 @@ public:
     void initialize();
     void openAudioSettings();
     void showLoopTable();
+    bool isTableEnabled(){ return tableEnabled; }
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -111,7 +112,7 @@ private:
 
     essentia::Real Tempo;
     File* auxFile;
-   
+   bool tableEnabled;
     
     //Audio Device Vars
     AudioDeviceManager       deviceManager;
@@ -145,6 +146,12 @@ private:
     ScopedPointer<Waveform> waveform;
     ScopedPointer<ImageComponent> backgroundImage;
     ScopedPointer<TableWindow> loopTable;
+    
+    //unwanted constructors
+    AudioApp(const AudioApp&);
+    AudioApp(AudioApp&&);
+    AudioApp& operator=(const AudioApp&);
+    AudioApp& operator=(AudioApp&&);
     //[/UserVariables]
 
     //==============================================================================
