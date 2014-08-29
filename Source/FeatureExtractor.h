@@ -49,7 +49,7 @@ using namespace essentia::standard;
 class FeatureExtractor {
 public:
     FeatureExtractor(const std::vector<Real>& buffer);
-    FeatureExtractor();
+    //FeatureExtractor();
     ~FeatureExtractor();
     
     //allow for alternate delimiters

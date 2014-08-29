@@ -1,9 +1,7 @@
 /*
   ==============================================================================
 
-    Here, the audio buffer is initialized; global onsets and beats are detected;
-        loop points are created using those onsets/beats; features for each
-        created loop is then extracted
+   
 
   ==============================================================================
 */
@@ -18,31 +16,23 @@ LoopGenerator::LoopGenerator(const std::vector<_REAL>& _AudioBuffer, const std::
     BarSize(1.0), AudioBuffer(_AudioBuffer), delimiters(_delim)
 {
     lastDelimiter = delimiters.back();
-    
 }
 
 LoopGenerator::~LoopGenerator(){}
 
 void LoopGenerator::createLoopPoints(){
     
-    std::cout << "Size: " << AudioBuffer.size() << std::endl;
     for (int i = 0; i < delimiters.size(); ++i) {
-        //std::cout << "Delim: " << delimiters[i] << "Less: " << delimiters[i] + BarSize << "Last: " << lastDelimiter << std::endl;
+        Loop curr;
         if (delimiters[i] + BarSize <= lastDelimiter) {
-            Loop curr;
             curr.start  = delimiters[i];
             _REAL point = delimiters[i] + BarSize;
             curr.end    = quantizeToDelimiter(point);
-            if (curr.start > curr.end)
-                std::swap(curr.start, curr.end);
-            if (static_cast<int>(curr.start * SR) > AudioBuffer.size()) {
-                continue;
-            } else
-                curr.head = static_cast<int>(curr.start * SR);
-            curr.tail = static_cast<int>(curr.end * SR) > AudioBuffer.size() ?
-            AudioBuffer.size() : static_cast<int>(curr.end * SR);
-          //  curr.head = static_cast<int>(delimiters[i] * SR);
-          //  curr.tail = static_cast<int>(delimiters[i+1] * SR);
+            if (curr.start > curr.end) std::swap(curr.start, curr.end);
+            if (curr.start * SR > AudioBuffer.size()) continue;
+            curr.head = static_cast<int>(curr.start * SR);
+            curr.tail = curr.end * SR > AudioBuffer.size() ? AudioBuffer.size() :
+                                                             static_cast<int>(curr.end * SR);
             _Loops.push_back(curr);
         } else
             return;
@@ -78,7 +68,7 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
 }
     
     
-//namespace (non-member) helper functions
+//namespace (non-member) convenience functions
     
     bool audioBuffered;
     
@@ -122,12 +112,12 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
             } else
                 progressWindow.threadComplete(true);
             
-            lgen::bpm = xtractor.getTempo();
             return loopGen.getLoops();
         }
         
         //TODO: Handle case where !lgen::audioBuffered
     }
+    
     
     
 } //end namespace

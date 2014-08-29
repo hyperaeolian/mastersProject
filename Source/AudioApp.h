@@ -23,12 +23,13 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-#include "AudioWaveform.cpp"
 #include "MarkovChain.h"
 #include "MATRIX.h"
-#include "Design.cpp"
-#include "AudioRecorder.cpp"
-#include "LoopList.cpp"
+#include "ShiftyLooping.h"
+#include "Design.h"
+#include "AudioWaveform.h"
+#include "AudioRecorder.h"
+#include "ProgressWindow.h"
 //[/Headers]
 
 
@@ -72,8 +73,8 @@ public:
     //State and Looping Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
-    void shiftyLooping();
-    void playLoop(Loop& loop);
+    //void shiftyLooping();
+    //void playLoop(Loop& loop);
 
 
     //File Player Methods
@@ -110,13 +111,17 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
+    
+    
     essentia::Real Tempo;
     File* auxFile;
    bool tableEnabled;
     
     //Audio Device Vars
     AudioDeviceManager       deviceManager;
-    AudioSourcePlayer        sourcePlayer;
+    //AudioSourcePlayer        sourcePlayer;
+    ShiftyLooper  looper;
+    
     drow::AudioFilePlayerExt mediaPlayer;
     AudioRecorder            recorder;
 
@@ -144,13 +149,7 @@ private:
     CustomLookAndFeel* design;
     ScopedPointer<Waveform> waveform;
     ScopedPointer<ImageComponent> backgroundImage;
-    ScopedPointer<TableWindow> loopTable;
     
-    //unwanted constructors
-//    AudioApp(const AudioApp&);
-//    AudioApp(AudioApp&&);
-//    AudioApp& operator=(const AudioApp&);
-//    AudioApp& operator=(AudioApp&&);
     //[/UserVariables]
 
     //==============================================================================

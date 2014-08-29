@@ -30,7 +30,7 @@ inline int MarkovChain::overlapExists(const Loop& a, const Loop& b){
     }
 }
 
-inline void MarkovChain::initMatrix() {
+void MarkovChain::initMatrix() {
     for (int i = 0; i < inputMatrix.rows(); ++i){
         for (int j = i + 1; j < inputMatrix.cols(); ++j){
             if (i == j){
@@ -100,19 +100,29 @@ std::vector<essentia::Real> MarkovChain::markov(const MATRIX& transMat, int num_
     return chain;
 }
 
-//namespace (non-member) helper function
+//namespace (non-member) convenience function
     
     std::vector<_REAL> generateMarkovChain(const std::vector<Loop>& loops, int itr, int start){
-    
-        int row = loops.size(), col = loops.size();
-        MATRIX mat(row, col);
-        MarkovChain markovChain(loops, mat, row, col);
-        markovChain.computeDistances();
-        MATRIX transMatrix(markovChain.computeTransitionMatrix());
-        std::vector<_REAL> chain = markovChain.markov(transMatrix, itr, start);
+        std::vector<_REAL> chain;
+        
+        std::vector<std::string> vals = {"Foo", "Preparing for Analysis", " distances to calculate",
+            "Finding similarity", "You canceled the similarity calculation",
+            "Similary Metrics Complete!"};
+        
+        BackgroundThread simThread(loops.size(), vals);
+        if (simThread.runThread()){
+            int row = loops.size(), col = loops.size();
+            MATRIX mat(row, col);
+            MarkovChain markovChain(loops, mat, row, col);
+            markovChain.computeDistances();
+            MATRIX transMatrix(markovChain.computeTransitionMatrix());
+            chain = markovChain.markov(transMatrix, itr, start);
+        } else
+            simThread.threadComplete(true);
         
         return chain;
     }
+    
     
     
 }

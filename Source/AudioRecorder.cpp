@@ -8,20 +8,18 @@
   ==============================================================================
 */
 
-#include "JuceHeader.h"
+#include "AudioRecorder.h"
 
-class AudioRecorder : public AudioIODeviceCallback {
-public:
-    AudioRecorder() :
-        backgroundThread("Audio Recorder Thread"),
+
+AudioRecorder::AudioRecorder() : backgroundThread("Audio Recorder Thread"),
         sampleRate(0), nextSampleNum(0), activeWriter(nullptr)
     {
         backgroundThread.startThread();
     }
     
-    ~AudioRecorder(){ stop(); }
+AudioRecorder::~AudioRecorder(){ stop(); }
     
-    void startRecording(const File& file){
+void AudioRecorder::startRecording(const File& file){
         stop();
         if (sampleRate > 0) {
             file.deleteFile();
@@ -44,7 +42,7 @@ public:
     }
     
     
-    void stop(){
+void AudioRecorder::stop(){
         {
             const ScopedLock sl(writerLock);
             activeWriter = nullptr;
@@ -52,17 +50,10 @@ public:
         
         threadedWriter = nullptr;
     }
+
     
-    bool isRecording() const { return activeWriter != nullptr; }
-    
-    void audioDeviceAboutToStart(AudioIODevice* device) override {
-        sampleRate = device->getCurrentSampleRate();
-    }
-    
-    void audioDeviceStopped() override { sampleRate = 0; }
-    
-    void audioDeviceIOCallback(const float** inputChannelData, int, float** outputChannelData,
-                               int numOutputChannels, int numSamples) override
+void AudioRecorder::audioDeviceIOCallback(const float** inputChannelData, int, float** outputChannelData,
+                               int numOutputChannels, int numSamples)
     {
         const ScopedLock sl(writerLock);
         if (activeWriter != nullptr) {
@@ -80,14 +71,4 @@ public:
         }
     }
     
-    
-private:
-   // AudioThumbnail& thumbnail;
-    TimeSliceThread backgroundThread;
-    ScopedPointer<AudioFormatWriter::ThreadedWriter> threadedWriter;
-    double sampleRate;
-    int64 nextSampleNum;
-    
-    CriticalSection writerLock; //mutex
-    AudioFormatWriter::ThreadedWriter* volatile activeWriter;
-};
+ 

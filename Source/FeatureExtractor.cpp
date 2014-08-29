@@ -53,6 +53,7 @@ void FeatureExtractor::findBeats(){
 
     _beatTracker->compute();
     
+    lgen::bpm = bpm;
 }
 
 

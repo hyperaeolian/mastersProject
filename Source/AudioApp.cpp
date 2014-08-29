@@ -19,17 +19,19 @@
 
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
+#include "LoopList.cpp"
 //[/Headers]
 
 #include "AudioApp.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+ScopedPointer<TableWindow> loopTable;
 //[/MiscUserDefs]
 
 //==============================================================================
 AudioApp::AudioApp ()
-    : tableEnabled(false), MarkovIterations(15), stream(background_png, background_pngSize, false)
+    : looper(mediaPlayer), MarkovIterations(15), stream(background_png, background_pngSize, false)
 {
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data...")));
@@ -219,6 +221,9 @@ AudioApp::AudioApp ()
 
     design = new CustomLookAndFeel(knob_png, knob_pngSize);
     LookAndFeel::setDefaultLookAndFeel(design);
+    
+    addAndMakeVisible(waveform = new Waveform(mediaPlayer));
+    waveform->addChangeListener(this);
 
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
@@ -232,9 +237,11 @@ AudioApp::AudioApp ()
 
     //Audio device setup
     deviceManager.initialise(0, 2, nullptr, true);
-    deviceManager.addAudioCallback(&sourcePlayer);
+   // deviceManager.addAudioCallback(&sourcePlayer);
+    deviceManager.addAudioCallback(&looper);
+    //sourcePlayer.setSource(&mediaPlayer);
+    
     deviceManager.addAudioCallback(&recorder);
-    sourcePlayer.setSource(&mediaPlayer);
     deviceManager.addChangeListener(this);
     mediaPlayer.addListener(this);
 
@@ -280,12 +287,9 @@ AudioApp::~AudioApp()
     transMat = nullptr;
     masterLogger = nullptr;
     currentLoop = nullptr;
-    sourcePlayer.setSource(nullptr);
-    //for (auto l : crudeLoops) { l.next = nullptr; l.prev = nullptr; }
-    //waveform->removeChangeListener(this);
     mediaPlayer.removeListener(this);
-    deviceManager.removeAudioCallback(&sourcePlayer);
     deviceManager.removeAudioCallback(&recorder);
+    deviceManager.removeAudioCallback(&looper);
     delete design;
     delete auxFile;
     //[/Destructor]
@@ -401,7 +405,7 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
         gain = static_cast<float>(gainSlider->getValue());
-        sourcePlayer.setGain(gain);
+       // sourcePlayer.setGain(gain);
         //[/UserSliderCode_gainSlider]
     }
     else if (sliderThatWasMoved == rateSlider)
@@ -443,6 +447,7 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
 void AudioApp::loadFile(){
     FileChooser chooser("Select a wav file to play", File::getSpecialLocation(File::userMusicDirectory), "*.wav");
     if (chooser.browseForFileToOpen()){
+        //TODO: check that file is valid
         auxFile = new File(chooser.getResult());
         initialize();
     } else {
@@ -451,30 +456,19 @@ void AudioApp::loadFile(){
 }
 //==============================================================================
 void AudioApp::initialize(){
-    
     mediaPlayer.setFile(*auxFile);
 
-    addAndMakeVisible(waveform = new Waveform(mediaPlayer));
-    waveform->addChangeListener(this);
     waveform->setFile(*auxFile);
     waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
     
     std::string audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
     crudeLoops = lgen::constructLoops(lgen::initAudio(audiofilename));
-    
-    std::vector<std::string> vals = {"Foo", "Preparing for Analysis", " distances to calculate",
-                                    "Finding similarity", "You canceled the similarity calculation",
-                                    "Similary Metrics Complete!"};
 
-    BackgroundThread simThread(crudeLoops.size(), vals);
-    if (simThread.runThread())
-        markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
-    else
-        simThread.threadComplete(true);
+    markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
     
     currentLoop = &crudeLoops[markov_chain[0]];
     
-    infoLabel->setText("Tempo is: " + String(lgen::bpm), sendNotification);
+    infoLabel->setText("Sound sample's tempo is: " + String(lgen::bpm), sendNotification);
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
     shiftyLoopingButton->setEnabled(true);
@@ -514,11 +508,9 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
     if (&deviceManager == src) {
         AudioDeviceManager::AudioDeviceSetup setup;
         deviceManager.getAudioDeviceSetup(setup);
-        setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr)
-                                      : sourcePlayer.setSource(&mediaPlayer);
+//        setup.outputChannels.isZero() ? sourcePlayer.setSource(nullptr)
+//                                      : sourcePlayer.setSource(&mediaPlayer);
     }
-    repaint();
-
 }
 //==============================================================================
 
@@ -537,6 +529,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(true);
                 shiftyLoopingButton->setEnabled(true);
+                recordingButton->setEnabled(true);
                 break;
             case Pausing:
                 printCurrentState(String("Pausing..."));
@@ -576,9 +569,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-              //  waveform->isShiftyLooping(true);
-                shiftyLooping();
-                startTimer(50);
+                waveform->isShiftyLooping(true);
                 break;
         }
 
@@ -588,7 +579,7 @@ void AudioApp::changeState(TransportState newState){
 //==============================================================================
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &mediaPlayer){
-        gainSlider->setValue(static_cast<double>(sourcePlayer.getGain()));
+        //gainSlider->setValue(static_cast<double>(mediaPlayer.get));
         if (mediaPlayer.isPlaying()) {
             ShiftyLooping == state ? changeState(ShiftyLooping) : changeState(Playing);
         }
@@ -599,7 +590,7 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
         }
     }
 }
-
+/*
 //==============================================================================
 void AudioApp::shiftyLooping(){
     //int n = random.nextInt(markov_chain.size() - 1);
@@ -633,9 +624,7 @@ void AudioApp::playLoop(Loop& loop){
             if (loop.prev->end >= loop.end) return;
             mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
             mediaPlayer.setPosition(loop.prev->end);
-            assert(loop.prev->end < loop.end);
             mediaPlayer.start();
-            usleep(loop.end - loop.prev->end * 1000);
             mediaPlayer.setLoopTimes(loop.start, loop.end);
             return;
         } else {
@@ -644,7 +633,6 @@ void AudioApp::playLoop(Loop& loop){
             loop = *loop.prev;
             mediaPlayer.setLoopTimes(loop.next->start, loop.end);
             mediaPlayer.setPosition(loop.next->start);
-            assert(loop.next->start < loop.end);
             mediaPlayer.start();
             mediaPlayer.setLoopTimes(loop.start, loop.end);
             return;
@@ -658,7 +646,7 @@ void AudioApp::playLoop(Loop& loop){
     if (mediaPlayer.getCurrentPosition() >= currentLoop->end) {
         timerCallback();
     }
-}
+}*/
 //==============================================================================
 void AudioApp::startRecording(){
     FileChooser chooser("Save recording as...", File::getSpecialLocation(File::userMusicDirectory),"wav",true);
@@ -698,18 +686,8 @@ void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player,
 
 
 void AudioApp::timerCallback(){
-    //masterLogger->writeToLog("Playback Pos: " + String(mediaPlayer.getCurrentPosition()));
-    if (ShiftyLooping == state){
-        if (mediaPlayer.getCurrentPosition() >= currentLoop->end) {
-            masterLogger->writeToLog("this");
-         mediaPlayer.stop();
-            shiftyLooping();
-        }
-        if (mediaPlayer.hasStreamFinished()){
-            masterLogger->writeToLog("that");
-            shiftyLooping();
-        }
-    }
+   
+
 }
 
 //[/MiscUserCode]

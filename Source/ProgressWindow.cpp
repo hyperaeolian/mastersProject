@@ -8,12 +8,9 @@
   ==============================================================================
 */
 
-#include "JuceHeader.h"
+#include "ProgressWindow.h"
 
-class BackgroundThread : public ThreadWithProgressWindow{
-public:
-    
-    BackgroundThread(const int N, const std::vector<std::string> vals) :
+BackgroundThread::BackgroundThread(const int N, const std::vector<std::string> vals) :
      ThreadWithProgressWindow("Progress", true, true),numFeatures(N)
     {
         std::vector<std::string> keys = {"title", "init","remaining", "cleanUp", "cancel", "success" };
@@ -24,7 +21,7 @@ public:
 
     }
     
-    void run() override{
+void BackgroundThread::run(){
         setProgress (-0.5);
         //setStatusMessage (statusMsgs["init"]);
         wait (2000);
@@ -37,10 +34,9 @@ public:
         
         setProgress (-0.5);
         setStatusMessage (statusMsgs["cleanUp"]);
-       // wait (2000);
     }
     
-    void threadComplete(bool userPressedCancel) override {
+void BackgroundThread::threadComplete(bool userPressedCancel){
         if (userPressedCancel) {
             AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Progress Window", statusMsgs["cancel"]);
         } else {
@@ -48,10 +44,3 @@ public:
             AlertWindow::showMessageBoxAsync(AlertWindow::NoIcon, "Progress Window", "Feature Extraction Successful!");
         }
     }
-private:
-    const int numFeatures;
-    //Need 6 status messages
-    /* title, init, remaining, cleanUp, cancel, success */
-    juce::StringPairArray statusMsgs;
-    
-};
