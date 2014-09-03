@@ -25,7 +25,7 @@ public:
     
     void computeDistances();
     MATRIX computeTransitionMatrix();
-    std::vector<_REAL> markov(const MATRIX& transMat, int iters, int state);
+    std::vector<int> markov(const MATRIX& transMat, int iters, int state);
     
     template <typename T>
     T euclidean(T t1, T t2){ return sqrt((t2-t1)*(t2-t1)); }
@@ -40,7 +40,7 @@ private:
     void initMatrix();
 };
 
-    std::vector<_REAL> generateMarkovChain(const std::vector<Loop>& loops, int itr, int start);
+    std::vector<int> generateMarkovChain(const std::vector<Loop>& loops, int itr, int start);
     
 }
 #endif  // PRESYNTHESIS_H_INCLUDED

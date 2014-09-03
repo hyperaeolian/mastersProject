@@ -11,43 +11,87 @@
 #include "ShiftyLooping.h"
 
 
-ShiftyLooper::ShiftyLooper(drow::AudioFilePlayerExt& afp) : player(afp){
-    
+ShiftyLooper::ShiftyLooper(){
+    index = 0;
+    shifting = forward = false;
 }
 
 ShiftyLooper::~ShiftyLooper(){}
 
-void ShiftyLooper::audioDeviceIOCallback(const float **inputChannelData, int numInputChannels, float **outputChannelData, int numOutputChannels, int numSamples){}
+void ShiftyLooper::audioDeviceIOCallback(const float **inputChannelData, int numInputChannels, float **outputChannelData, int numOutputChannels, int numSamples)
+{
+   /*
+    if (shouldShiftyLoop) {
+        const AudioSampleBuffer buffer(const_cast<float**>(inputChannelData), numInputChannels, numSamples);
+        
+        if (this->hasStreamFinished()){
+            if (shifting) {
+                if (forward) {
+                    currentLoop = currentLoop->next;
+                    this->setLoopTimes(currentLoop->prev->end, currentLoop->end);
+                    this->setPosition(currentLoop->prev->end);
+                } else {
+                    currentLoop = currentLoop->prev;
+                    this->setLoopTimes(currentLoop->next->start, currentLoop->end);
+                    this->setPosition(currentLoop->next->start);
+                }
+            }
+            
+        }
+        this->start();
+        this->setLoopTimes(currentLoop->start, currentLoop->end);
+        getNextDirection();
+        updateCurrentLoop();
+        
+    }
+    */
 
+}
 
+void ShiftyLooper::shiftyLooping(){
+    if (this->hasStreamFinished()){
+        if (shifting) {
+            if (forward) {
+                currentLoop = currentLoop->next;
+                this->setLoopTimes(currentLoop->prev->end, currentLoop->end);
+                this->setPosition(currentLoop->prev->end);
+            } else {
+                currentLoop = currentLoop->prev;
+                this->setLoopTimes(currentLoop->next->start, currentLoop->end);
+                this->setPosition(currentLoop->next->start);
+            }
+        }
+        
+        
+    }
+    getNextDirection();
+    updateCurrentLoop();
+    shiftyLooping();
+}
+
+void ShiftyLooper::getNextDirection(){
+    if (markovChain[index+1] > markovChain[index]) {
+        shifting = forward = true;
+    } else if (markovChain[index+1] < markovChain[index]) {
+        shifting = true;
+        forward = false;
+    } else {
+        shifting = false;
+    }
+    
+}
+
+inline void ShiftyLooper::updateCurrentLoop(){
+    if (index++ >= markovChain.size()-1) {
+        updateMarkov = true;
+        index++;
+    } else
+        index++;
+    currentLoop = &_Loops[markovChain[index]];
+}
 
 /*
 
-
-    //Loop& getCurrentLoop() const               { return currentLoop; }
-    //void setCurrentLoop(Loop& curr)            { currentLoop = curr; }
-    void updateSequence(std::vector<int> _seq) { sequence = _seq; }
-    
-    void fileChanged(drow::AudioFilePlayer* player) {
-    }
-    void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
-    void playerStoppedOrStarted(drow::AudioFilePlayer* player){}
-
-    
-private:
-    ShiftyLooper(const ShiftyLooper& sl);
-    ShiftyLooper(ShiftyLooper&& sl);
-    ShiftyLooper& operator=(const ShiftyLooper& rhs);
-    ShiftyLooper& operator=(ShiftyLooper&& rhs);
-    
-    
-    drow::AudioFilePlayerExt& player;
-    std::vector<Loop> loops;
-    Loop& currentLoop;
-    std::vector<int> sequence;
-    bool shifting, forward, requestForSeqUpdate;
-    int seqIdx;
-    Random r;
     
     void shiftyLooping(Loop& loop){
         if (shifting) {
@@ -78,128 +122,5 @@ private:
         
     }
     
-    void pivot(Loop& loop){
-        
-        seqIdx++;
-        currentLoop = loops[sequence[seqIdx]];
-        
-        if (sequence.at(seqIdx+1) > sequence[seqIdx]) {
-            shifting = forward = true;
-        } else if (sequence.at(seqIdx+1) < sequence[seqIdx]) {
-            shifting = true;
-            forward = false;
-        } else {
-            shifting = false;
-        }
-        
-        if (++seqIdx > sequence.size()){
-            requestForSeqUpdate = true;
-            seqIdx = 0;
-        }
-        
-        shiftyLooping(currentLoop);
-    }
-};
- */
-/*
-class ShiftyLooper : public drow::AudioFilePlayer::Listener, public Timer {
-    
-    
-public:
-    ShiftyLooper(drow::AudioFilePlayerExt& afp, const std::vector<Loop>& _loops,
-                  Loop& current, std::vector<int> seq) : player(afp),loops(_loops),
-                    currentLoop(current), sequence(seq), requestForSeqUpdate(false), seqIdx(0)
-    {
-        start();
-    }
-    
-    ~ShiftyLooper(){}
-    
-    void start(){
-        startTimer(50);
-        shiftyLooping(currentLoop);
-    }
-    void stop(){
-        player.stop();
-        stopTimer();
-    }
-    
-    //Loop& getCurrentLoop() const               { return currentLoop; }
-    //void setCurrentLoop(Loop& curr)            { currentLoop = curr; }
-    void updateSequence(std::vector<int> _seq) { sequence = _seq; }
-    
-    void fileChanged(drow::AudioFilePlayer* player) {}
-    void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode){}
-    void playerStoppedOrStarted(drow::AudioFilePlayer* player){}
-    
-    void timerCallback() override {
-        if (player.hasStreamFinished())
-            shiftyLooping(currentLoop);
-    }
-    
-private:
-    ShiftyLooper(const ShiftyLooper& sl);
-    ShiftyLooper(ShiftyLooper&& sl);
-    ShiftyLooper& operator=(const ShiftyLooper& rhs);
-    ShiftyLooper& operator=(ShiftyLooper&& rhs);
-    
-    drow::AudioFilePlayerExt& player;
-    std::vector<Loop> loops;
-    Loop& currentLoop;
-    std::vector<int> sequence;
-    bool shifting, forward, requestForSeqUpdate;
-    int seqIdx;
-    Random r;
-    
-    void shiftyLooping(Loop& loop){
-        if (shifting) {
-            if (forward) {
-                //printCurrentState("Shifting Forward");
-                loop = *loop.next;
-                player.setLoopTimes(loop.prev->end, loop.end);
-                player.setPosition(loop.prev->end);
-                player.start();
-                player.setLoopTimes(loop.start, loop.end);
-            } else {
-                loop = *loop.prev;
-                if (loop.next->start >= loop.end) return;
-                //printCurrentState("Shifting Backwards");
-                loop = *loop.prev;
-                player.setLoopTimes(loop.next->start, loop.end);
-                player.setPosition(loop.next->start);
-                player.start();
-                player.setLoopTimes(loop.start, loop.end);
-            }
-        } else {
-            player.setLoopTimes(loop.start, loop.end);
-            player.setPosition(loop.start);
-            player.setLoopBetweenTimes(true);
-        }
-        
-        pivot(currentLoop);
-        
-    }
-    
-    void pivot(Loop& loop){
 
-        seqIdx++;
-        currentLoop = loops[sequence[seqIdx]];
-        
-        if (sequence.at(seqIdx+1) > sequence[seqIdx]) {
-            shifting = forward = true;
-        } else if (sequence.at(seqIdx+1) < sequence[seqIdx]) {
-            shifting = true;
-            forward = false;
-        } else {
-            shifting = false;
-        }
-        
-        if (++seqIdx > sequence.size()){
-            requestForSeqUpdate = true;
-            seqIdx = 0;
-        }
-        
-        shiftyLooping(currentLoop);
-    }
-};
 */

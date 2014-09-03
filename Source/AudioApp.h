@@ -70,12 +70,9 @@ public:
     };
 
     
-    //State and Looping Methods
+    //State Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
-    //void shiftyLooping();
-    //void playLoop(Loop& loop);
-
 
     //File Player Methods
     void changeListenerCallback(ChangeBroadcaster* src);
@@ -118,13 +115,12 @@ private:
    bool tableEnabled;
     
     //Audio Device Vars
-    AudioDeviceManager       deviceManager;
-    //AudioSourcePlayer        sourcePlayer;
-    ShiftyLooper  looper;
-    
+    AudioDeviceManager  deviceManager;
+    AudioSourcePlayer   sourcePlayer;
+    AudioRecorder       recorder;
     drow::AudioFilePlayerExt mediaPlayer;
-    AudioRecorder            recorder;
-
+    ShiftyLooper shiftyLooper;
+    
     //State & Loop Vars
     TransportState state;
     Loop* currentLoop;
@@ -136,7 +132,7 @@ private:
     const int MarkovIterations;
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
-    std::vector<essentia::Real> markov_chain;
+    std::vector<int> markov_chain;
 
     //Utility Vars
     float gain;

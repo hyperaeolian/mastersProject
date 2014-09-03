@@ -27,7 +27,7 @@ struct Loop {
     Loop* prev;
     Loop* next;
     essentia::Pool bin;
-    essentia::Pool binStats;
+    //essentia::Pool binStats;
 };
 
 namespace lgen{

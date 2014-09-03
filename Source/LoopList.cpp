@@ -13,7 +13,8 @@
 #include <algorithm>
 
 
-class LoopTable : public Component, public TableListBoxModel {
+class LoopTable : public Component, public TableListBoxModel
+{
 public:
     LoopTable(const std::vector<Loop>& loops) :
         font(14.0f), loopData(loops)
