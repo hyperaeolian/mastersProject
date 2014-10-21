@@ -17,7 +17,7 @@
 
 class ShiftyLooper : public drow::AudioFilePlayerExt,
                      public drow::AudioFilePlayer::Listener,
-    public AudioIODeviceCallback
+                     public AudioIODeviceCallback
 
 {
 public:

@@ -464,6 +464,7 @@ void AudioApp::initialize(){
     
     shiftyLooper.setLoops(crudeLoops);
     shiftyLooper.setMarkovChain(markov_chain);
+    //shiftyLooper.setPosition(0.0);
     
     infoLabel->setText("Sound sample's tempo is: " + String(lgen::bpm), sendNotification);
     playButton->setEnabled(true);
@@ -514,6 +515,7 @@ void AudioApp::changeState(TransportState newState){
 
     if (state != newState) {
         state = newState;
+        if (ShiftyLooping != state) shiftyLooper.setShiftyLooping(false);
         switch (state) {
             case Starting:
                 printCurrentState(String("Starting..."));
@@ -558,8 +560,8 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                mediaPlayer.start();
-                mediaPlayer.setLooping(true);
+                shiftyLooper.start();
+                shiftyLooper.setLooping(true);
                 break;
             case ShiftyLooping:
                 printCurrentState(String("Shifty Looping..."));
@@ -567,6 +569,7 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 waveform->isShiftyLooping(true);
+                shiftyLooper.setShiftyLooping(true);
                 break;
         }
 

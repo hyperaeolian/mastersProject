@@ -13,60 +13,41 @@
 
 ShiftyLooper::ShiftyLooper(){
     index = 0;
-    shifting = forward = false;
+    shifting = forward = shouldShiftyLoop = false;
 }
 
 ShiftyLooper::~ShiftyLooper(){}
 
 void ShiftyLooper::audioDeviceIOCallback(const float **inputChannelData, int numInputChannels, float **outputChannelData, int numOutputChannels, int numSamples)
 {
-   /*
-    if (shouldShiftyLoop) {
-        const AudioSampleBuffer buffer(const_cast<float**>(inputChannelData), numInputChannels, numSamples);
-        
-        if (this->hasStreamFinished()){
-            if (shifting) {
-                if (forward) {
-                    currentLoop = currentLoop->next;
-                    this->setLoopTimes(currentLoop->prev->end, currentLoop->end);
-                    this->setPosition(currentLoop->prev->end);
-                } else {
-                    currentLoop = currentLoop->prev;
-                    this->setLoopTimes(currentLoop->next->start, currentLoop->end);
-                    this->setPosition(currentLoop->next->start);
-                }
-            }
-            
-        }
-        this->start();
-        this->setLoopTimes(currentLoop->start, currentLoop->end);
-        getNextDirection();
-        updateCurrentLoop();
+    for (int i = 0; i < numSamples; ++i){
         
     }
-    */
 
 }
 
 void ShiftyLooper::shiftyLooping(){
-    if (this->hasStreamFinished()){
+    
+    if (hasStreamFinished()){
+        getNextDirection();
+        updateCurrentLoop();
         if (shifting) {
             if (forward) {
-                currentLoop = currentLoop->next;
+                currentLoop->prev = &_Loops[markovChain[index-1]];
                 this->setLoopTimes(currentLoop->prev->end, currentLoop->end);
                 this->setPosition(currentLoop->prev->end);
-            } else {
-                currentLoop = currentLoop->prev;
+            } else { //going backwards
+                currentLoop->next = &_Loops[markovChain[index+1]];
                 this->setLoopTimes(currentLoop->next->start, currentLoop->end);
                 this->setPosition(currentLoop->next->start);
             }
         }
         
-        
     }
-    getNextDirection();
-    updateCurrentLoop();
-    shiftyLooping();
+    this->start();
+    this->setLoopTimes(currentLoop->start, currentLoop->end);
+    setNextReadPosition(currentLoop->start * 44100);
+
 }
 
 void ShiftyLooper::getNextDirection(){
