@@ -371,7 +371,12 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == loopButton)
     {
         //[UserButtonCode_loopButton] -- add your button handler code here..
-        (Looping != state) ? changeState(Looping) : changeState(Stopped);
+        //(Looping != state) ? changeState(Looping) : changeState(Stopped);
+        if (state == Playing || state == Looping){
+            changeState(Stopping);
+        } else {
+            changeState(Looping);
+        }
         //[/UserButtonCode_loopButton]
     }
     else if (buttonThatWasClicked == shiftyLoopingButton)

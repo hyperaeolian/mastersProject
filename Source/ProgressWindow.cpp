@@ -11,7 +11,7 @@
 #include "ProgressWindow.h"
 
 BackgroundThread::BackgroundThread(const int N, const std::vector<std::string> vals) :
-     ThreadWithProgressWindow("Progress", true, true),numFeatures(N)
+     ThreadWithProgressWindow("Progress", true, true), numFeatures(N)
     {
         std::vector<std::string> keys = {"title", "init","remaining", "cleanUp", "cancel", "success" };
         for (int i = 0; i < keys.size(); ++i){

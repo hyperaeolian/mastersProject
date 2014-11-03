@@ -112,7 +112,7 @@ private:
     
     essentia::Real Tempo;
     File* auxFile;
-   bool tableEnabled;
+    bool tableEnabled;
     
     //Audio Device Vars
     AudioDeviceManager  deviceManager;

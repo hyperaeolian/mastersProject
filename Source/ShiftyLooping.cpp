@@ -20,9 +20,6 @@ ShiftyLooper::~ShiftyLooper(){}
 
 void ShiftyLooper::audioDeviceIOCallback(const float **inputChannelData, int numInputChannels, float **outputChannelData, int numOutputChannels, int numSamples)
 {
-    for (int i = 0; i < numSamples; ++i){
-        
-    }
 
 }
 

@@ -23,7 +23,7 @@
 struct Loop {
     float start, end;
     int head, tail;
-    int numBeats;
+    //int numBeats;
     Loop* prev;
     Loop* next;
     essentia::Pool bin;
