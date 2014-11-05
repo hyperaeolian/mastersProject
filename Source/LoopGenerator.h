@@ -18,16 +18,16 @@
 #include "pool.h"
 #include "essentia.h"
 #include "algorithmfactory.h"
-#include "ProgressWindow.cpp"
+#include "ProgressWindow.h"
 
 struct Loop {
     float start, end;
     int head, tail;
-    int numBeats;
+    //int numBeats;
     Loop* prev;
     Loop* next;
     essentia::Pool bin;
-    essentia::Pool binStats;
+    //essentia::Pool binStats;
 };
 
 namespace lgen{
@@ -65,6 +65,7 @@ private:
     static _REAL bpm;
     std::vector<_REAL> initAudio(const std::string audiofilename);
     std::vector<Loop> constructLoops(const std::vector<_REAL>& buffer);
+    
 }
 
 

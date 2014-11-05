@@ -23,12 +23,13 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
-#include "AudioWaveform.cpp"
 #include "MarkovChain.h"
 #include "MATRIX.h"
-#include "Design.cpp"
-#include "AudioRecorder.cpp"
-#include "LoopList.cpp"
+#include "ShiftyLooping.h"
+#include "Design.h"
+#include "AudioWaveform.h"
+#include "AudioRecorder.h"
+#include "ProgressWindow.h"
 //[/Headers]
 
 
@@ -69,12 +70,9 @@ public:
     };
 
     
-    //State and Looping Methods
+    //State Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
-    void shiftyLooping();
-    void playLoop(Loop& loop);
-
 
     //File Player Methods
     void changeListenerCallback(ChangeBroadcaster* src);
@@ -110,16 +108,19 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
+    
+    
     essentia::Real Tempo;
     File* auxFile;
-   bool tableEnabled;
+    bool tableEnabled;
     
     //Audio Device Vars
-    AudioDeviceManager       deviceManager;
-    AudioSourcePlayer        sourcePlayer;
-    drow::AudioFilePlayerExt mediaPlayer;
-    AudioRecorder            recorder;
-
+    AudioDeviceManager  deviceManager;
+    AudioSourcePlayer   sourcePlayer;
+    AudioRecorder       recorder;
+    //drow::AudioFilePlayerExt mediaPlayer;
+    ShiftyLooper shiftyLooper;
+    
     //State & Loop Vars
     TransportState state;
     Loop* currentLoop;
@@ -131,7 +132,7 @@ private:
     const int MarkovIterations;
     MATRIX* similarity;
     juce::ScopedPointer<MATRIX> transMat;
-    std::vector<essentia::Real> markov_chain;
+    std::vector<int> markov_chain;
 
     //Utility Vars
     float gain;
@@ -144,13 +145,7 @@ private:
     CustomLookAndFeel* design;
     ScopedPointer<Waveform> waveform;
     ScopedPointer<ImageComponent> backgroundImage;
-    ScopedPointer<TableWindow> loopTable;
     
-    //unwanted constructors
-//    AudioApp(const AudioApp&);
-//    AudioApp(AudioApp&&);
-//    AudioApp& operator=(const AudioApp&);
-//    AudioApp& operator=(AudioApp&&);
     //[/UserVariables]
 
     //==============================================================================

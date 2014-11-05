@@ -35,6 +35,7 @@ void FeatureExtractor::findOnsets(){
     onsDet->output("onsetRate").set(rate);
     
     onsDet->compute();
+    //COMPUTE THE BPM
 }
 
 void FeatureExtractor::findBeats(){
@@ -53,6 +54,7 @@ void FeatureExtractor::findBeats(){
 
     _beatTracker->compute();
     
+    lgen::bpm = bpm;
 }
 
 

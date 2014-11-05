@@ -1,9 +1,7 @@
 /*
   ==============================================================================
 
-    Here, the audio buffer is initialized; global onsets and beats are detected;
-        loop points are created using those onsets/beats; features for each
-        created loop is then extracted
+   
 
   ==============================================================================
 */
@@ -18,31 +16,23 @@ LoopGenerator::LoopGenerator(const std::vector<_REAL>& _AudioBuffer, const std::
     BarSize(1.0), AudioBuffer(_AudioBuffer), delimiters(_delim)
 {
     lastDelimiter = delimiters.back();
-    
 }
 
 LoopGenerator::~LoopGenerator(){}
 
 void LoopGenerator::createLoopPoints(){
     
-    std::cout << "Size: " << AudioBuffer.size() << std::endl;
     for (int i = 0; i < delimiters.size(); ++i) {
-        //std::cout << "Delim: " << delimiters[i] << "Less: " << delimiters[i] + BarSize << "Last: " << lastDelimiter << std::endl;
+        Loop curr;
         if (delimiters[i] + BarSize <= lastDelimiter) {
-            Loop curr;
             curr.start  = delimiters[i];
             _REAL point = delimiters[i] + BarSize;
             curr.end    = quantizeToDelimiter(point);
-            if (curr.start > curr.end)
-                std::swap(curr.start, curr.end);
-            if (static_cast<int>(curr.start * SR) > AudioBuffer.size()) {
-                continue;
-            } else
-                curr.head = static_cast<int>(curr.start * SR);
-            curr.tail = static_cast<int>(curr.end * SR) > AudioBuffer.size() ?
-            AudioBuffer.size() : static_cast<int>(curr.end * SR);
-          //  curr.head = static_cast<int>(delimiters[i] * SR);
-          //  curr.tail = static_cast<int>(delimiters[i+1] * SR);
+            if (curr.start > curr.end) std::swap(curr.start, curr.end);
+            if (curr.start * SR > AudioBuffer.size()) continue;
+            curr.head = static_cast<int>(curr.start * SR);
+            curr.tail = curr.end * SR > AudioBuffer.size() ? AudioBuffer.size() :
+                                                             static_cast<int>(curr.end * SR);
             _Loops.push_back(curr);
         } else
             return;
@@ -78,7 +68,7 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
 }
     
     
-//namespace (non-member) helper functions
+//namespace (non-member) convenience functions
     
     bool audioBuffered;
     
@@ -107,27 +97,26 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
             //Can use either onsets or beats as loop points
             //xtractor.findOnsets();
             xtractor.findBeats();
-            std::vector<std::string> vals = {"Loop Generator", "Initializing", " remaining loops to create",
-                                             "Finishing last loop", "You canceled the loop generator",
-                                             "Loop Construction Successful!"};
-            
+
             LoopGenerator loopGen(buffer, xtractor.getBeats());
-            BackgroundThread progressWindow(static_cast<int>(loopGen.getNumLoopsToCreate()), vals);
-            if (progressWindow.runThread()){
-                loopGen.createLoopPoints();
-                loopGen.connectLoops();
-               
-                //Compute features for each loop
-                for (auto& lp : loopGen.getLoops()) xtractor.computeFeaturesForLoop(lp);
-            } else
-                progressWindow.threadComplete(true);
+
+            loopGen.createLoopPoints();
+            loopGen.connectLoops();
             
-            lgen::bpm = xtractor.getTempo();
+            for (auto& lp : loopGen.getLoops())
+                xtractor.computeFeaturesForLoop(lp);
+
             return loopGen.getLoops();
+        } else {
+            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,"Audio File",
+                                             "Unable to buffer audiofile");
+            //TODO: Handle case where !lgen::audioBuffered with alert window
+            //Redesign this function by returning value via ptr parameter
+            //http://stackoverflow.com/questions/3227755/return-nothing-from-non-void-function-in-c
         }
         
-        //TODO: Handle case where !lgen::audioBuffered
     }
+    
     
     
 } //end namespace

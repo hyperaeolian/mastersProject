@@ -8,19 +8,10 @@
   ==============================================================================
 */
 
-#include "JuceHeader.h"
+#include "Design.h"
 
-class CustomLookAndFeel : public LookAndFeel_V3{
-public:
-    CustomLookAndFeel(const char* _img, const int _imgSize) :
-        knobImg(_img), knobImgSize(_imgSize)
-    {}
-    
-    ~CustomLookAndFeel(){
-        knobImg = nullptr;
-    }
-    
-    void drawRoundThumb (Graphics& g, const float x, const float y,
+
+void CustomLookAndFeel::drawRoundThumb (Graphics& g, const float x, const float y,
                          const float diameter, const Colour& colour, float outlineThickness)
     {
         const Rectangle<float> a (x, y, diameter, diameter);
@@ -39,8 +30,8 @@ public:
         g.strokePath (p, PathStrokeType (outlineThickness));
     }
 
-    void drawButtonBackground (Graphics& g, Button& button, const Colour& backgroundColour,
-                               bool isMouseOverButton, bool isButtonDown) override
+void CustomLookAndFeel::drawButtonBackground (Graphics& g, Button& button, const Colour& backgroundColour,
+                               bool isMouseOverButton, bool isButtonDown)
     {
         Colour baseColour (backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true) ? 1.3f : 0.9f)
                            .withMultipliedAlpha (button.isEnabled() ? 0.9f : 0.5f));
@@ -56,8 +47,7 @@ public:
         const float width  = button.getWidth() - 1.0f;
         const float height = button.getHeight() - 1.0f;
 
-        if (width > 0 && height > 0)
-        {
+        if (width > 0 && height > 0){
             const float cornerSize = jmin (15.0f, jmin (width, height) * 0.45f);
             const float lineThickness = cornerSize * 0.1f;
             const float halfThickness = lineThickness * 0.5f;
@@ -76,20 +66,19 @@ public:
             g.setColour (baseColour);
             g.fillPath (outline);
 
-            if (! button.getToggleState())
-            {
+            if (! button.getToggleState()){
                 g.setColour (outlineColour);
                 g.strokePath (outline, PathStrokeType (lineThickness));
             }
         }
     }
 
-    void drawTickBox (Graphics& g, Component& component,
+    void CustomLookAndFeel::drawTickBox (Graphics& g, Component& component,
                       float x, float y, float w, float h,
                       bool ticked,
                       bool isEnabled,
                       bool isMouseOverButton,
-                      bool isButtonDown) override
+                      bool isButtonDown)
     {
         const float boxSize = w * 0.7f;
 
@@ -103,8 +92,7 @@ public:
         drawRoundThumb (g, x, y + (h - boxSize) * 0.5f, boxSize, colour,
                         isEnabled ? ((isButtonDown || isMouseOverButton) ? 1.1f : 0.5f) : 0.3f);
 
-        if (ticked)
-        {
+        if (ticked){
             const Path tick (LookAndFeel_V2::getTickShape (6.0f));
             g.setColour (isEnabled ? findColour (TextButton::buttonOnColourId) : Colours::grey);
 
@@ -115,9 +103,9 @@ public:
         }
     }
 
-    void drawLinearSliderThumb (Graphics& g, int x, int y, int width, int height,
+    void CustomLookAndFeel::drawLinearSliderThumb (Graphics& g, int x, int y, int width, int height,
                                 float sliderPos, float minSliderPos, float maxSliderPos,
-                                const Slider::SliderStyle style, Slider& slider) override
+                                const Slider::SliderStyle style, Slider& slider)
     {
         const float sliderRadius = (float) (getSliderThumbRadius (slider) - 2);
 
@@ -125,17 +113,13 @@ public:
         Colour knobColour (slider.findColour (Slider::thumbColourId).withMultipliedSaturation ((slider.hasKeyboardFocus (false) || isDownOrDragging) ? 1.3f : 0.9f)
                            .withMultipliedAlpha (slider.isEnabled() ? 1.0f : 0.7f));
 
-        if (style == Slider::LinearHorizontal || style == Slider::LinearVertical)
-        {
+        if (style == Slider::LinearHorizontal || style == Slider::LinearVertical){
             float kx, ky;
 
-            if (style == Slider::LinearVertical)
-            {
+            if (style == Slider::LinearVertical){
                 kx = x + width * 0.5f;
                 ky = sliderPos;
-            }
-            else
-            {
+            } else {
                 kx = sliderPos;
                 ky = y + height * 0.5f;
             }
@@ -147,22 +131,18 @@ public:
                             ky - sliderRadius,
                             sliderRadius * 2.0f,
                             knobColour, outlineThickness);
-        }
-        else
-        {
-            // Just call the base class for the demo
+        } else {
             LookAndFeel_V2::drawLinearSliderThumb (g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
         }
     }
 
-    void drawLinearSlider (Graphics& g, int x, int y, int width, int height,
+    void CustomLookAndFeel::drawLinearSlider (Graphics& g, int x, int y, int width, int height,
                            float sliderPos, float minSliderPos, float maxSliderPos,
-                           const Slider::SliderStyle style, Slider& slider) override
+                           const Slider::SliderStyle style, Slider& slider)
     {
         g.fillAll (slider.findColour (Slider::backgroundColourId));
 
-        if (style == Slider::LinearBar || style == Slider::LinearBarVertical)
-        {
+        if (style == Slider::LinearBar || style == Slider::LinearBarVertical){
             const float fx = (float) x, fy = (float) y, fw = (float) width, fh = (float) height;
 
             Path p;
@@ -182,34 +162,29 @@ public:
 
             const float lineThickness = jmin (15.0f, jmin (width, height) * 0.45f) * 0.1f;
             g.drawRect (slider.getLocalBounds().toFloat(), lineThickness);
-        }
-        else
-        {
+        } else {
             drawLinearSliderBackground (g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
             drawLinearSliderThumb (g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
         }
     }
 
-    void drawLinearSliderBackground (Graphics& g, int x, int y, int width, int height,
+    void CustomLookAndFeel::drawLinearSliderBackground (Graphics& g, int x, int y, int width, int height,
                                      float /*sliderPos*/,
                                      float /*minSliderPos*/,
                                      float /*maxSliderPos*/,
-                                     const Slider::SliderStyle /*style*/, Slider& slider) override
+                                     const Slider::SliderStyle /*style*/, Slider& slider)
     {
         const float sliderRadius = getSliderThumbRadius (slider) - 5.0f;
         Path on, off;
 
-        if (slider.isHorizontal())
-        {
+        if (slider.isHorizontal()){
             const float iy = x + width * 0.5f - sliderRadius * 0.5f;
             Rectangle<float> r (x - sliderRadius * 0.5f, iy, width + sliderRadius, sliderRadius);
             const float onW = r.getWidth() * ((float) slider.valueToProportionOfLength (slider.getValue()));
 
             on.addRectangle (r.removeFromLeft (onW));
             off.addRectangle (r);
-        }
-        else
-        {
+        } else {
             const float ix = x + width * 0.5f - sliderRadius * 0.5f;
             Rectangle<float> r (ix, y - sliderRadius * 0.5f, sliderRadius, height + sliderRadius);
             const float onH = r.getHeight() * ((float) slider.valueToProportionOfLength (slider.getValue()));
@@ -225,8 +200,7 @@ public:
         g.fillPath (off);
     }
 
-    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                           float rotaryStartAngle, float rotaryEndAngle, Slider& slider) override
+    void CustomLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos, float rotaryStartAngle, float rotaryEndAngle, Slider& slider)
     {
       
         Image gainKnob = ImageCache::getFromMemory(knobImg, knobImgSize);
@@ -243,34 +217,5 @@ public:
         
         g.drawImage(gainKnob, (int)rx, (int)ry, 2 * (int)radius, 2 * (int)radius, 0,
                     frameIdx * gainKnob.getWidth(), gainKnob.getWidth(), gainKnob.getWidth());
-        
-        /*
-        const float rw = radius * 2.0f;
-        const float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-        const bool isMouseOver = slider.isMouseOverOrDragging() && slider.isEnabled();
-        
-        if (slider.isEnabled())
-            g.setColour (slider.findColour (Slider::rotarySliderFillColourId).withAlpha (isMouseOver ? 1.0f : 0.7f));
-        else
-            g.setColour (Colour (0x80808080));
-
-        {
-            Path filledArc;
-            filledArc.addPieSegment (rx, ry, rw, rw, rotaryStartAngle, angle, 0.0);
-            g.fillPath (filledArc);
-        }
-
-        {
-            const float lineThickness = jmin (15.0f, jmin (width, height) * 0.45f) * 0.1f;
-            Path outlineArc;
-            outlineArc.addPieSegment (rx, ry, rw, rw, rotaryStartAngle, rotaryEndAngle, 0.0);
-            g.strokePath (outlineArc, PathStrokeType (lineThickness));
-        }
-        
-        */
     }
 
-private:
-    const char* knobImg;
-    const int knobImgSize;
-};

@@ -12,6 +12,7 @@
 
 namespace mkov{
 
+//These are currently the features being used to calculate similarity
 const char* features[] = {"dynam.rms", "timbre.cent", "tonal.keyStr", "dynam.dyRange"};
 
 MarkovChain::MarkovChain(const std::vector<Loop>& _loops, MATRIX& inMat, int r, int c) :
@@ -30,7 +31,7 @@ inline int MarkovChain::overlapExists(const Loop& a, const Loop& b){
     }
 }
 
-inline void MarkovChain::initMatrix() {
+void MarkovChain::initMatrix() {
     for (int i = 0; i < inputMatrix.rows(); ++i){
         for (int j = i + 1; j < inputMatrix.cols(); ++j){
             if (i == j){
@@ -83,9 +84,9 @@ MATRIX MarkovChain::computeTransitionMatrix(){
 }
 
 
-std::vector<essentia::Real> MarkovChain::markov(const MATRIX& transMat, int num_iters, int state){
+std::vector<int> MarkovChain::markov(const MATRIX& transMat, int num_iters, int state){
     juce::Random r;
-    std::vector<essentia::Real> chain;
+    std::vector<int> chain;
     
     for (int n = 0; n < num_iters - 1; ++n){
         float probability = r.nextFloat();
@@ -94,25 +95,35 @@ std::vector<essentia::Real> MarkovChain::markov(const MATRIX& transMat, int num_
             if (probability < 0) {
                 break;
             }
-            chain.push_back(static_cast<_REAL>(i));
+            chain.push_back(i);
         }
     }
     return chain;
 }
 
-//namespace (non-member) helper function
+//namespace (non-member) convenience function
     
-    std::vector<_REAL> generateMarkovChain(const std::vector<Loop>& loops, int itr, int start){
-    
-        int row = loops.size(), col = loops.size();
-        MATRIX mat(row, col);
-        MarkovChain markovChain(loops, mat, row, col);
-        markovChain.computeDistances();
-        MATRIX transMatrix(markovChain.computeTransitionMatrix());
-        std::vector<_REAL> chain = markovChain.markov(transMatrix, itr, start);
+    std::vector<int> generateMarkovChain(const std::vector<Loop>& loops, int itr, int start){
+        std::vector<int> chain;
+        
+        std::vector<std::string> vals = {"Foo", "Preparing for Analysis", " distances to calculate",
+            "Finding similarity", "You canceled the similarity calculation",
+            "Similary Metrics Complete!"};
+        
+        BackgroundThread simThread(loops.size(), vals);
+        if (simThread.runThread()){
+            int row = loops.size(), col = loops.size();
+            MATRIX mat(row, col);
+            MarkovChain markovChain(loops, mat, row, col);
+            markovChain.computeDistances();
+            MATRIX transMatrix(markovChain.computeTransitionMatrix());
+            chain = markovChain.markov(transMatrix, itr, start);
+        } else
+            simThread.threadComplete(true);
         
         return chain;
     }
+    
     
     
 }

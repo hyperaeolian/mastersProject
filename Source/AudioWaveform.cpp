@@ -8,27 +8,15 @@
   ==============================================================================
 */
 
-#include "JuceHeader.h"
+#include "AudioWaveform.h"
 
 
-class Waveform :
-    public Component,
-    public ChangeListener,
-    public ChangeBroadcaster,
-    private ScrollBar::Listener,
-    private Timer
-{
-    
-public:
-    Waveform(drow::AudioFilePlayerExt& afp) :
+
+Waveform::Waveform(drow::AudioFilePlayerExt& afp) :
         audioFilePlayer(afp),
-       // transportSource(_transportSource),
         scrollbar(false),
         cache(10),
-        thumbnail(512, *audioFilePlayer.getAudioFormatManager(), cache),
-        isFollowingTransport(false),
-        shifty(false),
-        endTime(0.0f)
+        thumbnail(512, *audioFilePlayer.getAudioFormatManager(), cache)
     {
         thumbnail.addChangeListener(this);
         addAndMakeVisible(scrollbar);
@@ -39,14 +27,16 @@ public:
         endPos.setFill(Colours::white.withAlpha(0.85f));
         addAndMakeVisible(currentPos);
         addAndMakeVisible(endPos);
+        endTime = 0.0f;
+        isFollowingTransport = shifty = false;
     }
     
-    ~Waveform(){
+Waveform::~Waveform(){
         scrollbar.removeListener(this);
         thumbnail.removeChangeListener(this);
     }
     
-    void setFile(const File& file){
+void Waveform::setFile(const File& file){
         if (!file.isDirectory()) {
             thumbnail.setSource(new FileInputSource(file));
             const Range<double> newRange(0.0, thumbnail.getTotalLength());
@@ -56,7 +46,7 @@ public:
         }
     }
     
-    void setZoomFactor(double amount){
+void Waveform::setZoomFactor(double amount){
         if (thumbnail.getTotalLength() > 0){
             const double newScale = jmax(0.001, thumbnail.getTotalLength() * (1.0 - jlimit(0.0, 0.99, amount)));
             const double timeAtCenter = xToTime(getWidth()/2.0f);
@@ -64,16 +54,15 @@ public:
         }
     }
     
-    void setRange(Range<double> newRange){
+void Waveform::setRange(Range<double> newRange){
         visibleRange = newRange;
         scrollbar.setCurrentRange(visibleRange);
         updateCursorPosition();
         repaint();
     }
+
     
-    void setFollowsTransport(bool shouldFollow){ isFollowingTransport = shouldFollow; }
-    
-    void paint(Graphics& g) override {
+void Waveform::paint(Graphics& g){
         g.fillAll(Colours::darkgrey);
         g.setColour(Colours::lightblue);
         if (thumbnail.getTotalLength() > 0.0) {
@@ -85,51 +74,15 @@ public:
             g.drawFittedText("No audio file selected", getLocalBounds(), Justification::centred, 2);
         }
     }
-    
-    void resized() override {
-        scrollbar.setBounds(getLocalBounds().removeFromBottom(14).reduced(2));
-    }
-    
-    void changeListenerCallback(ChangeBroadcaster*) override {
-        repaint();
-    }
-    
-    void isShiftyLooping(bool shouldBeShifty){ shifty = shouldBeShifty; }
-    
-    void setEndTime(float end){ endTime = end; }
-    
-    
-private:
-    drow::AudioFilePlayerExt& audioFilePlayer;
-    ScrollBar scrollbar;
-    AudioThumbnailCache cache;
-    AudioThumbnail thumbnail;
-    Range<double> visibleRange;
-    bool isFollowingTransport, shifty;
-    float endTime;
-   // File audioFile;
-    
-    DrawableRectangle currentPos, endPos;
 
-    float timeToX(const double time) const {
-        return getWidth() * (float) ( (time - visibleRange.getStart()) / (visibleRange.getLength()));
-    }
-    
-    double xToTime(const float x) const {
-        return (x / getWidth()) * (visibleRange.getLength()) + visibleRange.getStart();
-    }
-    
-    void scrollBarMoved(ScrollBar* scrollBarThatHasMoved, double newRangeStart) override {
+
+void Waveform::scrollBarMoved(ScrollBar* scrollBarThatHasMoved, double newRangeStart){
         if (scrollBarThatHasMoved == &scrollbar)
             if (!(isFollowingTransport && audioFilePlayer.isPlaying()))
                 setRange(visibleRange.movedToStartAt(newRangeStart));
     }
-    
-    bool canMoveTransport() const noexcept {
-        return !(isFollowingTransport && audioFilePlayer.isPlaying());
-    }
-    
-    void timerCallback() override {
+
+void Waveform::timerCallback(){
         if (canMoveTransport())
             updateCursorPosition();
         else{
@@ -137,7 +90,7 @@ private:
         }
     }
     
-    void updateCursorPosition(){
+void Waveform::updateCursorPosition(){
         if (shifty){
             currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
             endPos.setVisible(audioFilePlayer.isPlaying() || audioFilePlayer.getLoopBetweenTimes());
@@ -148,7 +101,6 @@ private:
         } else {
             currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
             currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f,
-                                                      0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+                                                      0, 2.5f, (float) (getHeight() - scrollbar.getHeight())));
         }
     }
-};
