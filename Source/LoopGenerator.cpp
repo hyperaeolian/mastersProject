@@ -108,7 +108,11 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
 
             return loopGen.getLoops();
         } else {
-                //TODO: Handle case where !lgen::audioBuffered with alert window
+            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,"Audio File",
+                                             "Unable to buffer audiofile");
+            //TODO: Handle case where !lgen::audioBuffered with alert window
+            //Redesign this function by returning value via ptr parameter
+            //http://stackoverflow.com/questions/3227755/return-nothing-from-non-void-function-in-c
         }
         
     }

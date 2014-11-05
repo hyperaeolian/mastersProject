@@ -12,6 +12,7 @@
 
 namespace mkov{
 
+//These are currently the features being used to calculate similarity
 const char* features[] = {"dynam.rms", "timbre.cent", "tonal.keyStr", "dynam.dyRange"};
 
 MarkovChain::MarkovChain(const std::vector<Loop>& _loops, MATRIX& inMat, int r, int c) :

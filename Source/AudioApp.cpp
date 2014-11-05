@@ -245,8 +245,7 @@ AudioApp::AudioApp ()
     masterLogger = juce::Logger::getCurrentLogger();
     state = Stopped;
     gain = 1.0;
-    
-    //startTimer(1500);
+
     //[/Constructor]
 }
 
@@ -373,7 +372,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == loopButton)
     {
         //[UserButtonCode_loopButton] -- add your button handler code here..
-        //(Looping != state) ? changeState(Looping) : changeState(Stopped);
+        
         if (state == Playing || state == Looping){
             changeState(Stopping);
         } else {
@@ -385,7 +384,13 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_shiftyLoopingButton] -- add your button handler code here..
 
-        changeState(ShiftyLooping);
+        if (state == Playing || state == ShiftyLooping){
+            changeState(Stopping);
+            shiftyLoopingButton->setToggleState(false, sendNotification);
+        } else {
+            changeState(ShiftyLooping);
+            shiftyLoopingButton->setToggleState(true, sendNotification);
+        }
 
         //[/UserButtonCode_shiftyLoopingButton]
     }
@@ -464,7 +469,7 @@ void AudioApp::initialize(){
     waveform->setFile(*auxFile);
     waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
     
-    std::string audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
+    audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
     crudeLoops = lgen::constructLoops(lgen::initAudio(audiofilename));
 
     markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
@@ -519,7 +524,8 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 //==============================================================================
 
 void AudioApp::changeState(TransportState newState){
-
+    if (state != ShiftyLooping) stopTimer();
+    
     if (state != newState) {
         state = newState;
         if (ShiftyLooping != state) shiftyLooper.setShiftyLooping(false);
@@ -575,8 +581,10 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                waveform->isShiftyLooping(true);
-                shiftyLooper.setShiftyLooping(true);
+                //waveform->isShiftyLooping(true);
+                //shiftyLooper.setShiftyLooping(true);
+                shiftyLooper.start();
+                startTimer(1500);
                 break;
         }
 
@@ -696,7 +704,9 @@ void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player,
 
 
 void AudioApp::timerCallback(){
-
+    std::vector<_REAL> snd(lgen::initAudio(audiofilename));
+    Random r;
+    shiftyLooper.setPosition(r.nextDouble() / snd.size());
 }
 
 //[/MiscUserCode]

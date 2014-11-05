@@ -20,6 +20,11 @@ ShiftyLooper::~ShiftyLooper(){}
 
 void ShiftyLooper::audioDeviceIOCallback(const float **inputChannelData, int numInputChannels, float **outputChannelData, int numOutputChannels, int numSamples)
 {
+   /* If we're out of samples, then toggle next loop 
+    
+            shiftyLooping();
+    */
+    
 
 }
 
@@ -67,38 +72,3 @@ inline void ShiftyLooper::updateCurrentLoop(){
         index++;
     currentLoop = &_Loops[markovChain[index]];
 }
-
-/*
-
-    
-    void shiftyLooping(Loop& loop){
-        if (shifting) {
-            if (forward) {
-                //printCurrentState("Shifting Forward");
-                loop = *loop.next;
-                player.setLoopTimes(loop.prev->end, loop.end);
-                player.setPosition(loop.prev->end);
-                player.start();
-                player.setLoopTimes(loop.start, loop.end);
-            } else {
-                loop = *loop.prev;
-                if (loop.next->start >= loop.end) return;
-                //printCurrentState("Shifting Backwards");
-                loop = *loop.prev;
-                player.setLoopTimes(loop.next->start, loop.end);
-                player.setPosition(loop.next->start);
-                player.start();
-                player.setLoopTimes(loop.start, loop.end);
-            }
-        } else {
-            player.setLoopTimes(loop.start, loop.end);
-            player.setPosition(loop.start);
-            player.setLoopBetweenTimes(true);
-        }
-        
-        pivot(currentLoop);
-        
-    }
-    
-
-*/
