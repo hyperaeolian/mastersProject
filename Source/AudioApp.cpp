@@ -68,7 +68,7 @@ AudioApp::AudioApp ()
     loopButton->setColour (ToggleButton::textColourId, Colour (0xffe8d8d8));
 
     addAndMakeVisible (gainSlider = new Slider ("Gain Slider"));
-    gainSlider->setRange (0, 1, 0.1);
+    gainSlider->setRange (0, 2, 0.1);
     gainSlider->setSliderStyle (Slider::RotaryVerticalDrag);
     gainSlider->setTextBoxStyle (Slider::TextBoxBelow, false, 80, 20);
     gainSlider->setColour (Slider::thumbColourId, Colours::aquamarine);
@@ -244,7 +244,9 @@ AudioApp::AudioApp ()
     shiftyLooper.addListener(this);
     masterLogger = juce::Logger::getCurrentLogger();
     state = Stopped;
+    gain = 1.0;
     
+    //startTimer(1500);
     //[/Constructor]
 }
 
@@ -470,7 +472,7 @@ void AudioApp::initialize(){
     shiftyLooper.setLoops(crudeLoops);
     shiftyLooper.setMarkovChain(markov_chain);
     //shiftyLooper.setPosition(0.0);
-    
+   
     infoLabel->setText("Sound sample's tempo is: " + String(lgen::bpm), sendNotification);
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
@@ -694,7 +696,6 @@ void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player,
 
 
 void AudioApp::timerCallback(){
-   
 
 }
 

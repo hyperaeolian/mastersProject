@@ -101,6 +101,6 @@ void Waveform::updateCursorPosition(){
         } else {
             currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());
             currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f,
-                                                      0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
+                                                      0, 2.5f, (float) (getHeight() - scrollbar.getHeight())));
         }
     }

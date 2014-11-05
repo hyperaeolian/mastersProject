@@ -118,7 +118,7 @@ private:
     AudioDeviceManager  deviceManager;
     AudioSourcePlayer   sourcePlayer;
     AudioRecorder       recorder;
-    drow::AudioFilePlayerExt mediaPlayer;
+    //drow::AudioFilePlayerExt mediaPlayer;
     ShiftyLooper shiftyLooper;
     
     //State & Loop Vars
