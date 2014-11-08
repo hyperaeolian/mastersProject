@@ -474,9 +474,9 @@ void AudioApp::initialize(){
 
     markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
     
-    shiftyLooper.setLoops(crudeLoops);
-    shiftyLooper.setMarkovChain(markov_chain);
-    //shiftyLooper.setPosition(0.0);
+    currentLoop = &crudeLoops[random.nextInt(crudeLoops.size())];
+    
+    shiftyLooper.setPosition(0.0);
    
     infoLabel->setText("Sound sample's tempo is: " + String(lgen::bpm), sendNotification);
     playButton->setEnabled(true);
@@ -528,7 +528,7 @@ void AudioApp::changeState(TransportState newState){
     
     if (state != newState) {
         state = newState;
-        if (ShiftyLooping != state) shiftyLooper.setShiftyLooping(false);
+        
         switch (state) {
             case Starting:
                 printCurrentState(String("Starting..."));
@@ -583,8 +583,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 //waveform->isShiftyLooping(true);
                 //shiftyLooper.setShiftyLooping(true);
-                shiftyLooper.start();
-                startTimer(1500);
+                shiftyLooper.shiftyLooping(true, currentLoop->prev->end, currentLoop->start, currentLoop->end);
                 break;
         }
 
