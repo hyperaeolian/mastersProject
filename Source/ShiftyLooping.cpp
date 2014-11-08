@@ -20,16 +20,17 @@ ShiftyLooper::~ShiftyLooper(){}
 
 void ShiftyLooper::audioDeviceIOCallback(const float **inputChannelData, int numInputChannels, float **outputChannelData, int numOutputChannels, int numSamples)
 {
-   /* If we're out of samples, then toggle next loop 
-    
-            shiftyLooping();
-    */
-    
+
+    if (shouldShiftyLoop){
+        
+    }
 
 }
 
 void ShiftyLooper::shiftyLooping(){
+    shouldShiftyLoop = true;
     
+    /*
     if (hasStreamFinished()){
         getNextDirection();
         updateCurrentLoop();
@@ -49,6 +50,7 @@ void ShiftyLooper::shiftyLooping(){
     this->start();
     this->setLoopTimes(currentLoop->start, currentLoop->end);
     setNextReadPosition(currentLoop->start * 44100);
+     */
 
 }
 
