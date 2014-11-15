@@ -12,7 +12,7 @@
 
 namespace lgen{
 
-LoopGenerator::LoopGenerator(const std::vector<_REAL>& _AudioBuffer, const std::vector<_REAL>& _delim) :
+LoopGenerator::LoopGenerator(const VEC_REAL& _AudioBuffer, const VEC_REAL& _delim) :
     BarSize(1.0), AudioBuffer(_AudioBuffer), delimiters(_delim)
 {
     lastDelimiter = delimiters.back();
@@ -23,13 +23,15 @@ LoopGenerator::~LoopGenerator(){}
 void LoopGenerator::createLoopPoints(){
     
     for (int i = 0; i < delimiters.size(); ++i) {
-        Loop curr;
+        Loop curr; //redeclare each time or just change values?
         if (delimiters[i] + BarSize <= lastDelimiter) {
             curr.start  = delimiters[i];
             _REAL point = delimiters[i] + BarSize;
             curr.end    = quantizeToDelimiter(point);
-            if (curr.start > curr.end) std::swap(curr.start, curr.end);
-            if (curr.start * SR > AudioBuffer.size()) continue;
+            if (curr.start > curr.end)
+                std::swap(curr.start, curr.end);
+            if (curr.start * SR > AudioBuffer.size())
+                continue;
             curr.head = static_cast<int>(curr.start * SR);
             curr.tail = curr.end * SR > AudioBuffer.size() ? AudioBuffer.size() :
                                                              static_cast<int>(curr.end * SR);
@@ -42,11 +44,13 @@ void LoopGenerator::createLoopPoints(){
 void LoopGenerator::connectLoops(){
     for (int i = 0; i < _Loops.size(); ++i) {
         if (i == 0) {
-            _Loops[i].prev = &_Loops[i];
+            //_Loops[i].prev = &_Loops[i];
+            _Loops[i].prev = nullptr;
             _Loops[i].next = &_Loops[1];
         } else if (i == _Loops.size() - 1){
             _Loops[i].prev = &_Loops[i-1];
-            _Loops[i].next = &_Loops[i];
+            _Loops[i].next = nullptr;
+            //_Loops[i].next = &_Loops[i];
         } else {
             _Loops[i].prev = &_Loops[i-1];
             _Loops[i].next = &_Loops[i+1];
@@ -55,16 +59,17 @@ void LoopGenerator::connectLoops(){
 }
 
 _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
-    if (value > lastDelimiter) {
-        value = lastDelimiter;
-        return value;
-    }
-    auto limit = std::equal_range(delimiters.begin(), delimiters.end(), value);
-    float diff1 = abs(value - delimiters[limit.first - delimiters.begin()]);
-    float diff2 = abs(delimiters[limit.second - delimiters.begin()] - value);
+    if (value > lastDelimiter) return lastDelimiter;
     
-    if (diff1 > diff2) return delimiters[limit.second - delimiters.begin()];
-    else               return delimiters[limit.first - delimiters.begin()];
+    
+    auto limit = std::equal_range(delimiters.begin(), delimiters.end(), value);
+    _REAL diff1 = abs(value - delimiters[limit.first - delimiters.begin()]);
+    _REAL diff2 = abs(delimiters[limit.second - delimiters.begin()] - value);
+    
+    if (diff1 > diff2)
+        return delimiters[limit.second - delimiters.begin()];
+    else
+        return delimiters[limit.first - delimiters.begin()];
 }
     
     
@@ -73,13 +78,13 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
     bool audioBuffered;
     
 //==========================Buffer Audio========================================
-    std::vector<_REAL> initAudio(const std::string audiofilename){
+    VEC_REAL initAudio(const std::string audiofilename){
         essentia::init();
         juce::ScopedPointer<essentia::standard::Algorithm>
             loader = essentia::standard::AlgorithmFactory::create("MonoLoader",
                                                                   "filename", audiofilename,
                                                                   "sampleRate", 44100);
-        std::vector<_REAL> buffer;
+        VEC_REAL buffer;
         loader->output("audio").set(buffer);
         loader->compute();
         lgen::audioBuffered = true;

@@ -16,6 +16,7 @@
 class ShiftyLooper : public drow::AudioFilePlayerExt,
                      public drow::AudioFilePlayer::Listener
 
+
 {
 public:
     ShiftyLooper(){}
@@ -24,13 +25,14 @@ public:
     void shiftyLooping(bool forward, double init, double start, double end){
         assert(init < end && start < end);
         if (forward){
-            setPosition(init);
-            this->start();
-            setLoopTimes(start, end);
-            this->setLoopBetweenTimes(true);
-            //this->setLooping(true);
-        }
+            /* PUT THIS IS AUDIOAPP TRANSPORTSTATE */
+//            this->setLoopTimes(start, end);
+//            this->setNextReadPosition(int64(init));
+//            this->setLoopBetweenTimes(true);
+    
+        } 
     }
+    
     
     
     //drow
@@ -44,8 +46,7 @@ private:
     ShiftyLooper(ShiftyLooper&&);
     ShiftyLooper& operator=(const ShiftyLooper&);
     ShiftyLooper& operator=(ShiftyLooper&&);
-    
-
+ 
 };
 
 

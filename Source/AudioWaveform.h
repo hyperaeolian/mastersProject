@@ -22,7 +22,7 @@ private Timer
 {
     
 public:
-    Waveform(drow::AudioFilePlayerExt& afp);
+    explicit Waveform(drow::AudioFilePlayerExt& afp);
     ~Waveform();
     
     void setFile(const File& file);

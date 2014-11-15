@@ -374,7 +374,8 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_loopButton] -- add your button handler code here..
         
         if (state == Playing || state == Looping){
-            changeState(Stopping);
+            loopButton->getToggleState() ? changeState(Stopping) : changeState(Looping);
+            //changeState(Stopping);
         } else {
             changeState(Looping);
         }
@@ -474,8 +475,10 @@ void AudioApp::initialize(){
 
     markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
     
-    currentLoop = &crudeLoops[random.nextInt(crudeLoops.size())];
+    //currentLoop = &crudeLoops[random.nextInt(crudeLoops.size())];
+    currentLoop = &crudeLoops[1];
     
+    //for (auto& loop : crudeLoops) std::cout << "Start: " << loop.start << " End: " << loop.end << endl;
     shiftyLooper.setPosition(0.0);
    
     infoLabel->setText("Sound sample's tempo is: " + String(lgen::bpm), sendNotification);
@@ -524,15 +527,15 @@ void AudioApp::changeListenerCallback(ChangeBroadcaster* src){
 //==============================================================================
 
 void AudioApp::changeState(TransportState newState){
-    if (state != ShiftyLooping) stopTimer();
-    
+    if (state != ShiftyLooping) shiftyLooper.setLoopBetweenTimes(false);
     if (state != newState) {
         state = newState;
         
         switch (state) {
             case Starting:
                 printCurrentState(String("Starting..."));
-                shiftyLooper.start();
+                //shiftyLooper.start();
+                shiftyLooper.startFromZero();
                 break;
             case Playing:
                 printCurrentState(String("Playing..."));
@@ -582,14 +585,32 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 //waveform->isShiftyLooping(true);
-                //shiftyLooper.setShiftyLooping(true);
-                shiftyLooper.shiftyLooping(true, currentLoop->prev->end, currentLoop->start, currentLoop->end);
+                //shiftyLooper.setNextReadPosition(currentLoop->start);
+                shiftyLooper.setLoopBetweenTimes(false);
+                shiftyLooper.stop();
+                shifty_looping();
                 break;
         }
 
     }
 
 }
+
+
+void AudioApp::shifty_looping(){
+    if (currentLoop == nullptr){
+        changeState(Stopped);
+        return;
+    } else {
+        shiftyLooper.setLoopTimes(currentLoop->start, currentLoop->end);
+        shiftyLooper.setLoopBetweenTimes(true);
+        shiftyLooper.start();
+        currentLoop++;
+        changeState(ShiftyLooping);
+        shifty_looping();
+    }
+}
+
 //==============================================================================
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &shiftyLooper){
@@ -684,16 +705,14 @@ void AudioApp::stopRecording(){
 }
 
 void AudioApp::showLoopTable(){
-    //use a smart pointer and declare & init here
+    
     loopTable = new TableWindow("Loop List", Colours::silver, 1, crudeLoops);
 }
 
 //==============================================================================
 
 void AudioApp::fileChanged(drow::AudioFilePlayer* player){
-//    if (player == &mediaPlayer) {
-//        mediaPlayer.stop();
-//    }
+
     if (player == &shiftyLooper) {
         shiftyLooper.stop();
     }
@@ -702,11 +721,7 @@ void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player,
                                              int settingCode){}
 
 
-void AudioApp::timerCallback(){
-    std::vector<_REAL> snd(lgen::initAudio(audiofilename));
-    Random r;
-    shiftyLooper.setPosition(r.nextDouble() / snd.size());
-}
+void AudioApp::timerCallback(){}
 
 //[/MiscUserCode]
 

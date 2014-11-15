@@ -28,6 +28,13 @@ class BackgroundThread : public ThreadWithProgressWindow{
 public:
     
     BackgroundThread(const int N, const std::vector<std::string> vals);
+//    ~BackgroundThread();
+//    BackgroundThread(const BackgroundThread& thread);
+//    BackgroundThread(BackgroundThread&& thread);
+//    BackgroundThread& operator=(const BackgroundThread& thread);
+//    BackgroundThread& operator=(BackgroundThread&& thread);
+    
+    
     void run() override;
     void threadComplete(bool userPressedCancel) override;
     

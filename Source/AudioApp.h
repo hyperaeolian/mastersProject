@@ -57,6 +57,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    
     enum TransportState{
         Stopped,
         Starting,
@@ -80,7 +81,10 @@ public:
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
-
+    
+    void shifty_looping();
+    
+    
     //Recording
     void startRecording();
     void stopRecording();
@@ -107,7 +111,6 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-
     
     
     essentia::Real Tempo;
@@ -177,7 +180,7 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
-#define _REAL essentia::Real
+
 
 
 //[/EndFile]

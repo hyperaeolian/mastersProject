@@ -20,7 +20,8 @@ BackgroundThread::BackgroundThread(const int N, const std::vector<std::string> v
         setStatusMessage(statusMsgs["init"]);
 
     }
-    
+
+
 void BackgroundThread::run(){
         setProgress (-0.5);
         //setStatusMessage (statusMsgs["init"]);

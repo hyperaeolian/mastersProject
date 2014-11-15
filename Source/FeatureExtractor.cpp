@@ -14,7 +14,7 @@
 using namespace essentia;
 using namespace essentia::standard;
 
-FeatureExtractor::FeatureExtractor(const std::vector<_REAL>& buffer) :
+FeatureExtractor::FeatureExtractor(const VEC_REAL& buffer) :
     AudioBuffer(buffer), SR(44100), FrameSize(2048), HopSize(FrameSize/2)
 
 {
@@ -64,7 +64,7 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
     auto first = AudioBuffer.begin() + loop.head;
     auto second = AudioBuffer.begin() + loop.tail;
 
-    std::vector<_REAL> loopBuffer(first, second);
+    VEC_REAL loopBuffer(first, second);
    
     juce::ScopedPointer<Algorithm>
             _dur            = factory.create("Duration"),
@@ -81,7 +81,7 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
             _tonalExtractor = factory.create("TonalExtractor");
 
 
-        std::vector<Real> frame, windowedFrame, spectrum;
+        VEC_REAL frame, windowedFrame, spectrum;
 
         fc       ->input("signal").set(loopBuffer);
         fc       ->output("frame").set(frame);
@@ -93,7 +93,7 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
 
         /* ========= RHYTHM FEATURES ===================== */
         Real bpm, beatsConfidence;
-        std::vector<Real> tempogram, beats, beatIntervals;
+        VEC_REAL tempogram, beats, beatIntervals;
 
         _rhythmExt->input("signal")       .set(loopBuffer);
         _rhythmExt->output("bpm")         .set(bpm);
@@ -112,7 +112,7 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
         _dynam    ->output("dynamicComplexity").set(dynamicRangeCoeff);
 
         /* ========= TIMBRAL FEATURES ===================== */
-        std::vector<Real> mfccBands, mfccs;
+        VEC_REAL mfccBands, mfccs;
         Real centroid;
 
         _mfcc->input("spectrum").set(spectrum);
@@ -126,9 +126,9 @@ void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
         Real                            key_Strength;
         std::string                     chords_key, chords_Scale;
         std::string                     key_Key, key_Scale;
-        std::vector<Real>               chords_Histogram,  chords_Strength;
+        VEC_REAL               chords_Histogram,  chords_Strength;
         std::vector<std::string>        chords_Progression;
-        std::vector<std::vector<Real> > hpcp, hpcp_HighRes;
+        std::vector<VEC_REAL> hpcp, hpcp_HighRes;
 
         _tonalExtractor->input("signal").set(loopBuffer);
         _tonalExtractor->output("chords_changes_rate").set(chords_ChangeRate);

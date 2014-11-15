@@ -48,8 +48,7 @@ using namespace essentia::standard;
 
 class FeatureExtractor {
 public:
-    FeatureExtractor(const std::vector<Real>& buffer);
-    //FeatureExtractor();
+    explicit FeatureExtractor(const VEC_REAL& buffer);
     ~FeatureExtractor();
     
     //allow for alternate delimiters
@@ -60,18 +59,18 @@ public:
     void computeFeaturesForLoop(Loop& loop);
     
     Real getTempo()               const { return bpm; }
-    std::vector<Real> getOnsets() const { return onsets; }
-    std::vector<Real> getBeats()  const { return beats; }
+    VEC_REAL getOnsets() const { return onsets; }
+    VEC_REAL getBeats()  const { return beats; }
     
 private:
 
-    const std::vector<Real> AudioBuffer;
-    std::vector<Real> onsets, beats;
+    const VEC_REAL AudioBuffer;
+    VEC_REAL onsets, beats;
     const int SR, FrameSize, HopSize;
     bool successfulExtraction;
     Real bpm;
     
- //unwanted constructors
+    FeatureExtractor();
     FeatureExtractor(const FeatureExtractor&);
     FeatureExtractor(FeatureExtractor&&);
     FeatureExtractor& operator=(const FeatureExtractor&);
