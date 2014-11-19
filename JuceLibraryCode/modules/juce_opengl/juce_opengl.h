@@ -63,18 +63,19 @@
  #endif
 #elif JUCE_MAC
  #if defined (MAC_OS_X_VERSION_10_7) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
+  #define JUCE_OPENGL3 1
   #include <OpenGL/gl3.h>
   #include <OpenGL/gl3ext.h>
  #else
   #include <OpenGL/gl.h>
-  #include "OpenGL/glext.h"
+  #include <OpenGL/glext.h>
  #endif
 #elif JUCE_ANDROID
  #include <GLES2/gl2.h>
 #endif
 
-#if GL_VERSION_3_2 || GL_ES_VERSION_3_0
- #define JUCE_OPENGL3  1
+#if GL_ES_VERSION_3_0
+ #define JUCE_OPENGL3 1
 #endif
 
 //=============================================================================
@@ -124,11 +125,12 @@ class OpenGLTexture;
 class OpenGLFrameBuffer;
 class OpenGLShaderProgram;
 
+#include "geometry/juce_Quaternion.h"
+#include "geometry/juce_Matrix3D.h"
+#include "geometry/juce_Vector3D.h"
+#include "geometry/juce_Draggable3DOrientation.h"
 #include "native/juce_MissingGLDefinitions.h"
 #include "opengl/juce_OpenGLHelpers.h"
-#include "opengl/juce_Quaternion.h"
-#include "opengl/juce_Matrix3D.h"
-#include "opengl/juce_Draggable3DOrientation.h"
 #include "opengl/juce_OpenGLPixelFormat.h"
 #include "native/juce_OpenGLExtensions.h"
 #include "opengl/juce_OpenGLRenderer.h"
@@ -140,7 +142,7 @@ class OpenGLShaderProgram;
 #include "opengl/juce_OpenGLRenderer.h"
 #include "opengl/juce_OpenGLShaderProgram.h"
 #include "opengl/juce_OpenGLTexture.h"
-#include "opengl/juce_Vector3D.h"
+#include "utils/juce_OpenGLAppComponent.h"
 
 }
 

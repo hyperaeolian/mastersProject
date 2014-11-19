@@ -24,7 +24,7 @@ FeatureExtractor::FeatureExtractor(const VEC_REAL& buffer) :
 FeatureExtractor::~FeatureExtractor(){
     essentia::shutdown();
 }
-
+/*
 void FeatureExtractor::findOnsets(){
     AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
     juce::ScopedPointer<Algorithm> onsDet = factory.create("OnsetRate");
@@ -56,13 +56,36 @@ void FeatureExtractor::findBeats(){
     
     lgen::bpm = bpm;
 }
+*/
+void FeatureExtractor::computeFeaturesForBuffer(){
+    AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
+    juce::ScopedPointer<Algorithm> rhythmXtractor = factory.create("RhythmExtractor2013");
+    juce::ScopedPointer<Algorithm> onsetDetector = factory.create("OnsetRate");
+    
+    VEC_REAL estimates, bpmIntervals;
+    Real confidence, rate, bpm;
+    
+    rhythmXtractor->input("signal").set(AudioBuffer);
+    rhythmXtractor->output("bpm").set(bpm);
+    rhythmXtractor->output("ticks").set(beats);
+    rhythmXtractor->output("confidence").set(confidence);
+    rhythmXtractor->output("estimates").set(estimates);
+    rhythmXtractor->output("bpmIntervals").set(bpmIntervals);
+    
+    onsetDetector->input("signal").set(AudioBuffer);
+    onsetDetector->output("onsets").set(onsets);
+    onsetDetector->output("onsetRate").set(rate);
+    
+    rhythmXtractor->compute();
+    onsetDetector->compute();
 
+}
 
 void FeatureExtractor::computeFeaturesForLoop(Loop& loop){
     AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
 
-    auto first = AudioBuffer.begin() + loop.head;
-    auto second = AudioBuffer.begin() + loop.tail;
+    auto first = AudioBuffer.begin() + loop.sampsStart;
+    auto second = AudioBuffer.begin() + loop.sampsEnd;
 
     VEC_REAL loopBuffer(first, second);
    

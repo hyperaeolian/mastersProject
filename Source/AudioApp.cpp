@@ -31,7 +31,7 @@ ScopedPointer<TableWindow> loopTable;
 
 //==============================================================================
 AudioApp::AudioApp ()
-    : MarkovIterations(15), stream(background_png, background_pngSize, false)
+    : MarkovIterations(15), bufferTransform(&shiftyLooper), distortion(bufferTransform.getBuffer(), distoritionSlider), stream(background_png, background_pngSize, false)
 {
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data...")));
@@ -68,7 +68,7 @@ AudioApp::AudioApp ()
     loopButton->setColour (ToggleButton::textColourId, Colour (0xffe8d8d8));
 
     addAndMakeVisible (gainSlider = new Slider ("Gain Slider"));
-    gainSlider->setRange (0, 2, 0.1);
+    gainSlider->setRange (0, 1, 0.1);
     gainSlider->setSliderStyle (Slider::RotaryVerticalDrag);
     gainSlider->setTextBoxStyle (Slider::TextBoxBelow, false, 80, 20);
     gainSlider->setColour (Slider::thumbColourId, Colours::aquamarine);
@@ -135,44 +135,44 @@ AudioApp::AudioApp ()
     tempoSlider->addListener (this);
     tempoSlider->setSkewFactor (2);
 
-    addAndMakeVisible (varianceSlider = new Slider ("Variance"));
-    varianceSlider->setRange (0, 10, 0);
-    varianceSlider->setSliderStyle (Slider::LinearHorizontal);
-    varianceSlider->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
-    varianceSlider->setColour (Slider::backgroundColourId, Colour (0x00450707));
-    varianceSlider->addListener (this);
+    addAndMakeVisible (distoritionSlider = new Slider ("Distortion"));
+    distoritionSlider->setRange (0, 10, 0);
+    distoritionSlider->setSliderStyle (Slider::LinearHorizontal);
+    distoritionSlider->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
+    distoritionSlider->setColour (Slider::backgroundColourId, Colour (0x00450707));
+    distoritionSlider->addListener (this);
 
-    addAndMakeVisible (barSizeSlider = new Slider ("BarSize"));
-    barSizeSlider->setRange (1, 5, 1);
-    barSizeSlider->setSliderStyle (Slider::LinearHorizontal);
-    barSizeSlider->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
-    barSizeSlider->setColour (Slider::backgroundColourId, Colour (0x00450707));
-    barSizeSlider->addListener (this);
+    addAndMakeVisible (reverbSlider = new Slider ("Reverb"));
+    reverbSlider->setRange (1, 5, 1);
+    reverbSlider->setSliderStyle (Slider::LinearHorizontal);
+    reverbSlider->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
+    reverbSlider->setColour (Slider::backgroundColourId, Colour (0x00450707));
+    reverbSlider->addListener (this);
 
     addAndMakeVisible (reloopButton = new TextButton ("ResetLoops"));
     reloopButton->setButtonText (TRANS("ReLoop"));
     reloopButton->addListener (this);
     reloopButton->setColour (TextButton::buttonColourId, Colour (0xff8181ab));
 
-    addAndMakeVisible (varianceLabel = new Label ("Variance Label",
-                                                  TRANS("Variance")));
-    varianceLabel->setFont (Font ("Arial Black", 22.30f, Font::plain));
-    varianceLabel->setJustificationType (Justification::centred);
-    varianceLabel->setEditable (false, false, false);
-    varianceLabel->setColour (Label::textColourId, Colours::azure);
-    varianceLabel->setColour (TextEditor::textColourId, Colours::black);
-    varianceLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    varianceLabel->setColour (TextEditor::highlightColourId, Colours::red);
+    addAndMakeVisible (distortionLabel = new Label ("Distortion Label",
+                                                    TRANS("Distortion")));
+    distortionLabel->setFont (Font ("Arial Black", 22.30f, Font::plain));
+    distortionLabel->setJustificationType (Justification::centred);
+    distortionLabel->setEditable (false, false, false);
+    distortionLabel->setColour (Label::textColourId, Colours::azure);
+    distortionLabel->setColour (TextEditor::textColourId, Colours::black);
+    distortionLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    distortionLabel->setColour (TextEditor::highlightColourId, Colours::red);
 
-    addAndMakeVisible (barSizeLabel = new Label ("BarSize Label",
-                                                 TRANS("Bar Size")));
-    barSizeLabel->setFont (Font ("Arial Black", 22.30f, Font::plain));
-    barSizeLabel->setJustificationType (Justification::centred);
-    barSizeLabel->setEditable (false, false, false);
-    barSizeLabel->setColour (Label::textColourId, Colours::azure);
-    barSizeLabel->setColour (TextEditor::textColourId, Colours::black);
-    barSizeLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    barSizeLabel->setColour (TextEditor::highlightColourId, Colours::red);
+    addAndMakeVisible (reverbLabel = new Label ("Reverb Label",
+                                                TRANS("Reverb")));
+    reverbLabel->setFont (Font ("Arial Black", 22.30f, Font::plain));
+    reverbLabel->setJustificationType (Justification::centred);
+    reverbLabel->setEditable (false, false, false);
+    reverbLabel->setColour (Label::textColourId, Colours::azure);
+    reverbLabel->setColour (TextEditor::textColourId, Colours::black);
+    reverbLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    reverbLabel->setColour (TextEditor::highlightColourId, Colours::red);
 
     addAndMakeVisible (rateLabel = new Label ("Rate Label",
                                               TRANS("Rate")));
@@ -207,6 +207,16 @@ AudioApp::AudioApp ()
     tempoLabel->setColour (TextEditor::backgroundColourId, Colour (0x00802828));
     tempoLabel->setColour (TextEditor::highlightColourId, Colour (0xff0fd348));
 
+    addAndMakeVisible (chorusButton = new ToggleButton ("Chorus Button"));
+    chorusButton->setButtonText (TRANS("Chorus"));
+    chorusButton->addListener (this);
+    chorusButton->setColour (ToggleButton::textColourId, Colours::beige);
+
+    addAndMakeVisible (flangerButton = new ToggleButton ("Flanger Button"));
+    flangerButton->setButtonText (TRANS("Flanger"));
+    flangerButton->addListener (this);
+    flangerButton->setColour (ToggleButton::textColourId, Colours::beige);
+
 
     //[UserPreSize]
     backgroundImage = new ImageComponent();
@@ -214,8 +224,9 @@ AudioApp::AudioApp ()
 
     setSize (990, 690);
 
+
     //[Constructor] You can add your own custom stuff here..
-    
+
     //GUI Setup
     backgroundImage->setImage(ImageFileFormat::loadFrom(stream));
     design = new CustomLookAndFeel(knob_png, knob_pngSize);
@@ -236,9 +247,10 @@ AudioApp::AudioApp ()
 
     //Audio device setup
     deviceManager.initialise(0, 2, nullptr, true);
-    sourcePlayer.setSource(&shiftyLooper);
+    sourcePlayer.setSource(&bufferTransform);
+    //sourcePlayer.setSource(&shiftyLooper);
     deviceManager.addAudioCallback(&sourcePlayer);
-    
+
     deviceManager.addAudioCallback(&recorder);
     deviceManager.addChangeListener(this);
     shiftyLooper.addListener(this);
@@ -267,14 +279,16 @@ AudioApp::~AudioApp()
     rateSlider = nullptr;
     pitchSlider = nullptr;
     tempoSlider = nullptr;
-    varianceSlider = nullptr;
-    barSizeSlider = nullptr;
+    distoritionSlider = nullptr;
+    reverbSlider = nullptr;
     reloopButton = nullptr;
-    varianceLabel = nullptr;
-    barSizeLabel = nullptr;
+    distortionLabel = nullptr;
+    reverbLabel = nullptr;
     rateLabel = nullptr;
     pitchLabel = nullptr;
     tempoLabel = nullptr;
+    chorusButton = nullptr;
+    flangerButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -311,27 +325,29 @@ void AudioApp::paint (Graphics& g)
 
 void AudioApp::resized()
 {
-    infoLabel->setBounds (176, 552, 672, 56);
-    playButton->setBounds (352, 480, 96, 32);
-    stopButton->setBounds (446, 480, 96, 32);
-    recordingButton->setBounds (540, 480, 96, 32);
-    loopButton->setBounds (360, 368, 120, 40);
-    gainSlider->setBounds (720, 392, 96, 96);
-    gainLabel->setBounds (696, 512, 150, 24);
-    shiftyLoopingButton->setBounds (512, 368, 112, 40);
-    ostinatoGroup->setBounds (48, 232, 280, 240);
-    pitchTempoGropu->setBounds (544, 240, 320, 104);
-    rateSlider->setBounds (568, 264, 64, 48);
-    pitchSlider->setBounds (664, 264, 64, 48);
-    tempoSlider->setBounds (760, 264, 64, 48);
-    varianceSlider->setBounds (168, 264, 136, 16);
-    barSizeSlider->setBounds (168, 312, 136, 16);
-    reloopButton->setBounds (88, 392, 208, 32);
-    varianceLabel->setBounds (72, 256, 72, 24);
-    barSizeLabel->setBounds (72, 304, 72, 24);
+    infoLabel->setBounds (168, 608, 672, 56);
+    playButton->setBounds (344, 536, 96, 32);
+    stopButton->setBounds (438, 536, 96, 32);
+    recordingButton->setBounds (532, 536, 96, 32);
+    loopButton->setBounds (352, 424, 120, 40);
+    gainSlider->setBounds (712, 448, 96, 96);
+    gainLabel->setBounds (688, 568, 150, 24);
+    shiftyLoopingButton->setBounds (504, 424, 112, 40);
+    ostinatoGroup->setBounds (40, 288, 280, 240);
+    pitchTempoGropu->setBounds (536, 296, 320, 104);
+    rateSlider->setBounds (560, 320, 64, 48);
+    pitchSlider->setBounds (656, 320, 64, 48);
+    tempoSlider->setBounds (752, 320, 64, 48);
+    distoritionSlider->setBounds (160, 320, 136, 24);
+    reverbSlider->setBounds (160, 360, 136, 16);
+    reloopButton->setBounds (80, 448, 208, 32);
+    distortionLabel->setBounds (56, 320, 88, 24);
+    reverbLabel->setBounds (56, 352, 72, 24);
     rateLabel->setBounds (568, 312, 64, 24);
     pitchLabel->setBounds (664, 312, 64, 24);
     tempoLabel->setBounds (760, 312, 64, 24);
+    chorusButton->setBounds (64, 392, 80, 40);
+    flangerButton->setBounds (192, 392, 80, 40);
     //[UserResized] Add your own custom resize handling here..
     backgroundImage->setBounds(0,0,getWidth(), getHeight());
     //[/UserResized]
@@ -372,7 +388,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == loopButton)
     {
         //[UserButtonCode_loopButton] -- add your button handler code here..
-        
+
         if (state == Playing || state == Looping){
             loopButton->getToggleState() ? changeState(Stopping) : changeState(Looping);
             //changeState(Stopping);
@@ -400,6 +416,16 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_reloopButton] -- add your button handler code here..
         //markov_chain = markov(*transMat, MarkovIterations, random.nextInt(crudeLoops.size()-1));
         //[/UserButtonCode_reloopButton]
+    }
+    else if (buttonThatWasClicked == chorusButton)
+    {
+        //[UserButtonCode_chorusButton] -- add your button handler code here..
+        //[/UserButtonCode_chorusButton]
+    }
+    else if (buttonThatWasClicked == flangerButton)
+    {
+        //[UserButtonCode_flangerButton] -- add your button handler code here..
+        //[/UserButtonCode_flangerButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -436,15 +462,17 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_tempoSlider] -- add your slider handling code here..
         //[/UserSliderCode_tempoSlider]
     }
-    else if (sliderThatWasMoved == varianceSlider)
+    else if (sliderThatWasMoved == distoritionSlider)
     {
-        //[UserSliderCode_varianceSlider] -- add your slider handling code here..
-        //[/UserSliderCode_varianceSlider]
+        //[UserSliderCode_distoritionSlider] -- add your slider handling code here..
+        distortion.sliderValueChanged(distoritionSlider);
+        distortion.resetBuffer();
+        //[/UserSliderCode_distoritionSlider]
     }
-    else if (sliderThatWasMoved == barSizeSlider)
+    else if (sliderThatWasMoved == reverbSlider)
     {
-        //[UserSliderCode_barSizeSlider] -- add your slider handling code here..
-        //[/UserSliderCode_barSizeSlider]
+        //[UserSliderCode_reverbSlider] -- add your slider handling code here..
+        //[/UserSliderCode_reverbSlider]
     }
 
     //[UsersliderValueChanged_Post]
@@ -469,19 +497,19 @@ void AudioApp::initialize(){
     shiftyLooper.setFile(*auxFile);
     waveform->setFile(*auxFile);
     waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
-    
+
     audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
     crudeLoops = lgen::constructLoops(lgen::initAudio(audiofilename));
 
     markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
-    
+
     //currentLoop = &crudeLoops[random.nextInt(crudeLoops.size())];
-    currentLoop = &crudeLoops[1];
-    
+    currentLoop = &crudeLoops[0];
+
     //for (auto& loop : crudeLoops) std::cout << "Start: " << loop.start << " End: " << loop.end << endl;
     shiftyLooper.setPosition(0.0);
-   
-    infoLabel->setText("Sound sample's tempo is: " + String(lgen::bpm), sendNotification);
+
+    infoLabel->setText("System Ready", sendNotification);
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
     shiftyLoopingButton->setEnabled(true);
@@ -489,7 +517,7 @@ void AudioApp::initialize(){
     tempoSlider->setEnabled(true);
     rateSlider->setEnabled(true);
     recordingButton->setEnabled(true);
-    
+
     tableEnabled = true;
 }
 //==============================================================================
@@ -530,7 +558,7 @@ void AudioApp::changeState(TransportState newState){
     if (state != ShiftyLooping) shiftyLooper.setLoopBetweenTimes(false);
     if (state != newState) {
         state = newState;
-        
+
         switch (state) {
             case Starting:
                 printCurrentState(String("Starting..."));
@@ -565,7 +593,6 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 stopButton->setEnabled(false);
                 loopButton->setEnabled(true);
-                //mediaPlayer.setPosition(0.0);
                 shiftyLooper.setPosition(0.0);
                 break;
             case Recording:
@@ -586,9 +613,10 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 //waveform->isShiftyLooping(true);
                 //shiftyLooper.setNextReadPosition(currentLoop->start);
-                shiftyLooper.setLoopBetweenTimes(false);
-                shiftyLooper.stop();
+                //shiftyLooper.setLoopBetweenTimes(false);
+                //shiftyLooper.stop();
                 shifty_looping();
+
                 break;
         }
 
@@ -598,6 +626,7 @@ void AudioApp::changeState(TransportState newState){
 
 
 void AudioApp::shifty_looping(){
+    cout << "Current: " << currentLoop->start << endl;
     if (currentLoop == nullptr){
         changeState(Stopped);
         return;
@@ -625,63 +654,7 @@ void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
         }
     }
 }
-/*
-//==============================================================================
-void AudioApp::shiftyLooping(){
-    //int n = random.nextInt(markov_chain.size() - 1);
-    static int n = 0;
-    currentLoop = &crudeLoops[markov_chain[n]];
-    if (markov_chain.at(n+1) > markov_chain[n]) {
-        shifting = forward = true;
-    } else if (markov_chain.at(n+1) < markov_chain[n]) {
-        shifting = true;
-        forward = false;
-    } else {
-        shifting = false;
-    }
-    infoLabel->setText("Current loop is from: " + String(currentLoop->start) +
-                       " to " + String(currentLoop->end), sendNotification);
-   // waveform->setEndTime(currentLoop->end);
-    playLoop(*currentLoop);
-    if (++n > markov_chain.size()){
-        //generateMarkovChain();
-        n = 0;
-    } else
-        n++;
-}
-//==============================================================================
-void AudioApp::playLoop(Loop& loop){
 
-    if (shifting) {
-        if (forward) {
-            printCurrentState("Shifting Forward");
-            loop = *loop.next;
-            if (loop.prev->end >= loop.end) return;
-            mediaPlayer.setLoopTimes(loop.prev->end, loop.end);
-            mediaPlayer.setPosition(loop.prev->end);
-            mediaPlayer.start();
-            mediaPlayer.setLoopTimes(loop.start, loop.end);
-            return;
-        } else {
-            if (loop.next->start >= loop.end) return;
-            printCurrentState("Shifting Backwards");
-            loop = *loop.prev;
-            mediaPlayer.setLoopTimes(loop.next->start, loop.end);
-            mediaPlayer.setPosition(loop.next->start);
-            mediaPlayer.start();
-            mediaPlayer.setLoopTimes(loop.start, loop.end);
-            return;
-        }
-    } else {
-        std::cout << "Looping" << std::endl;
-        mediaPlayer.setLoopTimes(loop.start, loop.end);
-        mediaPlayer.setPosition(loop.start);
-    }
-
-    if (mediaPlayer.getCurrentPosition() >= currentLoop->end) {
-        timerCallback();
-    }
-}*/
 //==============================================================================
 void AudioApp::startRecording(){
     FileChooser chooser("Save recording as...", File::getSpecialLocation(File::userMusicDirectory),"wav",true);
@@ -705,7 +678,7 @@ void AudioApp::stopRecording(){
 }
 
 void AudioApp::showLoopTable(){
-    
+
     loopTable = new TableWindow("Loop List", Colours::silver, 1, crudeLoops);
 }
 
@@ -742,80 +715,80 @@ BEGIN_JUCER_METADATA
                  fixedSize="1" initialWidth="990" initialHeight="690">
   <BACKGROUND backgroundColour="ff0f0f0f"/>
   <LABEL name="Info Label" id="2fc17cbb62c7782f" memberName="infoLabel"
-         virtualName="" explicitFocusOrder="0" pos="176 552 672 56" bkgCol="ff0d0d0d"
+         virtualName="" explicitFocusOrder="0" pos="168 608 672 56" bkgCol="ff0d0d0d"
          textCol="ff87ee20" edTextCol="ff000000" edBkgCol="0" labelText="Data..."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Apple LiSung" fontsize="17.899999999999998579" bold="0"
          italic="0" justification="36"/>
   <TEXTBUTTON name="Play Button" id="aa045a593e226508" memberName="playButton"
-              virtualName="" explicitFocusOrder="0" pos="352 480 96 32" bgColOff="fff0f8ff"
+              virtualName="" explicitFocusOrder="0" pos="344 536 96 32" bgColOff="fff0f8ff"
               buttonText="Play" connectedEdges="6" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="Stop Button" id="e3f6aa07147c05" memberName="stopButton"
-              virtualName="" explicitFocusOrder="0" pos="446 480 96 32" bgColOff="fff0f8ff"
+              virtualName="" explicitFocusOrder="0" pos="438 536 96 32" bgColOff="fff0f8ff"
               buttonText="Stop" connectedEdges="3" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="Recording" id="f5cdf9e0260e09a2" memberName="recordingButton"
-              virtualName="" explicitFocusOrder="0" pos="540 480 96 32" bgColOff="fff0f8ff"
+              virtualName="" explicitFocusOrder="0" pos="532 536 96 32" bgColOff="fff0f8ff"
               buttonText="Record" connectedEdges="5" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="Loop Button" id="a5b4e832ce1021b5" memberName="loopButton"
-                virtualName="" explicitFocusOrder="0" pos="360 368 120 40" txtcol="ffe8d8d8"
+                virtualName="" explicitFocusOrder="0" pos="352 424 120 40" txtcol="ffe8d8d8"
                 buttonText="Loop Sample" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <SLIDER name="Gain Slider" id="9d008628b8772a4d" memberName="gainSlider"
-          virtualName="" explicitFocusOrder="0" pos="720 392 96 96" thumbcol="ff7fffd4"
+          virtualName="" explicitFocusOrder="0" pos="712 448 96 96" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <LABEL name="Gain Label" id="d9d519cd8dc043ff" memberName="gainLabel"
-         virtualName="" explicitFocusOrder="0" pos="696 512 150 24" textCol="fff0ffff"
+         virtualName="" explicitFocusOrder="0" pos="688 568 150 24" textCol="fff0ffff"
          edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="GAIN"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
          italic="0" justification="36"/>
   <TOGGLEBUTTON name="Shifty Button" id="717b6864ee8b9341" memberName="shiftyLoopingButton"
-                virtualName="" explicitFocusOrder="0" pos="512 368 112 40" txtcol="fff3f3f3"
+                virtualName="" explicitFocusOrder="0" pos="504 424 112 40" txtcol="fff3f3f3"
                 buttonText="Shifty Looping" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
   <GROUPCOMPONENT name="Affects" id="9ab3a0160a4c89f8" memberName="ostinatoGroup"
-                  virtualName="" explicitFocusOrder="0" pos="48 232 280 240" outlinecol="66b8c1da"
+                  virtualName="" explicitFocusOrder="0" pos="40 288 280 240" outlinecol="66b8c1da"
                   textcol="ffd2d2ed" title="Ostinato" textpos="36"/>
   <GROUPCOMPONENT name="PitchTempo" id="6cbab5f86507196" memberName="pitchTempoGropu"
-                  virtualName="" explicitFocusOrder="0" pos="544 240 320 104" outlinecol="66c9cee1"
+                  virtualName="" explicitFocusOrder="0" pos="536 296 320 104" outlinecol="66c9cee1"
                   textcol="ffd0d1df" title=" Pitch and Tempo" textpos="34"/>
   <SLIDER name="SampleRate" id="4efa3000244a03a3" memberName="rateSlider"
-          virtualName="" explicitFocusOrder="0" pos="568 264 64 48" thumbcol="ff7fffd4"
+          virtualName="" explicitFocusOrder="0" pos="560 320 64 48" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <SLIDER name="Pitch" id="f2465aa0b705eb82" memberName="pitchSlider" virtualName=""
-          explicitFocusOrder="0" pos="664 264 64 48" thumbcol="ff7fffd4"
+          explicitFocusOrder="0" pos="656 320 64 48" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
   <SLIDER name="tempo" id="3148e5d6f1593c42" memberName="tempoSlider" virtualName=""
-          explicitFocusOrder="0" pos="760 264 64 48" thumbcol="ff7fffd4"
+          explicitFocusOrder="0" pos="752 320 64 48" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
-  <SLIDER name="Variance" id="d028e9a4b754eaf9" memberName="varianceSlider"
-          virtualName="" explicitFocusOrder="0" pos="168 264 136 16" bkgcol="450707"
+  <SLIDER name="Distortion" id="d028e9a4b754eaf9" memberName="distoritionSlider"
+          virtualName="" explicitFocusOrder="0" pos="160 320 136 24" bkgcol="450707"
           min="0" max="10" int="0" style="LinearHorizontal" textBoxPos="NoTextBox"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
-  <SLIDER name="BarSize" id="2783238b83d804ef" memberName="barSizeSlider"
-          virtualName="" explicitFocusOrder="0" pos="168 312 136 16" bkgcol="450707"
+  <SLIDER name="Reverb" id="2783238b83d804ef" memberName="reverbSlider"
+          virtualName="" explicitFocusOrder="0" pos="160 360 136 16" bkgcol="450707"
           min="1" max="5" int="1" style="LinearHorizontal" textBoxPos="NoTextBox"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <TEXTBUTTON name="ResetLoops" id="5c4e26e3e4d3321a" memberName="reloopButton"
-              virtualName="" explicitFocusOrder="0" pos="88 392 208 32" bgColOff="ff8181ab"
+              virtualName="" explicitFocusOrder="0" pos="80 448 208 32" bgColOff="ff8181ab"
               buttonText="ReLoop" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <LABEL name="Variance Label" id="9fc482ae6cf6733f" memberName="varianceLabel"
-         virtualName="" explicitFocusOrder="0" pos="72 256 72 24" textCol="fff0ffff"
-         edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="Variance"
+  <LABEL name="Distortion Label" id="9fc482ae6cf6733f" memberName="distortionLabel"
+         virtualName="" explicitFocusOrder="0" pos="56 320 88 24" textCol="fff0ffff"
+         edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="Distortion"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
          italic="0" justification="36"/>
-  <LABEL name="BarSize Label" id="17dc27f766753424" memberName="barSizeLabel"
-         virtualName="" explicitFocusOrder="0" pos="72 304 72 24" textCol="fff0ffff"
-         edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="Bar Size"
+  <LABEL name="Reverb Label" id="17dc27f766753424" memberName="reverbLabel"
+         virtualName="" explicitFocusOrder="0" pos="56 352 72 24" textCol="fff0ffff"
+         edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="Reverb"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
          italic="0" justification="36"/>
@@ -837,6 +810,14 @@ BEGIN_JUCER_METADATA
          labelText="Tempo" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Arial" fontsize="13" bold="0"
          italic="0" justification="36"/>
+  <TOGGLEBUTTON name="Chorus Button" id="9c5fb254ae1ad576" memberName="chorusButton"
+                virtualName="" explicitFocusOrder="0" pos="64 392 80 40" txtcol="fff5f5dc"
+                buttonText="Chorus" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                state="0"/>
+  <TOGGLEBUTTON name="Flanger Button" id="ff4e94f2323581b0" memberName="flangerButton"
+                virtualName="" explicitFocusOrder="0" pos="192 392 80 40" txtcol="fff5f5dc"
+                buttonText="Flanger" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

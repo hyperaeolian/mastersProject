@@ -30,6 +30,8 @@
 #include "AudioWaveform.h"
 #include "AudioRecorder.h"
 #include "ProgressWindow.h"
+#include "BufferTransform.h"
+#include "Distortion.h"
 //[/Headers]
 
 
@@ -57,7 +59,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    
+
     enum TransportState{
         Stopped,
         Starting,
@@ -70,7 +72,7 @@ public:
         ShiftyLooping
     };
 
-    
+
     //State Methods
     void changeState(TransportState newState);
     void printCurrentState(String s);
@@ -81,10 +83,10 @@ public:
     void audioFilePlayerSettingChanged(drow::AudioFilePlayer* player, int settingCode) override;
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
-    
+
     void shifty_looping();
-    
-    
+
+
     //Recording
     void startRecording();
     void stopRecording();
@@ -111,19 +113,19 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    
-    
+
+
     essentia::Real Tempo;
     File* auxFile;
     bool tableEnabled;
-    
+
     //Audio Device Vars
     AudioDeviceManager  deviceManager;
     AudioSourcePlayer   sourcePlayer;
     AudioRecorder       recorder;
     //drow::AudioFilePlayerExt mediaPlayer;
     ShiftyLooper shiftyLooper;
-    
+
     //State & Loop Vars
     TransportState state;
     Loop* currentLoop;
@@ -137,6 +139,10 @@ private:
     juce::ScopedPointer<MATRIX> transMat;
     std::vector<int> markov_chain;
 
+    //effects Vars
+    BufferTransform bufferTransform;
+    DistortionEffect distortion;
+
     //Utility Vars
     float gain;
     juce::Random random;
@@ -148,7 +154,7 @@ private:
     CustomLookAndFeel* design;
     ScopedPointer<Waveform> waveform;
     ScopedPointer<ImageComponent> backgroundImage;
-    
+
     //[/UserVariables]
 
     //==============================================================================
@@ -165,14 +171,16 @@ private:
     ScopedPointer<Slider> rateSlider;
     ScopedPointer<Slider> pitchSlider;
     ScopedPointer<Slider> tempoSlider;
-    ScopedPointer<Slider> varianceSlider;
-    ScopedPointer<Slider> barSizeSlider;
+    ScopedPointer<Slider> distoritionSlider;
+    ScopedPointer<Slider> reverbSlider;
     ScopedPointer<TextButton> reloopButton;
-    ScopedPointer<Label> varianceLabel;
-    ScopedPointer<Label> barSizeLabel;
+    ScopedPointer<Label> distortionLabel;
+    ScopedPointer<Label> reverbLabel;
     ScopedPointer<Label> rateLabel;
     ScopedPointer<Label> pitchLabel;
     ScopedPointer<Label> tempoLabel;
+    ScopedPointer<ToggleButton> chorusButton;
+    ScopedPointer<ToggleButton> flangerButton;
 
 
     //==============================================================================

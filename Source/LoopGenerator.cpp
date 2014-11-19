@@ -32,8 +32,8 @@ void LoopGenerator::createLoopPoints(){
                 std::swap(curr.start, curr.end);
             if (curr.start * SR > AudioBuffer.size())
                 continue;
-            curr.head = static_cast<int>(curr.start * SR);
-            curr.tail = curr.end * SR > AudioBuffer.size() ? AudioBuffer.size() :
+            curr.sampsStart = static_cast<int>(curr.start * SR);
+            curr.sampsEnd = curr.end * SR > AudioBuffer.size() ? AudioBuffer.size() :
                                                              static_cast<int>(curr.end * SR);
             _Loops.push_back(curr);
         } else
@@ -76,6 +76,7 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
 //namespace (non-member) convenience functions
     
     bool audioBuffered;
+    _REAL bpm;
     
 //==========================Buffer Audio========================================
     VEC_REAL initAudio(const std::string audiofilename){
@@ -95,16 +96,16 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
     }
     
 //==========================Compute Loops=======================================
-    std::vector<Loop> constructLoops(const std::vector<_REAL>& buffer){
-    
+    std::vector<Loop> constructLoops(const VEC_REAL& buffer){
+
         if (lgen::audioBuffered){
             FeatureExtractor xtractor(buffer);
             //Can use either onsets or beats as loop points
             //xtractor.findOnsets();
-            xtractor.findBeats();
-
+            //xtractor.findBeats();
+            xtractor.computeFeaturesForBuffer();
             LoopGenerator loopGen(buffer, xtractor.getBeats());
-
+            
             loopGen.createLoopPoints();
             loopGen.connectLoops();
             

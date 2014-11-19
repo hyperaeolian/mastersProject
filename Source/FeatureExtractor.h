@@ -52,13 +52,13 @@ public:
     ~FeatureExtractor();
     
     //allow for alternate delimiters
-    //virtual void findDelimiters() = 0;
+    //virtual void findDelimiters();
     
-    void findOnsets();
-    void findBeats();
+    //void findOnsets();
+   // void findBeats();
+    void computeFeaturesForBuffer();
     void computeFeaturesForLoop(Loop& loop);
     
-    Real getTempo()               const { return bpm; }
     VEC_REAL getOnsets() const { return onsets; }
     VEC_REAL getBeats()  const { return beats; }
     
@@ -68,7 +68,6 @@ private:
     VEC_REAL onsets, beats;
     const int SR, FrameSize, HopSize;
     bool successfulExtraction;
-    Real bpm;
     
     FeatureExtractor();
     FeatureExtractor(const FeatureExtractor&);

@@ -18,9 +18,14 @@
 #include "algorithmfactory.h"
 #include "ProgressWindow.h"
 
+typedef essentia::Real _REAL;
+typedef std::vector<essentia::Real> VEC_REAL;
+
 struct Loop {
-    float start, end;
-    int head, tail;
+    //float start, end;
+    _REAL start, end;
+    int sampsStart, sampsEnd;
+    
     Loop* prev;
     Loop* next;
     essentia::Pool bin;
@@ -38,9 +43,6 @@ struct Loop {
     
     
 };
-
-typedef essentia::Real _REAL;
-typedef std::vector<essentia::Real> VEC_REAL;
 
 namespace lgen{
 
@@ -74,7 +76,7 @@ private:
 };
     
 //namespace (non-member) helper functions
-    static _REAL bpm;
+    
     VEC_REAL initAudio(const std::string audiofilename);
     std::vector<Loop> constructLoops(const VEC_REAL& buffer);
     
