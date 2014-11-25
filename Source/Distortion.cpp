@@ -10,8 +10,7 @@
 
 #include "Distortion.h"
 
-DistortionEffect::DistortionEffect(drow::Buffer& bufferToControl, ScopedPointer<Slider>& _distortionSlider)
-: distortionSlider(_distortionSlider), buffer(bufferToControl)
+DistortionEffect::DistortionEffect(drow::Buffer& bufferToControl) : buffer(bufferToControl)
 {
     buffer.addListener(this);
     distortionAmount = 0.0f;
@@ -21,19 +20,19 @@ DistortionEffect::~DistortionEffect(){
     buffer.removeListener(this);
 }
 
+void DistortionEffect::setDistortionAmount(float da){
+    distortionAmount = da;
+    std::cout << "Distortion Amount: " << distortionAmount << std::endl;
+}
+
 void DistortionEffect::bufferChanged(drow::Buffer* changedBuffer){
     if (changedBuffer == &buffer) {
-        
+       // refillBuffer();
     }
 }
 
-void DistortionEffect::sliderValueChanged(juce::Slider *slider){
-    if (slider == distortionSlider){
-        distortionAmount = slider->getValue();
-    }
-}
 
-void DistortionEffect::refillBuffer(float xn){
+void DistortionEffect::refillBuffer(){
     float* bufferData = buffer.getData();
     const int bufferSize = buffer.getSize();
     const float bufferScale = 1.0f / float(bufferSize);

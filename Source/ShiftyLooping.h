@@ -22,17 +22,6 @@ public:
     ShiftyLooper(){}
     ~ShiftyLooper(){}
 
-    void shiftyLooping(bool forward, double init, double start, double end){
-        assert(init < end && start < end);
-        if (forward){
-            /* PUT THIS IS AUDIOAPP TRANSPORTSTATE */
-//            this->setLoopTimes(start, end);
-//            this->setNextReadPosition(int64(init));
-//            this->setLoopBetweenTimes(true);
-    
-        } 
-    }
-    
     
     
     //drow

@@ -109,6 +109,8 @@ public:
     static const int knob_pngSize;
     static const char* background_png;
     static const int background_pngSize;
+    static const char* shiftyLoopingSplashScreen_png;
+    static const int shiftyLoopingSplashScreen_pngSize;
 
 
 private:
@@ -171,7 +173,7 @@ private:
     ScopedPointer<Slider> rateSlider;
     ScopedPointer<Slider> pitchSlider;
     ScopedPointer<Slider> tempoSlider;
-    ScopedPointer<Slider> distoritionSlider;
+    ScopedPointer<Slider> distortionSlider;
     ScopedPointer<Slider> reverbSlider;
     ScopedPointer<TextButton> reloopButton;
     ScopedPointer<Label> distortionLabel;

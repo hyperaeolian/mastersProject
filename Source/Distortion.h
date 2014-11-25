@@ -13,21 +13,19 @@
 
 #include "JuceHeader.h"
 
-class DistortionEffect : drow::Buffer::Listener, SliderListener {
+class DistortionEffect : drow::Buffer::Listener{
 public:
-    DistortionEffect(drow::Buffer& bufferToControl, ScopedPointer<Slider>& _distortionSlider);
+    explicit DistortionEffect(drow::Buffer& bufferToControl);
     ~DistortionEffect();
     
     void bufferChanged(drow::Buffer* changedBuffer);
     void resetBuffer();
-    
-    void sliderValueChanged(Slider* slider);
+    void setDistortionAmount(float da);
     
 private:
-    juce::ScopedPointer<Slider> distortionSlider;
     drow::Buffer& buffer;
     
-    void refillBuffer(float xn);
+    void refillBuffer();
     float distortionAmount;
 };
 
