@@ -20,8 +20,14 @@ public:
         font(14.0f), loopData(loops)
     {
         loadData();
-            columnList = {"Loop", "Start", "End", "Length",
-                          "Duration (s)", "Audition", "Discard"};
+        columnList.push_back("Loop");
+        columnList.push_back("Start");
+        columnList.push_back("End");
+        columnList.push_back("Duration");
+        columnList.push_back("Audition");
+        columnList.push_back("Discard");
+        columnList.push_back("Length");
+      
             //Create table and add it to this component
             addAndMakeVisible(table);
             table.setModel(this);

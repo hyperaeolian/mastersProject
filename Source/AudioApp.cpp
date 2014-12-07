@@ -611,11 +611,7 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 //waveform->isShiftyLooping(true);
-                //shiftyLooper.setNextReadPosition(currentLoop->start);
-                //shiftyLooper.setLoopBetweenTimes(false);
-                //shiftyLooper.stop();
                 shifty_looping();
-
                 break;
         }
 

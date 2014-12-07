@@ -17,27 +17,19 @@ class BufferTransform :  public AudioSource
 {
 public:
     //==============================================================================
-    BufferTransform (AudioSource* source,
-                                bool deleteSourceWhenDeleted = false);
-    
-    /** Destructor. */
+    BufferTransform (AudioSource* source, bool deleteSourceWhenDeleted = false);
     ~BufferTransform();
     
     /** Setting this to true does not apply the buffer. */
     void setBypass (bool shouldBypass);
     
-    /** Returns all of the settings.
-     */
-    drow::Buffer& getBuffer()     {   return buffer;    }
+    /** Returns all of the settings. */
+    drow::Buffer& getBuffer(){   return buffer;    }
     
-    //==============================================================================
+
     /** @internal. */
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
-    
-    /** @internal. */
     void releaseResources();
-    
-    /** @internal. */
     void getNextAudioBlock (const AudioSourceChannelInfo& info);
     
 private:

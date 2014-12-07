@@ -29,14 +29,14 @@
         <FILE id="L9N4kP" name="MarkovChain.cpp" compile="1" resource="0" file="Source/MarkovChain.cpp"/>
       </GROUP>
       <GROUP id="{E5723B1C-AECA-E231-5E75-1A1728663DFA}" name="effects">
-        <FILE id="q5Wfys" name="Distortion.cpp" compile="1" resource="0" file="Source/Distortion.cpp"/>
-        <FILE id="aZeIjU" name="Distortion.h" compile="0" resource="0" file="Source/Distortion.h"/>
-        <FILE id="VEQq7q" name="BufferTransform.cpp" compile="1" resource="0"
-              file="Source/BufferTransform.cpp"/>
         <FILE id="Qf2Esn" name="BufferTransform.h" compile="0" resource="0"
               file="Source/BufferTransform.h"/>
-        <FILE id="OwnLFw" name="Delay.cpp" compile="1" resource="0" file="Source/Delay.cpp"/>
+        <FILE id="VEQq7q" name="BufferTransform.cpp" compile="1" resource="0"
+              file="Source/BufferTransform.cpp"/>
         <FILE id="h7uHYm" name="Delay.h" compile="0" resource="0" file="Source/Delay.h"/>
+        <FILE id="OwnLFw" name="Delay.cpp" compile="1" resource="0" file="Source/Delay.cpp"/>
+        <FILE id="aZeIjU" name="Distortion.h" compile="0" resource="0" file="Source/Distortion.h"/>
+        <FILE id="q5Wfys" name="Distortion.cpp" compile="1" resource="0" file="Source/Distortion.cpp"/>
       </GROUP>
       <GROUP id="{A0E85984-9B1A-0199-299F-3F19A6CFB6A0}" name="matrix">
         <FILE id="vga2Nf" name="VECTOR.cpp" compile="1" resource="0" file="../../Coursework/patternformation/cymatics/VECTOR.cpp"/>

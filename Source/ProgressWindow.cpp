@@ -14,6 +14,7 @@ BackgroundThread::BackgroundThread(const int N, const std::vector<std::string> v
      ThreadWithProgressWindow("Progress", true, true), numFeatures(N)
     {
         std::vector<std::string> keys = {"title", "init","remaining", "cleanUp", "cancel", "success" };
+        //for (int i = 0; i < 6; ++i) { keys.push_back(s[i]); }
         for (int i = 0; i < keys.size(); ++i){
             statusMsgs.set(keys[i], vals[i]);
         }

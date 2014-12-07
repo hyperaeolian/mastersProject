@@ -19,28 +19,6 @@
 #include "algorithmfactory.h"
 
 
-/* ===========================================================================*//*
-|               [List of features]                                              |
-|                                                                               |
-| Rhythm:                                                                       |
-|    Tempogram, onsetTimes, Beats, beatIntervals                                |
-| ----------------------------------------------------------------------------- |
-| Dynamics:                                                                     |
-|    dynamicRangeCoeff, RMS, Loudness                                           |
-| ----------------------------------------------------------------------------- |
-| Timbre:                                                                        |
-|    mfccBands, mfccCoeffs, centroid                                            |
-| ----------------------------------------------------------------------------- |
-| Tonal:                                                                        |
-|    Chords:                                                                    |
-|        changeRate, numberRate, key, scale, histogram, strength, progression   |
-|    Key:                                                                       |
-|        scale, key                                                             |
-|    Pitch:                                                                     |
-|        hpcp, hpcpHighRes                                                      |
-|                                                                               |
-*//*=========================================================================== */
-
 
 using namespace essentia;
 using namespace essentia::standard;

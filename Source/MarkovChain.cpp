@@ -106,9 +106,11 @@ std::vector<int> MarkovChain::markov(const MATRIX& transMat, int num_iters, int 
     std::vector<int> generateMarkovChain(const std::vector<Loop>& loops, int itr, int start){
         std::vector<int> chain;
         
-        std::vector<std::string> vals = {"Foo", "Preparing for Analysis", " distances to calculate",
+        std::vector<std::string> vals;
+        string s[] = {"Foo", "Preparing for Analysis", " distances to calculate",
             "Finding similarity", "You canceled the similarity calculation",
             "Similary Metrics Complete!"};
+        for (int i = 0; i < 6; ++i) vals.push_back(s[i]);
         
         BackgroundThread simThread(loops.size(), vals);
         if (simThread.runThread()){
