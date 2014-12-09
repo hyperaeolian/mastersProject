@@ -52,7 +52,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/AudioApp.cpp"
-            timestampString = "438572353.739404"
+            timestampString = "439831023.698582"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "481"
@@ -66,11 +66,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/AudioApp.cpp"
-            timestampString = "438572416.39745"
+            timestampString = "439831023.698582"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "528"
-            endingLineNumber = "528"
+            startingLineNumber = "536"
+            endingLineNumber = "536"
             landmarkName = "AudioApp::openAudioSettings()"
             landmarkType = "5">
          </BreakpointContent>

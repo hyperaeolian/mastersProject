@@ -19,19 +19,18 @@
 
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
-#include "LoopList.cpp"
 //[/Headers]
 
 #include "AudioApp.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-ScopedPointer<TableWindow> loopTable;
+//ScopedPointer<TableWindow> loopTable;
 //[/MiscUserDefs]
 
 //==============================================================================
 AudioApp::AudioApp ()
-    : MarkovIterations(15),bufferTransform(&shiftyLooper), distortion(bufferTransform.getBuffer()), stream(background_png, background_pngSize, false)
+    : MarkovIterations(15),bufferTransform(&shiftyLooper, true), distortion(bufferTransform.getBuffer()), stream(background_png, background_pngSize, false)
 {
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data...")));
@@ -294,7 +293,8 @@ AudioApp::~AudioApp()
 
     //[Destructor]. You can add your own custom destruction code here..
     stopTimer();
-    if (tableEnabled) loopTable = nullptr;
+    //if (tableEnabled) loopTable = nullptr;
+    //loopTable = nullptr;
     backgroundImage = nullptr;
     similarity = nullptr;
     transMat = nullptr;
@@ -303,8 +303,8 @@ AudioApp::~AudioApp()
     shiftyLooper.removeListener(this);
     deviceManager.removeAudioCallback(&recorder);
     //deviceManager.removeAudioCallback(looper);
-    delete design;
-    delete auxFile;
+    design = nullptr;
+    auxFile = nullptr;
     //[/Destructor]
 }
 
@@ -496,18 +496,27 @@ void AudioApp::initialize(){
     shiftyLooper.setFile(*auxFile);
     waveform->setFile(*auxFile);
     waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
-
-    audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
-    crudeLoops = lgen::constructLoops(lgen::initAudio(audiofilename));
-
-    markov_chain = mkov::generateMarkovChain(crudeLoops, MarkovIterations, random.nextInt(crudeLoops.size()));
-
-    //currentLoop = &crudeLoops[random.nextInt(crudeLoops.size())];
-    currentLoop = &crudeLoops[0];
-
-    //for (auto& loop : crudeLoops) std::cout << "Start: " << loop.start << " End: " << loop.end << endl;
+    
+    std::vector<std::string> vals = {
+        "Foo", "Preparing for Analysis", " remaining loops to analyze",
+        "Analyzing audio", "You canceled the analysis",
+        "Analysis Complete!"
+    };
+   
+    BackgroundThread progressWindow(10,vals);
+    if (progressWindow.runThread()){
+        audiofilename = static_cast<std::string>(auxFile->getFullPathName().toUTF8());
+        createdLoops  = lgen::constructLoops(lgen::initAudio(audiofilename));
+        markov_chain  = mkov::generateMarkovChain(createdLoops, MarkovIterations,
+                                                 random.nextInt(createdLoops.size()));
+        currentLoop   = &createdLoops[random.nextInt(createdLoops.size())];
+    } else
+        progressWindow.threadComplete(true);
     shiftyLooper.setPosition(0.0);
 
+    LoopTableData data(createdLoops);
+    data.print();
+    
     infoLabel->setText("System Ready", sendNotification);
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
@@ -561,8 +570,7 @@ void AudioApp::changeState(TransportState newState){
         switch (state) {
             case Starting:
                 printCurrentState(String("Starting..."));
-                //shiftyLooper.start();
-                shiftyLooper.startFromZero();
+                shiftyLooper.start();
                 break;
             case Playing:
                 printCurrentState(String("Playing..."));
@@ -622,17 +630,17 @@ void AudioApp::changeState(TransportState newState){
 
 void AudioApp::shifty_looping(){
     cout << "Current: " << currentLoop->start << endl;
-    if (currentLoop == nullptr){
-        changeState(Stopped);
-        return;
-    } else {
-        shiftyLooper.setLoopTimes(currentLoop->start, currentLoop->end);
-        shiftyLooper.setLoopBetweenTimes(true);
-        shiftyLooper.start();
-        currentLoop++;
-        changeState(ShiftyLooping);
-        shifty_looping();
-    }
+//    if (currentLoop == nullptr){
+//        changeState(Stopped);
+//        return;
+//    } else {
+//        shiftyLooper.setLoopTimes(currentLoop->start, currentLoop->end);
+//        shiftyLooper.setLoopBetweenTimes(true);
+//        shiftyLooper.start();
+//        currentLoop++;
+//        changeState(ShiftyLooping);
+//        shifty_looping();
+//    }
 }
 
 //==============================================================================
@@ -658,7 +666,8 @@ void AudioApp::startRecording(){
         recorder.startRecording(file);
         recordingButton->setButtonText("Stop Recording");
     } else if (chooser.browseForFileToSave(false)){
-        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "File chooser", "Your playback will NOT record.");
+        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "File chooser",
+                                         "Your playback will NOT record.");
         changeState(Stopped);
         return;
     } else {
@@ -674,7 +683,7 @@ void AudioApp::stopRecording(){
 
 void AudioApp::showLoopTable(){
 
-    loopTable = new TableWindow("Loop List", Colours::silver, 1, crudeLoops);
+   // loopTable = new TableWindow("Loop List", Colours::silver, 1, createdLoops);
 }
 
 //==============================================================================

@@ -106,22 +106,22 @@ std::vector<int> MarkovChain::markov(const MATRIX& transMat, int num_iters, int 
     std::vector<int> generateMarkovChain(const std::vector<Loop>& loops, int itr, int start){
         std::vector<int> chain;
         
-        std::vector<std::string> vals;
-        string s[] = {"Foo", "Preparing for Analysis", " distances to calculate",
-            "Finding similarity", "You canceled the similarity calculation",
-            "Similary Metrics Complete!"};
-        for (int i = 0; i < 6; ++i) vals.push_back(s[i]);
+//        std::vector<std::string> vals;
+//        string s[] = {"Foo", "Preparing for Analysis", " distances to calculate",
+//            "Finding similarity", "You canceled the similarity calculation",
+//            "Similary Metrics Complete!"};
+//        for (int i = 0; i < 6; ++i) vals.push_back(s[i]);
         
-        BackgroundThread simThread(loops.size(), vals);
-        if (simThread.runThread()){
+        //BackgroundThread simThread(loops.size(), vals);
+        //if (simThread.runThread()){
             int row = loops.size(), col = loops.size();
             MATRIX mat(row, col);
             MarkovChain markovChain(loops, mat, row, col);
             markovChain.computeDistances();
             MATRIX transMatrix(markovChain.computeTransitionMatrix());
             chain = markovChain.markov(transMatrix, itr, start);
-        } else
-            simThread.threadComplete(true);
+        //} else
+        //    simThread.threadComplete(true);
         
         return chain;
     }

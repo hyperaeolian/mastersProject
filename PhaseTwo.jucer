@@ -50,7 +50,9 @@
               file="Source/AudioWaveform.cpp"/>
         <FILE id="qsHRp4" name="Design.h" compile="0" resource="0" file="Source/Design.h"/>
         <FILE id="JndRVd" name="Design.cpp" compile="1" resource="1" file="Source/Design.cpp"/>
-        <FILE id="C0KyhE" name="LoopList.cpp" compile="1" resource="0" file="Source/LoopList.cpp"/>
+        <FILE id="ICsL1y" name="LoopDatabase.h" compile="0" resource="0" file="Source/LoopDatabase.h"/>
+        <FILE id="N8EIUg" name="LoopDatabase.cpp" compile="1" resource="0"
+              file="Source/LoopDatabase.cpp"/>
         <FILE id="KkCrp7" name="ProgressWindow.h" compile="0" resource="0"
               file="Source/ProgressWindow.h"/>
         <FILE id="jaAwcT" name="ProgressWindow.cpp" compile="1" resource="0"

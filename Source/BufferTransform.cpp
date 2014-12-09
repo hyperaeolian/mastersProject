@@ -11,7 +11,7 @@
 #include "BufferTransform.h"
 
 BufferTransform::BufferTransform(AudioSource* source_, bool deleteSourceWhenDeleted)
-    : source (source_, deleteSourceWhenDeleted), buffer (512)
+    : source (source_, deleteSourceWhenDeleted), buffer (512), wasUsed(false)
 {
     jassert (source_ != nullptr);
     
@@ -24,6 +24,7 @@ BufferTransform::BufferTransform(AudioSource* source_, bool deleteSourceWhenDele
 
 BufferTransform::~BufferTransform()
 {
+    
 }
 
 void BufferTransform::setBypass (bool shouldBypass)
@@ -38,7 +39,8 @@ void BufferTransform::prepareToPlay (int samplesPerBlockExpected, double sampleR
 
 void BufferTransform::releaseResources()
 {
-    source->releaseResources();
+    if (wasUsed)
+        source->releaseResources();
 }
 
 void BufferTransform::getNextAudioBlock (const AudioSourceChannelInfo& info)
@@ -68,4 +70,5 @@ void BufferTransform::getNextAudioBlock (const AudioSourceChannelInfo& info)
             }
         }
     }
+    wasUsed = true;
 }

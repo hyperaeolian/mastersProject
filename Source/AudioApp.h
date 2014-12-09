@@ -32,6 +32,7 @@
 #include "ProgressWindow.h"
 #include "BufferTransform.h"
 #include "Distortion.h"
+#include "LoopDatabase.h"
 //[/Headers]
 
 
@@ -39,9 +40,7 @@
 //==============================================================================
 /**
                                                                     //[Comments]
- TO DO:
-    Restructure program: use these separate components for the synthesis, analysis,
-    and GUI
+
 
                                                                     //[/Comments]
 */
@@ -115,7 +114,6 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    //DelayEffect delay;
 
     essentia::Real Tempo;
     File* auxFile;
@@ -131,7 +129,7 @@ private:
     //State & Loop Vars
     TransportState state;
     Loop* currentLoop;
-    std::vector<Loop> crudeLoops;
+    std::vector<Loop> createdLoops;
     bool shifting, forward;
     std::string audiofilename;
 

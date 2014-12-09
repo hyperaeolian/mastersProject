@@ -36,7 +36,7 @@ private:
     //==============================================================================
     OptionalScopedPointer<AudioSource> source;
     drow::Buffer buffer;
-    bool isBypassed;
+    bool isBypassed, wasUsed;
     
     //==============================================================================
 
