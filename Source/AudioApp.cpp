@@ -19,13 +19,14 @@
 
 //[Headers] You can add your own extra header files here...
 #include "MainComponent.h"
+#include "LoopDatabase.h"
 //[/Headers]
 
 #include "AudioApp.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-//ScopedPointer<TableWindow> loopTable;
+//ScopedPointer<LoopTableData> loopDatabase;
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -258,6 +259,10 @@ AudioApp::AudioApp ()
     state = Stopped;
     gain = 1.0;
 
+    if (DEBUG_THIS){
+        auxFile = new File("/Users/milrob/Music/samples/conga.wav");
+        initialize();
+    }
     //[/Constructor]
 }
 
@@ -513,9 +518,6 @@ void AudioApp::initialize(){
     } else
         progressWindow.threadComplete(true);
     shiftyLooper.setPosition(0.0);
-
-    LoopTableData data(createdLoops);
-    data.print();
     
     infoLabel->setText("System Ready", sendNotification);
     playButton->setEnabled(true);
@@ -682,8 +684,26 @@ void AudioApp::stopRecording(){
 }
 
 void AudioApp::showLoopTable(){
-
-   // loopTable = new TableWindow("Loop List", Colours::silver, 1, createdLoops);
+    if (tableEnabled){
+        DialogWindow::LaunchOptions options;
+        LoopTableData database(createdLoops);
+        
+        options.content.setOwned(database.getTableComponent());
+        
+        Rectangle<int> area (0, 0, this->getWidth()-50, this->getHeight()-50);
+        options.content->setSize (area.getWidth(), area.getHeight());
+        
+        options.dialogTitle                   = "Database of Loops";
+        options.dialogBackgroundColour        = Colour(Colours::mediumslateblue);
+        options.escapeKeyTriggersCloseButton  = true;
+        options.useNativeTitleBar             = true;
+        options.resizable                     = true;
+       
+        const RectanglePlacement placement (RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
+        
+        DialogWindow* dw = options.launchAsync();
+        dw->centreWithSize(area.getWidth(), area.getHeight());
+    }
 }
 
 //==============================================================================

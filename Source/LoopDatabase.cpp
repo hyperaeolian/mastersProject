@@ -10,47 +10,194 @@
 
 #include "LoopDatabase.h"
 
+const Identifier LoopTableData::databaseID = "Database";
+
 const Identifier LoopTableData::loopId  = "Loops";
-    const Identifier LoopTableData::startId = "Start";
-    const Identifier LoopTableData::endId   = "End";
-    const Identifier LoopTableData::durId   = "Duration";
-const Identifier LoopTableData::actId   = "LoopObj";
-    const Identifier LoopTableData::audId   = "Audition";
-    const Identifier LoopTableData::disId   = "Discard";
-    const Identifier LoopTableData::lenId   = "Length";
+const Identifier LoopTableData::startId = "Start";
+const Identifier LoopTableData::endId   = "End";
+const Identifier LoopTableData::durId   = "Duration";
+const Identifier LoopTableData::objId   = "LoopObj";
+const Identifier LoopTableData::audId   = "Audition";
+const Identifier LoopTableData::disId   = "Discard";
+const Identifier LoopTableData::lenId   = "Length";
 
-LoopTableData::LoopTableData(const std::vector<Loop>& _loops) : loops(_loops){
-    loopData = ValueTree(loopId);
-    loopData.setProperty(loopId, String("Loop"), &undo);
-    loopData.setProperty(startId, String("Start Time"), &undo);
-    loopData.setProperty(endId, String("End Time"), &undo);
-    loopData.setProperty(durId, String("Duration (secs)"), &undo);
-    loopData.setProperty(lenId, String("Samples"), &undo);
-    loopData.setProperty(audId, String("Audition"), &undo);
-    loopData.setProperty(disId, String("Discard"), &undo);
+const Identifier LoopTableData::colTitle  = "Columns";
+const Identifier LoopTableData::colTitle2  = "Column";
+const Identifier LoopTableData::colId  = "columnId";
+const Identifier LoopTableData::colName = "name";
+const Identifier LoopTableData::colWidth = "width";
+
+LoopTableData::LoopTableData(const std::vector<Loop>& _loops) : font(14.0f),
+    loops(_loops)
+
+{
+    std::cout << "Constructor" << std::endl;
+    loopData  = ValueTree(loopId);
+    columns   = ValueTree(colTitle);
+    _database = ValueTree(databaseID);
+    
+    createXmlFromLoopInfo();
+    
+    addAndMakeVisible(table);
+    table.setModel(this);
+    table.setColour(ListBox::outlineColourId, Colours::grey);
+    table.setOutlineThickness(1);
+    
+    configureTable();
+    
+    width = 50;
+    
+    
 }
-
 
 LoopTableData::~LoopTableData(){
     dataList = nullptr;
     columnList = nullptr;
 }
 
+void LoopTableData::configureTable(){
+    
+    forEachXmlChildElement(*columnList, columnXml){
+        
+        table.getHeader().addColumn(columnXml->getStringAttribute("name"),
+                                    columnXml->getIntAttribute("columnId"),
+                                    columnXml->getIntAttribute("width"), 50, 400,
+                                    TableHeaderComponent::defaultFlags);
+    }
 
-void LoopTableData::extract_loop_info(){
+    table.getHeader().setSortColumnId(1, true);
+    table.getHeader().setColumnVisible(7, false);
+    table.getHeader().setStretchToFitActive(true);
+    table.setMultipleSelectionEnabled(true);
+}
+
+int LoopTableData::getNumRows(){ return numRows; }
+
+void LoopTableData::resized(){ table.setBoundsInset(BorderSize<int>(8)); }
+
+void LoopTableData::paintRowBackground(Graphics& g, int, int, int, bool rowIsSelected){
+    if (rowIsSelected) g.fillAll(Colours::lightblue);
+}
+
+void LoopTableData::paintCell(juce::Graphics &g, int rowNumber, int columnId, int width, int height, bool){
+    g.setColour(Colours::black);
+    g.setFont(font);
+    
+    const XmlElement* rowElement = dataList->getChildElement(rowNumber);
+    if (rowElement != 0){
+        const String text(rowElement->getStringAttribute(getAttributeNameForColumnID(columnId)));
+        g.drawText(text, 2, 0, width-4, height, Justification::centredLeft, true);
+    }
+    g.setColour(Colours::black.withAlpha(0.2f));
+    g.fillRect(width-1,0,1,height);
+}
+
+
+void LoopTableData::sortOrderChanged(int newSortColumnId, bool isForwards){
+    if (newSortColumnId != 0){
+        DataSorterUtil sorter(getAttributeNameForColumnID(newSortColumnId), isForwards);
+        dataList->sortChildElements(sorter);
+        table.updateContent();
+    }
+}
+
+Component* LoopTableData::refreshComponentForCell(int rowNumber, int columnId, bool, Component* existingComponentToUpdate){
+    if (columnId == 5) // If it's the ratings column, we'll return our custom component..
+    {
+        RatingColumnCustomComponent* ratingsBox = (RatingColumnCustomComponent*) existingComponentToUpdate;
+        
+        // If an existing component is being passed-in for updating, we'll re-use it, but
+        // if not, we'll have to create one.
+        if (ratingsBox == 0)
+            ratingsBox = new RatingColumnCustomComponent (*this);
+        
+        ratingsBox->setRowAndColumn (rowNumber, columnId);
+        
+        return ratingsBox;
+    }
+    else
+    {
+        // for any other column, just return 0, as we'll be painting these columns directly.
+        
+        jassert (existingComponentToUpdate == 0);
+        return 0;
+    }
+}
+
+int LoopTableData::getColumnAutoSizeWidth(int columnId){
+    if (columnId == 6 || columnId == 7) return 100;
+    int widest = 32;
+    for (int i = getNumRows(); --i >= 0;){
+        const XmlElement* rowElement = dataList->getChildElement (i);
+        if (rowElement != 0){
+            const String text (rowElement->getStringAttribute (getAttributeNameForColumnID (columnId)));
+            widest = jmax (widest, font.getStringWidth (text));
+        }
+    }
+    
+    return widest + 8;
+}
+
+
+void LoopTableData::createXmlFromLoopInfo(){
+    loopData.setProperty(loopId, String("Loop"), &undo);
+    loopData.setProperty(startId,String("Start Time"), &undo);
+    loopData.setProperty(endId, String("End Time"), &undo);
+    loopData.setProperty(durId, String("Duration (secs)"), &undo);
+    loopData.setProperty(lenId, String("Samples"), &undo);
+    loopData.setProperty(audId, String("Audition"), &undo);
+    loopData.setProperty(disId, String("Discard"), &undo);
+    
     for (int i = 0; i < loops.size(); ++ i){
-        ValueTree loop = ValueTree(actId);
+        ValueTree loop = ValueTree(objId);
         loop.setProperty(startId, String(loops[i].start), &undo);
         loop.setProperty(endId, String(loops[i].end), &undo);
         loop.setProperty(durId, String(loops[i].end - loops[i].start), &undo);
         loop.setProperty(lenId, String(44100 * (loops[i].end - loops[i].start)), &undo);
         loopData.addChild(loop, i, &undo);
     }
-
+    
+    std::vector<String> collist = { "ID","Start", "End", "Duration",
+                                    "Length", "Audition", "Discard"  };
+    
+    for (int i = 0; i < numColumns; ++i){
+        ValueTree col = ValueTree(colTitle2);
+        col.setProperty(colId, String(i+1), &undo);
+        col.setProperty(colTitle2, collist[i], &undo);
+        col.setProperty(colWidth, String(width), &undo);
+        columns.addChild(col, i, &undo);
+    }
+    
+    _database.addChild(columns, 1, &undo);
+    _database.addChild(loopData, 2, &undo);
+    
+    DataBase   = _database.createXml();
+    columnList = DataBase->getChildByName("Columns");
+    dataList   = DataBase->getChildByName("Loops");
+    numRows    = dataList->getNumChildElements();
+    
 }
 
-void LoopTableData::convert_to_xml(const ValueTree& info){
-    FileChooser chooser("Save", File::nonexistent, "*.xml");
+
+String LoopTableData::getAttributeNameForColumnID(const int columnID) const {
+    forEachXmlChildElement(*columnList, columnXml){
+        if (columnXml->getIntAttribute("columnId") == columnID) {
+            return columnXml->getStringAttribute("name");
+        }
+    }
+    
+    return String::empty;
+}
+
+
+
+
+
+void LoopTableData::debug(const ValueTree& info){
+    
+  /* FOR DEBUGGING */
+   
+   FileChooser chooser("Save", File::nonexistent, "*.xml");
     if (chooser.browseForFileToSave(false));
         File file(chooser.getResult());
     if (file.existsAsFile()) {
@@ -59,9 +206,5 @@ void LoopTableData::convert_to_xml(const ValueTree& info){
     FileOutputStream stream(file);
     ScopedPointer<XmlElement> info_xml = info.createXml();
     info_xml->writeToStream(stream, String::empty);
-}
-
-void LoopTableData::print(){
-    extract_loop_info();
-    convert_to_xml(loopData);
+   
 }
