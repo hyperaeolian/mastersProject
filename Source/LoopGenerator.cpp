@@ -44,13 +44,11 @@ void LoopGenerator::createLoopPoints(){
 void LoopGenerator::connectLoops(){
     for (int i = 0; i < _Loops.size(); ++i) {
         if (i == 0) {
-            //_Loops[i].prev = &_Loops[i];
             _Loops[i].prev = nullptr;
             _Loops[i].next = &_Loops[1];
         } else if (i == _Loops.size() - 1){
             _Loops[i].prev = &_Loops[i-1];
             _Loops[i].next = nullptr;
-            //_Loops[i].next = &_Loops[i];
         } else {
             _Loops[i].prev = &_Loops[i-1];
             _Loops[i].next = &_Loops[i+1];

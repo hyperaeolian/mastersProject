@@ -20,18 +20,16 @@ const Identifier LoopTableData::objId   = "LoopObj";
 const Identifier LoopTableData::audId   = "Audition";
 const Identifier LoopTableData::disId   = "Discard";
 const Identifier LoopTableData::lenId   = "Length";
-
 const Identifier LoopTableData::colTitle  = "Columns";
-const Identifier LoopTableData::colTitle2  = "Column";
-const Identifier LoopTableData::colId  = "columnId";
-const Identifier LoopTableData::colName = "name";
-const Identifier LoopTableData::colWidth = "width";
+const Identifier LoopTableData::colTitle2 = "Column";
+const Identifier LoopTableData::colId     = "columnId";
+const Identifier LoopTableData::colName   = "name";
+const Identifier LoopTableData::colWidth  = "width";
 
 LoopTableData::LoopTableData(const std::vector<Loop>& _loops) : font(14.0f),
-    loops(_loops)
+    loops(_loops), width(50)
 
 {
-    std::cout << "Constructor" << std::endl;
     loopData  = ValueTree(loopId);
     columns   = ValueTree(colTitle);
     _database = ValueTree(databaseID);
@@ -41,12 +39,15 @@ LoopTableData::LoopTableData(const std::vector<Loop>& _loops) : font(14.0f),
     addAndMakeVisible(table);
     table.setModel(this);
     table.setColour(ListBox::outlineColourId, Colours::grey);
-    table.setOutlineThickness(1);
+    table.setOutlineThickness(1.5);
     
     configureTable();
-    
-    width = 50;
-    
+    table.getHeader().setSortColumnId(1, true);
+    //table.getHeader().setColumnVisible(7, false);
+    table.getHeader().setStretchToFitActive(true);
+    table.setMultipleSelectionEnabled(true);
+    //debug(_database);
+    showTable();
     
 }
 
@@ -58,26 +59,22 @@ LoopTableData::~LoopTableData(){
 void LoopTableData::configureTable(){
     
     forEachXmlChildElement(*columnList, columnXml){
-        
         table.getHeader().addColumn(columnXml->getStringAttribute("name"),
                                     columnXml->getIntAttribute("columnId"),
                                     columnXml->getIntAttribute("width"), 50, 400,
                                     TableHeaderComponent::defaultFlags);
     }
 
-    table.getHeader().setSortColumnId(1, true);
-    table.getHeader().setColumnVisible(7, false);
-    table.getHeader().setStretchToFitActive(true);
-    table.setMultipleSelectionEnabled(true);
 }
 
-int LoopTableData::getNumRows(){ return numRows; }
-
 void LoopTableData::resized(){ table.setBoundsInset(BorderSize<int>(8)); }
+
+
 
 void LoopTableData::paintRowBackground(Graphics& g, int, int, int, bool rowIsSelected){
     if (rowIsSelected) g.fillAll(Colours::lightblue);
 }
+
 
 void LoopTableData::paintCell(juce::Graphics &g, int rowNumber, int columnId, int width, int height, bool){
     g.setColour(Colours::black);
@@ -85,6 +82,7 @@ void LoopTableData::paintCell(juce::Graphics &g, int rowNumber, int columnId, in
     
     const XmlElement* rowElement = dataList->getChildElement(rowNumber);
     if (rowElement != 0){
+       // std::cout << "Col ID: " << String(rowElement->) << std::endl;
         const String text(rowElement->getStringAttribute(getAttributeNameForColumnID(columnId)));
         g.drawText(text, 2, 0, width-4, height, Justification::centredLeft, true);
     }
@@ -101,8 +99,9 @@ void LoopTableData::sortOrderChanged(int newSortColumnId, bool isForwards){
     }
 }
 
+
 Component* LoopTableData::refreshComponentForCell(int rowNumber, int columnId, bool, Component* existingComponentToUpdate){
-    if (columnId == 5) // If it's the ratings column, we'll return our custom component..
+    if (columnId == 6) // If it's the ratings column, we'll return our custom component..
     {
         RatingColumnCustomComponent* ratingsBox = (RatingColumnCustomComponent*) existingComponentToUpdate;
         
@@ -128,9 +127,9 @@ int LoopTableData::getColumnAutoSizeWidth(int columnId){
     if (columnId == 6 || columnId == 7) return 100;
     int widest = 32;
     for (int i = getNumRows(); --i >= 0;){
-        const XmlElement* rowElement = dataList->getChildElement (i);
+        const XmlElement* rowElement = dataList->getChildElement(i);
         if (rowElement != 0){
-            const String text (rowElement->getStringAttribute (getAttributeNameForColumnID (columnId)));
+            const String text(rowElement->getStringAttribute(getAttributeNameForColumnID(columnId)));
             widest = jmax (widest, font.getStringWidth (text));
         }
     }
@@ -140,6 +139,7 @@ int LoopTableData::getColumnAutoSizeWidth(int columnId){
 
 
 void LoopTableData::createXmlFromLoopInfo(){
+    
     loopData.setProperty(loopId, String("Loop"), &undo);
     loopData.setProperty(startId,String("Start Time"), &undo);
     loopData.setProperty(endId, String("End Time"), &undo);
@@ -161,9 +161,9 @@ void LoopTableData::createXmlFromLoopInfo(){
                                     "Length", "Audition", "Discard"  };
     
     for (int i = 0; i < numColumns; ++i){
-        ValueTree col = ValueTree(colTitle2);
+        ValueTree col = ValueTree(colName);
         col.setProperty(colId, String(i+1), &undo);
-        col.setProperty(colTitle2, collist[i], &undo);
+        col.setProperty(colName, collist[i], &undo);
         col.setProperty(colWidth, String(width), &undo);
         columns.addChild(col, i, &undo);
     }
@@ -190,7 +190,25 @@ String LoopTableData::getAttributeNameForColumnID(const int columnID) const {
 }
 
 
-
+void LoopTableData::showTable(){
+    
+    DialogWindow::LaunchOptions options;
+    options.content.setOwned(&table);
+    //std::cout << "Height: " << table.getHeight() << "Width: " << table.getWidth() << std::endl;
+    Rectangle<int> area (0, 0, table.getHeight()+50, table.getWidth()+50);
+    options.content->setSize (area.getWidth(), area.getHeight());
+    
+    options.dialogTitle                   = "Database of Loops";
+    options.dialogBackgroundColour        = Colour(Colours::mediumslateblue);
+    options.escapeKeyTriggersCloseButton  = true;
+    options.useNativeTitleBar             = true;
+    options.resizable                     = true;
+    
+    const RectanglePlacement placement (RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
+    
+    DialogWindow* dw = options.launchAsync();
+    dw->centreWithSize(area.getWidth(), area.getHeight());
+}
 
 
 void LoopTableData::debug(const ValueTree& info){

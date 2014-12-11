@@ -684,25 +684,11 @@ void AudioApp::stopRecording(){
 }
 
 void AudioApp::showLoopTable(){
+    //Other cases where table should be refreshed:
+    //     *new file was loaded
+    //     *new loops were generated
     if (tableEnabled){
-        DialogWindow::LaunchOptions options;
-        LoopTableData database(createdLoops);
-        
-        options.content.setOwned(database.getTableComponent());
-        
-        Rectangle<int> area (0, 0, this->getWidth()-50, this->getHeight()-50);
-        options.content->setSize (area.getWidth(), area.getHeight());
-        
-        options.dialogTitle                   = "Database of Loops";
-        options.dialogBackgroundColour        = Colour(Colours::mediumslateblue);
-        options.escapeKeyTriggersCloseButton  = true;
-        options.useNativeTitleBar             = true;
-        options.resizable                     = true;
-       
-        const RectanglePlacement placement (RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
-        
-        DialogWindow* dw = options.launchAsync();
-        dw->centreWithSize(area.getWidth(), area.getHeight());
+        database = new LoopTableData(createdLoops);
     }
 }
 

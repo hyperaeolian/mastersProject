@@ -13,7 +13,7 @@ namespace BinaryData
     const int            AudioApp_hSize = 5955;
 
     extern const char*   AudioApp_cpp;
-    const int            AudioApp_cppSize = 1820409;
+    const int            AudioApp_cppSize = 1820421;
 
     extern const char*   Design_cpp;
     const int            Design_cppSize = 10307;
