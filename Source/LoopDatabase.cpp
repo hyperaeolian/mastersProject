@@ -25,6 +25,7 @@ const Identifier LoopTableData::colTitle2 = "Column";
 const Identifier LoopTableData::colId     = "columnId";
 const Identifier LoopTableData::colName   = "name";
 const Identifier LoopTableData::colWidth  = "width";
+const Identifier LoopTableData::loopOrd = "ID";
 
 LoopTableData::LoopTableData(const std::vector<Loop>& _loops) : font(14.0f),
     loops(_loops), width(50)
@@ -41,12 +42,12 @@ LoopTableData::LoopTableData(const std::vector<Loop>& _loops) : font(14.0f),
     table.setColour(ListBox::outlineColourId, Colours::grey);
     table.setOutlineThickness(1.5);
     
+   // addAndMakeVisible(saveButton);
+    
     configureTable();
     table.getHeader().setSortColumnId(1, true);
-    //table.getHeader().setColumnVisible(7, false);
     table.getHeader().setStretchToFitActive(true);
     table.setMultipleSelectionEnabled(true);
-    //debug(_database);
     showTable();
     
 }
@@ -69,7 +70,11 @@ void LoopTableData::configureTable(){
 
 void LoopTableData::resized(){ table.setBoundsInset(BorderSize<int>(8)); }
 
-
+void LoopTableData::buttonClicked(Button* button){
+    if (button == saveButton){
+        writeXmlToDisk(_database);
+    }
+}
 
 void LoopTableData::paintRowBackground(Graphics& g, int, int, int, bool rowIsSelected){
     if (rowIsSelected) g.fillAll(Colours::lightblue);
@@ -82,7 +87,6 @@ void LoopTableData::paintCell(juce::Graphics &g, int rowNumber, int columnId, in
     
     const XmlElement* rowElement = dataList->getChildElement(rowNumber);
     if (rowElement != 0){
-       // std::cout << "Col ID: " << String(rowElement->) << std::endl;
         const String text(rowElement->getStringAttribute(getAttributeNameForColumnID(columnId)));
         g.drawText(text, 2, 0, width-4, height, Justification::centredLeft, true);
     }
@@ -101,23 +105,15 @@ void LoopTableData::sortOrderChanged(int newSortColumnId, bool isForwards){
 
 
 Component* LoopTableData::refreshComponentForCell(int rowNumber, int columnId, bool, Component* existingComponentToUpdate){
-    if (columnId == 6) // If it's the ratings column, we'll return our custom component..
-    {
-        RatingColumnCustomComponent* ratingsBox = (RatingColumnCustomComponent*) existingComponentToUpdate;
-        
-        // If an existing component is being passed-in for updating, we'll re-use it, but
-        // if not, we'll have to create one.
-        if (ratingsBox == 0)
-            ratingsBox = new RatingColumnCustomComponent (*this);
-        
-        ratingsBox->setRowAndColumn (rowNumber, columnId);
-        
-        return ratingsBox;
+    if (columnId == 6 || columnId == 7){
+        String buttonName = columnId == 6 ? "Audition" : "Discard";
+        AuditionDiscardComponent* audOrDiscColumn = (AuditionDiscardComponent*) existingComponentToUpdate;
+        if (audOrDiscColumn == 0)
+            audOrDiscColumn = new AuditionDiscardComponent(*this, numColumns, buttonName);
+        audOrDiscColumn->setRowAndColumn (rowNumber, columnId);
+        return audOrDiscColumn;
     }
-    else
-    {
-        // for any other column, just return 0, as we'll be painting these columns directly.
-        
+    else {
         jassert (existingComponentToUpdate == 0);
         return 0;
     }
@@ -150,6 +146,7 @@ void LoopTableData::createXmlFromLoopInfo(){
     
     for (int i = 0; i < loops.size(); ++ i){
         ValueTree loop = ValueTree(objId);
+        loop.setProperty(loopOrd, String(i+1), &undo);
         loop.setProperty(startId, String(loops[i].start), &undo);
         loop.setProperty(endId, String(loops[i].end), &undo);
         loop.setProperty(durId, String(loops[i].end - loops[i].start), &undo);
@@ -193,9 +190,8 @@ String LoopTableData::getAttributeNameForColumnID(const int columnID) const {
 void LoopTableData::showTable(){
     
     DialogWindow::LaunchOptions options;
-    options.content.setOwned(&table);
-    //std::cout << "Height: " << table.getHeight() << "Width: " << table.getWidth() << std::endl;
-    Rectangle<int> area (0, 0, table.getHeight()+50, table.getWidth()+50);
+    options.content.setNonOwned(&table);
+    Rectangle<int> area (0, 0, 600, 450);
     options.content->setSize (area.getWidth(), area.getHeight());
     
     options.dialogTitle                   = "Database of Loops";
@@ -211,9 +207,7 @@ void LoopTableData::showTable(){
 }
 
 
-void LoopTableData::debug(const ValueTree& info){
-    
-  /* FOR DEBUGGING */
+void LoopTableData::writeXmlToDisk(const ValueTree& info){
    
    FileChooser chooser("Save", File::nonexistent, "*.xml");
     if (chooser.browseForFileToSave(false));

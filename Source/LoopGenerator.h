@@ -22,25 +22,13 @@ typedef essentia::Real _REAL;
 typedef std::vector<essentia::Real> VEC_REAL;
 
 struct Loop {
-    //float start, end;
+
     _REAL start, end;
     int sampsStart, sampsEnd;
     
     Loop* prev;
     Loop* next;
     essentia::Pool bin;
-    
-    Loop operator++(int){
-        *this = *this->next;
-        return *this;
-    }
-    
-    Loop operator--(int){
-        *this = *this->prev;
-        return *this;
-    }
-    
-    
     
 };
 

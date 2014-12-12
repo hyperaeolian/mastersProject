@@ -15,8 +15,9 @@
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
 
+#define ForEachButton(array, index) for(int index = 0; index < array.size(); ++index)
 
-class LoopTableData : public Component, public TableListBoxModel {
+class LoopTableData : public Component, public TableListBoxModel, public ButtonListener {
 public:
     explicit LoopTableData(const std::vector<Loop>& _loops);
     ~LoopTableData();
@@ -35,8 +36,12 @@ public:
     void createXmlFromLoopInfo();
     String getAttributeNameForColumnID(const int columnID) const;
     void showTable();
-    void debug(const ValueTree& info);
-    
+    void writeXmlToDisk(const ValueTree& info);
+
+    void buttonClicked(Button* button) override;
+
+   // void addButton(const String&& type);
+
     int getRating (const int rowNumber) const{
         return dataList->getChildElement (rowNumber)->getIntAttribute ("Rating");
     }
@@ -50,7 +55,7 @@ private:
     Font font;
     TableListBox table;
     
-    TextButton* debugButton;
+    TextButton* saveButton;
     
     std::vector<Loop> loops;
     ValueTree _database, loopData, columns;
@@ -66,6 +71,7 @@ private:
 
     static const Identifier databaseID;
     static const Identifier loopId;
+    static const Identifier loopOrd;
     static const Identifier startId;
     static const Identifier endId;
     static const Identifier durId;
@@ -80,67 +86,72 @@ private:
     static const Identifier colWidth;
     
     void configureTable();
-    
-    class RatingColumnCustomComponent : public Component, public ComboBoxListener {
+
+    class AuditionDiscardComponent : public Component, public ButtonListener {
     public:
-        RatingColumnCustomComponent (LoopTableData& owner_)
-        : owner (owner_)
+        AuditionDiscardComponent (LoopTableData& owner_, int rows, String name) :
+            owner (owner_), numButtons(rows), buttonName(name)
         {
-            // just put a combo box inside this component
-            addAndMakeVisible (comboBox);
-            comboBox.addItem ("fab", 1);
-            comboBox.addItem ("groovy", 2);
-            comboBox.addItem ("hep", 3);
-            comboBox.addItem ("neat", 4);
-            comboBox.addItem ("wild", 5);
-            comboBox.addItem ("swingin", 6);
-            comboBox.addItem ("mad for it", 7);
-            
-            // when the combo is changed, we'll get a callback.
-            comboBox.addListener (this);
-            comboBox.setWantsKeyboardFocus (false);
+            for (int i = 0; i < numButtons; ++i){
+                createButton(buttonName);
+            }
         }
-        
-        void resized() override
-        {
-        comboBox.setBoundsInset (BorderSize<int> (2));
-    }
-    
-    // Our demo code will call this when we may need to update our contents
-    void setRowAndColumn (const int newRow, const int newColumn)
-    {
+ 
+        void resized() override {
+            ForEachButton(buttons, index){
+                buttons[index]->setBoundsInset(BorderSize<int>(2));
+            }
+        }
+
+        void buttonClicked(Button* button) override {
+            ForEachButton(buttons, index){
+                if (button == buttons[index]){
+                    std::cout << "Button Pressed: " << index << std::endl;
+                }
+            }
+        }
+
+    void setRowAndColumn (const int newRow, const int newColumn){
         row = newRow;
         columnId = newColumn;
-        comboBox.setSelectedId (owner.getRating (row), dontSendNotification);
+//        comboBox.setSelectedId (owner.getRating (row), dontSendNotification);
     }
-    
-    void comboBoxChanged (ComboBox* /*comboBoxThatHasChanged*/) override {
-    owner.setRating (row, comboBox.getSelectedId());
-}
 
-private:
-LoopTableData& owner;
-ComboBox comboBox;
-int row, columnId;
-};
 
-class DataSorterUtil {
-public:
-    DataSorterUtil(const String attributeToSort_, bool forwards) :
-    attributeToSort(attributeToSort_), direction(forwards ? 1 : -1){}
-    
-    int compareElements(XmlElement* first, XmlElement* second) const {
-        int result = first->getStringAttribute(attributeToSort).
-        compareNatural(second->getStringAttribute(attributeToSort));
-        if (result == 0)
-            result = first->getStringAttribute("ID")
-            .compareNatural(second->getStringAttribute("ID"));
-        return direction * result;
-    }
-private:
-    String attributeToSort;
-    int direction;
-};
+    private:
+        LoopTableData& owner;
+        OwnedArray<TextButton> buttons;
+        int row, columnId;
+        const int numButtons;
+        bool auditionColumn;
+        String buttonName;
+
+        TextButton* createButton(String n){
+            TextButton* button = new TextButton(n);
+            buttons.add(button);
+            addAndMakeVisible(button);
+            button->addListener(this);
+            return button;
+        }
+    };
+
+    class DataSorterUtil {
+    public:
+        DataSorterUtil(const String attributeToSort_, bool forwards) :
+            attributeToSort(attributeToSort_), direction(forwards ? 1 : -1){}
+        
+        int compareElements(XmlElement* first, XmlElement* second) const {
+            int result = first->getStringAttribute(attributeToSort).
+            compareNatural(second->getStringAttribute(attributeToSort));
+            if (result == 0)
+                result = first->getStringAttribute("ID")
+                .compareNatural(second->getStringAttribute("ID"));
+            return direction * result;
+        }
+    private:
+        String attributeToSort;
+        int direction;
+    };
     
 };
 
