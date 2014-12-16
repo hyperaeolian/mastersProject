@@ -42,14 +42,6 @@ public:
 
    // void addButton(const String&& type);
 
-    int getRating (const int rowNumber) const{
-        return dataList->getChildElement (rowNumber)->getIntAttribute ("Rating");
-    }
-    
-    void setRating (const int rowNumber, const int newRating){
-        dataList->getChildElement (rowNumber)->setAttribute ("Rating", newRating);
-    }
-
     
 private:
     Font font;

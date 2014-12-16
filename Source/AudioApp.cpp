@@ -514,7 +514,8 @@ void AudioApp::initialize(){
         createdLoops  = lgen::constructLoops(lgen::initAudio(audiofilename));
         markov_chain  = mkov::generateMarkovChain(createdLoops, MarkovIterations,
                                                  random.nextInt(createdLoops.size()));
-        currentLoop   = &createdLoops[random.nextInt(createdLoops.size())];
+        //currentLoop   = &createdLoops[random.nextInt(createdLoops.size())];
+        currentLoop = &createdLoops[markov_chain[0]];
     } else
         progressWindow.threadComplete(true);
     shiftyLooper.setPosition(0.0);
@@ -621,6 +622,10 @@ void AudioApp::changeState(TransportState newState){
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
                 //waveform->isShiftyLooping(true);
+                shifting = true;
+                //shiftyLooper.setNextReadPosition(currentLoop->end * 44100);
+                //shiftyLooper.start();
+                //startTimer(100);
                 shifty_looping();
                 break;
         }
@@ -631,18 +636,34 @@ void AudioApp::changeState(TransportState newState){
 
 
 void AudioApp::shifty_looping(){
-    cout << "Current: " << currentLoop->start << endl;
-//    if (currentLoop == nullptr){
-//        changeState(Stopped);
-//        return;
-//    } else {
-//        shiftyLooper.setLoopTimes(currentLoop->start, currentLoop->end);
-//        shiftyLooper.setLoopBetweenTimes(true);
-//        shiftyLooper.start();
-//        currentLoop++;
-//        changeState(ShiftyLooping);
-//        shifty_looping();
-//    }
+    static int itr = 1;
+    if (shifting){
+        shiftyLooper.setLoopBetweenTimes(false);
+    //if (shiftyLooper.hasStreamFinished()){
+      //  if (shifting){
+            shiftyLooper.stop();
+           // shiftyLooper.setPosition(0.0);
+            Loop old = createdLoops[markov_chain[itr-1]];
+            Loop newl = createdLoops[markov_chain[itr]];
+            if (old.start > newl.start){
+                cout << "Forward " << endl;
+                shiftyLooper.setLoopTimes(newl.start, newl.end);
+                shiftyLooper.setNextPositionOverride(old.start * 44100);
+            } else {
+                cout << "Back " << endl;
+                shiftyLooper.setLoopTimes(newl.start, newl.end);
+                shiftyLooper.setNextPositionOverride(old.start * 44100);
+            }
+            shiftyLooper.setLoopBetweenTimes(true);
+            shiftyLooper.start();
+        int interval = (newl.end-newl.start)*1000;
+        std::cout << "Interval: " << interval << endl;
+        startTimer(interval);
+            itr++;
+            shifting = false;
+        //}
+    //}
+    }
 }
 
 //==============================================================================
@@ -704,7 +725,10 @@ void AudioApp::audioFilePlayerSettingChanged(drow::AudioFilePlayer* player,
                                              int settingCode){}
 
 
-void AudioApp::timerCallback(){}
+void AudioApp::timerCallback(){
+    shifting = true;
+    shifty_looping();
+}
 
 //[/MiscUserCode]
 
