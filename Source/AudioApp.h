@@ -114,7 +114,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    const bool DEBUG_THIS = true;
+    const bool DEBUG_THIS = false;
     
     essentia::Real Tempo;
     File* auxFile;
