@@ -110,12 +110,14 @@ public:
     static const int background_pngSize;
     static const char* shiftyLoopingSplashScreen_png;
     static const int shiftyLoopingSplashScreen_pngSize;
+    static const char* slsplash_png;
+    static const int slsplash_pngSize;
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     const bool DEBUG_THIS = false;
-    
+
     essentia::Real Tempo;
     File* auxFile;
     bool tableEnabled;

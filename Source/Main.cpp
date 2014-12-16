@@ -21,10 +21,10 @@ public:
 
   
     void initialise (const String& commandLine) override{
-        ScopedPointer<SplashScreen> splash = new SplashScreen("ShiftyLooping",
-                                                              ImageCache::getFromMemory(
-                                                                AudioApp::shiftyLoopingSplashScreen_png,
-                                                                AudioApp::shiftyLoopingSplashScreen_pngSize), true);
+//        ScopedPointer<SplashScreen> splash = new SplashScreen("ShiftyLooping",
+//                                                              ImageCache::getFromMemory(
+//                                                                AudioApp::slsplash_png,
+//                                                                AudioApp::slsplash_pngSize), true);
         // initialization code..
         mainWindow = new MainWindow();
        
