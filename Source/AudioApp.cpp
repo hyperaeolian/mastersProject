@@ -75,7 +75,6 @@ AudioApp::AudioApp ()
     gainSlider->setColour (Slider::trackColourId, Colours::aquamarine);
     gainSlider->setColour (Slider::rotarySliderOutlineColourId, Colour (0xff5959e4));
     gainSlider->addListener (this);
-    gainSlider->setSkewFactor (2);
 
     addAndMakeVisible (gainLabel = new Label ("Gain Label",
                                               TRANS("GAIN")));
@@ -113,7 +112,6 @@ AudioApp::AudioApp ()
     rateSlider->setColour (Slider::trackColourId, Colours::aquamarine);
     rateSlider->setColour (Slider::rotarySliderOutlineColourId, Colour (0xff5959e4));
     rateSlider->addListener (this);
-    rateSlider->setSkewFactor (2);
 
     addAndMakeVisible (pitchSlider = new Slider ("Pitch"));
     pitchSlider->setRange (0, 1, 0.1);
@@ -123,7 +121,6 @@ AudioApp::AudioApp ()
     pitchSlider->setColour (Slider::trackColourId, Colours::aquamarine);
     pitchSlider->setColour (Slider::rotarySliderOutlineColourId, Colour (0xff5959e4));
     pitchSlider->addListener (this);
-    pitchSlider->setSkewFactor (2);
 
     addAndMakeVisible (tempoSlider = new Slider ("tempo"));
     tempoSlider->setRange (0, 1, 0.1);
@@ -133,7 +130,6 @@ AudioApp::AudioApp ()
     tempoSlider->setColour (Slider::trackColourId, Colours::aquamarine);
     tempoSlider->setColour (Slider::rotarySliderOutlineColourId, Colour (0xff5959e4));
     tempoSlider->addListener (this);
-    tempoSlider->setSkewFactor (2);
 
     addAndMakeVisible (distortionSlider = new Slider ("Distortion"));
     distortionSlider->setRange (0, 10, 0);
@@ -246,6 +242,11 @@ AudioApp::AudioApp ()
     rateSlider->setEnabled(false);
     recordingButton->setEnabled(false);
 
+
+//    pitchSlider->setSkewFactorFromMidPoint(0.5);
+//    tempoSlider->setSkewFactorFromMidPoint(0.5);
+//    rateSlider->setSkewFactorFromMidPoint(0.5);
+
     //Audio device setup
     deviceManager.initialise(0, 2, nullptr, true);
     sourcePlayer.setSource(&bufferTransform);
@@ -300,6 +301,7 @@ AudioApp::~AudioApp()
     stopTimer();
     //if (tableEnabled) loopTable = nullptr;
     //loopTable = nullptr;
+
     backgroundImage = nullptr;
     similarity = nullptr;
     transMat = nullptr;
@@ -461,11 +463,17 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == pitchSlider)
     {
         //[UserSliderCode_pitchSlider] -- add your slider handling code here..
+        drow::SoundTouchProcessor::PlaybackSettings settings(shiftyLooper.getPlaybackSettings());
+        settings.pitch = static_cast<float>(pitchSlider->getValue());
+        shiftyLooper.setPlaybackSettings(settings);
         //[/UserSliderCode_pitchSlider]
     }
     else if (sliderThatWasMoved == tempoSlider)
     {
         //[UserSliderCode_tempoSlider] -- add your slider handling code here..
+        drow::SoundTouchProcessor::PlaybackSettings settings(shiftyLooper.getPlaybackSettings());
+        settings.tempo = static_cast<float>(tempoSlider->getValue());
+        shiftyLooper.setPlaybackSettings(settings);
         //[/UserSliderCode_tempoSlider]
     }
     else if (sliderThatWasMoved == distortionSlider)
@@ -503,7 +511,7 @@ void AudioApp::initialize(){
     waveform->setBounds(20, 80, getWidth() - 60, getHeight()/6.0f);
 
     std::vector<std::string> vals = {
-        "Foo", "Preparing for Analysis", " remaining loops to analyze",
+        "Foo", "Preparing for Analysis", " busy...",
         "Analyzing audio", "You canceled the analysis",
         "Analysis Complete!"
     };
@@ -518,8 +526,8 @@ void AudioApp::initialize(){
         currentLoop = &createdLoops[markov_chain[0]];
     } else
         progressWindow.threadComplete(true);
-    shiftyLooper.setPosition(0.0);
 
+    shiftyLooper.setPosition(0.0);
     infoLabel->setText("System Ready", sendNotification);
     playButton->setEnabled(true);
     loopButton->setEnabled(true);
@@ -528,6 +536,24 @@ void AudioApp::initialize(){
     tempoSlider->setEnabled(true);
     rateSlider->setEnabled(true);
     recordingButton->setEnabled(true);
+    
+    drow::SoundTouchProcessor::PlaybackSettings settings(shiftyLooper.getPlaybackSettings());
+    
+    pitchSlider->setRange(0, 2, 0.1);
+    pitchSlider->setValue(settings.pitch);
+    pitchSlider->setSkewFactorFromMidPoint(0.1);
+    tempoSlider->setRange(0, 2, 0.2);
+    tempoSlider->setValue(settings.tempo);
+    tempoSlider->setSkewFactorFromMidPoint(0.1);
+    rateSlider->setRange(0, 2, 0.2);
+    rateSlider->setValue(settings.rate);
+    rateSlider->setSkewFactorFromMidPoint(0.1);
+    gainSlider->setValue(sourcePlayer.getGain() * 0.5);
+
+//    pitchSlider->setValue(0.725);
+//    tempoSlider->setValue(0.725);
+//    rateSlider->setValue(0.725);
+//    gainSlider->setValue(0.5);
 
     tableEnabled = true;
 }
@@ -604,6 +630,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(false);
                 loopButton->setEnabled(true);
                 shiftyLooper.setPosition(0.0);
+                stopTimer();
                 break;
             case Recording:
                 printCurrentState("Recording");
@@ -623,9 +650,6 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 //waveform->isShiftyLooping(true);
                 shifting = true;
-                //shiftyLooper.setNextReadPosition(currentLoop->end * 44100);
-                //shiftyLooper.start();
-                //startTimer(100);
                 shifty_looping();
                 break;
         }
@@ -636,6 +660,7 @@ void AudioApp::changeState(TransportState newState){
 
 
 void AudioApp::shifty_looping(){
+
     static int itr = 1;
     if (shifting){
         shiftyLooper.setLoopBetweenTimes(false);
@@ -644,21 +669,21 @@ void AudioApp::shifty_looping(){
             shiftyLooper.stop();
            // shiftyLooper.setPosition(0.0);
             Loop old = createdLoops[markov_chain[itr-1]];
-            Loop newl = createdLoops[markov_chain[itr]];
-            if (old.start > newl.start){
+            currentLoop = &createdLoops[markov_chain[itr]];
+            if (old.start > currentLoop->start){
                 cout << "Forward " << endl;
-                shiftyLooper.setLoopTimes(newl.start, newl.end);
+                shiftyLooper.setLoopTimes(currentLoop->start, currentLoop->end);
                 shiftyLooper.setNextPositionOverride(old.start * 44100);
             } else {
                 cout << "Back " << endl;
-                shiftyLooper.setLoopTimes(newl.start, newl.end);
+                shiftyLooper.setLoopTimes(currentLoop->start, currentLoop->end);
                 shiftyLooper.setNextPositionOverride(old.start * 44100);
             }
             shiftyLooper.setLoopBetweenTimes(true);
             shiftyLooper.start();
-        int interval = (newl.end-newl.start)*1000;
-        std::cout << "Interval: " << interval << endl;
-        startTimer(interval);
+        int interval = (currentLoop->end - currentLoop->start)*1000;
+        //std::cout << "Interval: " << interval << endl;
+        startTimer(interval+interval/50);
             itr++;
             shifting = false;
         //}
@@ -771,7 +796,7 @@ BEGIN_JUCER_METADATA
           virtualName="" explicitFocusOrder="0" pos="712 448 96 96" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="TextBoxBelow"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="Gain Label" id="d9d519cd8dc043ff" memberName="gainLabel"
          virtualName="" explicitFocusOrder="0" pos="688 568 150 24" textCol="fff0ffff"
          edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="GAIN"
@@ -792,17 +817,17 @@ BEGIN_JUCER_METADATA
           virtualName="" explicitFocusOrder="0" pos="568 336 64 48" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="Pitch" id="f2465aa0b705eb82" memberName="pitchSlider" virtualName=""
           explicitFocusOrder="0" pos="664 336 64 48" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="tempo" id="3148e5d6f1593c42" memberName="tempoSlider" virtualName=""
           explicitFocusOrder="0" pos="760 336 64 48" thumbcol="ff7fffd4"
           trackcol="ff7fffd4" rotaryslideroutline="ff5959e4" min="0" max="1"
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="2"/>
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="Distortion" id="d028e9a4b754eaf9" memberName="distortionSlider"
           virtualName="" explicitFocusOrder="0" pos="160 320 136 24" bkgcol="450707"
           min="0" max="10" int="0" style="LinearHorizontal" textBoxPos="NoTextBox"

@@ -97,6 +97,7 @@ std::vector<int> MarkovChain::markov(const MATRIX& transMat, int num_iters, int 
             chain.push_back(i);
         }
     }
+    //for (auto& x : chain) std::cout << x << std::endl;
     return chain;
 }
 

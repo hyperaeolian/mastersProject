@@ -42,6 +42,7 @@ void LoopGenerator::createLoopPoints(){
 }
 
 void LoopGenerator::connectLoops(){
+    /*
     for (int i = 0; i < _Loops.size(); ++i) {
         if (i == 0) {
             _Loops[i].prev = nullptr;
@@ -54,6 +55,7 @@ void LoopGenerator::connectLoops(){
             _Loops[i].next = &_Loops[i+1];
         }
     }
+     */
 }
 
 _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
@@ -102,8 +104,8 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
             //xtractor.findOnsets();
             //xtractor.findBeats();
             xtractor.computeFeaturesForBuffer();
-            LoopGenerator loopGen(buffer, xtractor.getBeats());
-            
+            //LoopGenerator loopGen(buffer, xtractor.getBeats());
+            LoopGenerator loopGen(buffer, xtractor.getOnsets());
             loopGen.createLoopPoints();
             loopGen.connectLoops();
             
@@ -114,10 +116,13 @@ _REAL LoopGenerator::quantizeToDelimiter(_REAL value){
         } else {
             AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,"Audio File",
                                              "Unable to buffer audiofile");
+            std::vector<Loop> emptyLoopVec;
+            return emptyLoopVec;
             //TODO: Handle case where !lgen::audioBuffered with alert window
             //Redesign this function by returning value via ptr parameter
             //http://stackoverflow.com/questions/3227755/return-nothing-from-non-void-function-in-c
         }
+        
         
     }
     

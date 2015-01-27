@@ -55,7 +55,7 @@ private:
     float lastDelimiter;
     const VEC_REAL AudioBuffer;
     VEC_REAL       delimiters;
-    std::vector<Loop>        _Loops;
+    std::vector<Loop> _Loops;
     
     LoopGenerator(const LoopGenerator&);
     LoopGenerator(LoopGenerator&&);

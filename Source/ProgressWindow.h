@@ -35,7 +35,7 @@ public:
     void threadComplete(bool userPressedCancel) override;
     
 private:
-    const int numFeatures;
+    const int thingsToDo;
     //Need 6 status messages
     /* title, init, remaining, cleanUp, cancel, success */
     juce::StringPairArray statusMsgs;

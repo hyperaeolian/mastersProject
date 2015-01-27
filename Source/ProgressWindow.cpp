@@ -11,7 +11,7 @@
 #include "ProgressWindow.h"
 
 BackgroundThread::BackgroundThread(const int N, const std::vector<std::string> vals) :
-     ThreadWithProgressWindow("Progress", true, true), numFeatures(N)
+     ThreadWithProgressWindow("Progress", true, true), thingsToDo(N)
 
     {
         std::vector<std::string> keys = {"title", "init","remaining", "cleanUp", "cancel", "success" };
@@ -27,10 +27,11 @@ BackgroundThread::BackgroundThread(const int N, const std::vector<std::string> v
 void BackgroundThread::run(){
         setProgress (-0.5);
         wait (2000);
-        for (int i = 0; i < numFeatures; ++i){
+    setStatusMessage (/*String (thingsToDo - i) + */statusMsgs["remaining"]);
+        for (int i = 0; i < thingsToDo; ++i){
             if (threadShouldExit()) return;
-            setProgress (i / (double) numFeatures);
-            setStatusMessage (String (numFeatures - i) + statusMsgs["remaining"]);
+            setProgress (i / (double) thingsToDo);
+//            setStatusMessage (/*String (thingsToDo - i) + */statusMsgs["remaining"]);
             wait (500);
         }
         

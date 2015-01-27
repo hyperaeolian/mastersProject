@@ -12,6 +12,7 @@
 #define SHIFTYLOOPING_H_INCLUDED
 
 #include "JuceHeader.h"
+#include "LoopGenerator.h"
 
 class ShiftyLooper : public drow::AudioFilePlayerExt,
                      public drow::AudioFilePlayer::Listener
@@ -22,7 +23,7 @@ public:
     ShiftyLooper(){}
     ~ShiftyLooper(){}
 
-    
+    void shiftyLooping(Loop& curr, Loop& prev, bool isShifting, bool forward);
     
     //drow
     void fileChanged(drow::AudioFilePlayer* player) {}
