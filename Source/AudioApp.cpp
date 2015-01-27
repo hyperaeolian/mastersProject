@@ -526,6 +526,10 @@ void AudioApp::initialize(){
         currentLoop = &createdLoops[markov_chain[0]];
     } else
         progressWindow.threadComplete(true);
+    
+    shiftyLooper.setShifting(true);
+    shiftyLooper.setMarkov(markov_chain);
+    shiftyLooper.setLoops(createdLoops);
 
     shiftyLooper.setPosition(0.0);
     infoLabel->setText("System Ready", sendNotification);
@@ -549,11 +553,6 @@ void AudioApp::initialize(){
     rateSlider->setValue(settings.rate);
     rateSlider->setSkewFactorFromMidPoint(0.1);
     gainSlider->setValue(sourcePlayer.getGain() * 0.5);
-
-//    pitchSlider->setValue(0.725);
-//    tempoSlider->setValue(0.725);
-//    rateSlider->setValue(0.725);
-//    gainSlider->setValue(0.5);
 
     tableEnabled = true;
 }
@@ -650,7 +649,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setButtonText("Stop");
                 //waveform->isShiftyLooping(true);
                 shifting = true;
-                shifty_looping();
+                shiftyLooper.shiftyLooping();
                 break;
         }
 
@@ -660,7 +659,7 @@ void AudioApp::changeState(TransportState newState){
 
 
 void AudioApp::shifty_looping(){
-
+/*
     static int itr = 1;
     if (shifting){
         shiftyLooper.setLoopBetweenTimes(false);
@@ -689,6 +688,7 @@ void AudioApp::shifty_looping(){
         //}
     //}
     }
+ */
 }
 
 //==============================================================================

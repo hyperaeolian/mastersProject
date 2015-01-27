@@ -15,15 +15,23 @@
 #include "LoopGenerator.h"
 
 class ShiftyLooper : public drow::AudioFilePlayerExt,
-                     public drow::AudioFilePlayer::Listener
+                     public drow::AudioFilePlayer::Listener,
+                     public Timer
 
 
 {
 public:
-    ShiftyLooper(){}
+    ShiftyLooper();
     ~ShiftyLooper(){}
 
-    void shiftyLooping(Loop& curr, Loop& prev, bool isShifting, bool forward);
+    void setShifting(bool shouldShift){shifting = shouldShift;
+    }
+    void setMarkov(const std::vector<int>& mc){ markovChain = mc;}
+    void setLoops(const std::vector<Loop>& l){ _Loops = l;}
+    
+    void shiftyLooping();
+    
+    void timerCallback() override;
     
     //drow
     void fileChanged(drow::AudioFilePlayer* player) {}
@@ -31,6 +39,9 @@ public:
     void playerStoppedOrStarted(drow::AudioFilePlayer* player){}
 
 private:
+    bool shifting;
+    std::vector<Loop> _Loops;
+    std::vector<int> markovChain;
     
     ShiftyLooper(const ShiftyLooper&);
     ShiftyLooper(ShiftyLooper&&);
