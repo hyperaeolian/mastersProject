@@ -428,6 +428,14 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == chorusButton)
     {
         //[UserButtonCode_chorusButton] -- add your button handler code here..
+        Reverb::Parameters params;
+        params.wetLevel = 0.6;
+        params.roomSize = 0.5;
+        params.damping = 0.5;
+        verb.setParameters(params);
+        samples = bufferTransform.getBuffer().getData();
+        //std::cout << "Buffer Start: " << *bufferTransform.getBuffer().getData() << std::endl;
+        verb.processMono(samples, bufferTransform.getBuffer().getSize());
         //[/UserButtonCode_chorusButton]
     }
     else if (buttonThatWasClicked == flangerButton)
@@ -484,6 +492,14 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == reverbSlider)
     {
         //[UserSliderCode_reverbSlider] -- add your slider handling code here..
+//        Reverb::Parameters params;
+//        //params.wetLevel = reverbSlider->getValue();
+//        params.roomSize = 0.5;
+//        params.damping = 0.5;
+//        verb.setParameters(params);
+//        ScopedPointer<float> samples = bufferTransform.getBuffer().getData();
+//        std::cout << "Buffer Size: " << bufferTransform.getBuffer().getSize() << std::endl;
+//        verb.processMono(samples, bufferTransform.getBuffer().getSize());
         //[/UserSliderCode_reverbSlider]
     }
 
@@ -526,6 +542,8 @@ void AudioApp::initialize(){
         currentLoop = &createdLoops[markov_chain[0]];
     } else
         progressWindow.threadComplete(true);
+    
+    verb.setSampleRate(44100.0f);
     
     shiftyLooper.setShifting(true);
     shiftyLooper.setMarkov(markov_chain);
@@ -647,7 +665,7 @@ void AudioApp::changeState(TransportState newState){
                 stopButton->setEnabled(true);
                 playButton->setButtonText("Pause");
                 stopButton->setButtonText("Stop");
-                //waveform->isShiftyLooping(true);
+                waveform->isShiftyLooping(true);
                 shifting = true;
                 shiftyLooper.shiftyLooping();
                 break;

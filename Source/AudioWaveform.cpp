@@ -64,7 +64,8 @@ void Waveform::setRange(Range<double> newRange){
     
 void Waveform::paint(Graphics& g){
         g.fillAll(Colours::darkgrey);
-        g.setColour(Colours::lightblue);
+        //g.setColour(Colours::lightblue);
+    g.setColour(Colours::crimson);
         if (thumbnail.getTotalLength() > 0.0) {
             Rectangle<int> thumbArea(getLocalBounds());
             thumbArea.removeFromBottom(scrollbar.getHeight() + 4);
@@ -96,7 +97,7 @@ void Waveform::updateCursorPosition(){
             endPos.setVisible(audioFilePlayer.isPlaying() || audioFilePlayer.getLoopBetweenTimes());
             currentPos.setRectangle(Rectangle<float> (timeToX(audioFilePlayer.getCurrentPosition()) - 0.75f,
                                                       0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
-            endPos.setRectangle(Rectangle<float>(timeToX(audioFilePlayer.getCurrentPosition() + endTime) - 0.75f,
+            endPos.setRectangle(Rectangle<float>(xToTime(audioFilePlayer.getCurrentPosition() + endTime) - 0.75f,
                                                  0, 1.5f, (float) (getHeight() - scrollbar.getHeight())));
         } else {
             currentPos.setVisible(audioFilePlayer.isPlaying() || isMouseButtonDown());

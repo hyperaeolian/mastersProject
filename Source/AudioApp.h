@@ -145,6 +145,8 @@ private:
     //effects Vars
     BufferTransform bufferTransform;
     DistortionEffect distortion;
+    Reverb verb;
+    ScopedPointer<float> samples;
 
     //Utility Vars
     float gain;

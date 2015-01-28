@@ -52,7 +52,7 @@ private:
     float endTime;
 
 
-    DrawableRectangle currentPos, endPos;
+    DrawableRectangle currentPos, endPos, startPos;
 
     float timeToX(const double time) const {
         return getWidth() * (float) ( (time - visibleRange.getStart()) / (visibleRange.getLength()));
