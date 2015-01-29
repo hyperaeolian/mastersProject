@@ -23,6 +23,7 @@ Waveform::Waveform(drow::AudioFilePlayerExt& afp) :
         scrollbar.setRangeLimits(visibleRange);
         scrollbar.setAutoHide(false);
         scrollbar.addListener(this);
+        scrollbar.setColour(ScrollBar::ColourIds::thumbColourId, Colours::cornflowerblue.withAlpha(0.85f));
         currentPos.setFill(Colours::white.withAlpha(0.85f));
         endPos.setFill(Colours::white.withAlpha(0.85f));
         addAndMakeVisible(currentPos);
@@ -63,13 +64,12 @@ void Waveform::setRange(Range<double> newRange){
 
     
 void Waveform::paint(Graphics& g){
-        g.fillAll(Colours::darkgrey);
-        //g.setColour(Colours::lightblue);
-    g.setColour(Colours::crimson);
+        g.fillAll(Colours::gainsboro);
+        g.setColour(Colours::midnightblue);
         if (thumbnail.getTotalLength() > 0.0) {
             Rectangle<int> thumbArea(getLocalBounds());
             thumbArea.removeFromBottom(scrollbar.getHeight() + 4);
-            thumbnail.drawChannels(g, thumbArea.reduced(4), visibleRange.getStart(), visibleRange.getEnd(), 1.0f);
+            thumbnail.drawChannels(g, thumbArea.reduced(2), visibleRange.getStart(), visibleRange.getEnd(), 1.0f);
         } else {
             g.setFont(14.0f);
             g.drawFittedText("No audio file selected", getLocalBounds(), Justification::centred, 2);

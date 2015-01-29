@@ -146,6 +146,7 @@ private:
     BufferTransform bufferTransform;
     DistortionEffect distortion;
     Reverb verb;
+    Reverb::Parameters rv_params;
     ScopedPointer<float> samples;
 
     //Utility Vars
@@ -164,6 +165,7 @@ private:
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<GroupComponent> effectsGroup;
     ScopedPointer<Label> infoLabel;
     ScopedPointer<TextButton> playButton;
     ScopedPointer<TextButton> stopButton;
@@ -172,14 +174,12 @@ private:
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> gainLabel;
     ScopedPointer<ToggleButton> shiftyLoopingButton;
-    ScopedPointer<GroupComponent> ostinatoGroup;
     ScopedPointer<GroupComponent> pitchTempoGropu;
     ScopedPointer<Slider> rateSlider;
     ScopedPointer<Slider> pitchSlider;
     ScopedPointer<Slider> tempoSlider;
     ScopedPointer<Slider> distortionSlider;
     ScopedPointer<Slider> reverbSlider;
-    ScopedPointer<TextButton> reloopButton;
     ScopedPointer<Label> distortionLabel;
     ScopedPointer<Label> reverbLabel;
     ScopedPointer<Label> rateLabel;
@@ -187,6 +187,11 @@ private:
     ScopedPointer<Label> tempoLabel;
     ScopedPointer<ToggleButton> chorusButton;
     ScopedPointer<ToggleButton> flangerButton;
+    ScopedPointer<Label> wetLabel;
+    ScopedPointer<Label> dryLabel;
+    ScopedPointer<ToggleButton> reverbButton;
+    ScopedPointer<Slider> delaySlider;
+    ScopedPointer<Label> delayLabel;
 
 
     //==============================================================================

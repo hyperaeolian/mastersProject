@@ -14,7 +14,8 @@
 #include "JuceHeader.h"
 #include "LoopGenerator.h"
 
-class ShiftyLooper : public drow::AudioFilePlayerExt,
+class ShiftyLooper :
+                     public drow::AudioFilePlayerExt,
                      public drow::AudioFilePlayer::Listener,
                      public Timer
 

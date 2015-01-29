@@ -33,6 +33,12 @@
 AudioApp::AudioApp ()
     : MarkovIterations(15),bufferTransform(&shiftyLooper), distortion(bufferTransform.getBuffer()), stream(background_png, background_pngSize, false)
 {
+    addAndMakeVisible (effectsGroup = new GroupComponent ("Effects",
+                                                          TRANS("Effects")));
+    effectsGroup->setTextLabelPosition (Justification::centred);
+    effectsGroup->setColour (GroupComponent::outlineColourId, Colour (0x66b8c1da));
+    effectsGroup->setColour (GroupComponent::textColourId, Colour (0xffd2d2ed));
+
     addAndMakeVisible (infoLabel = new Label ("Info Label",
                                               TRANS("Data...")));
     infoLabel->setFont (Font ("Apple LiSung", 17.90f, Font::plain));
@@ -92,12 +98,6 @@ AudioApp::AudioApp ()
     shiftyLoopingButton->addListener (this);
     shiftyLoopingButton->setColour (ToggleButton::textColourId, Colour (0xfff3f3f3));
 
-    addAndMakeVisible (ostinatoGroup = new GroupComponent ("Affects",
-                                                           TRANS("Ostinato")));
-    ostinatoGroup->setTextLabelPosition (Justification::centred);
-    ostinatoGroup->setColour (GroupComponent::outlineColourId, Colour (0x66b8c1da));
-    ostinatoGroup->setColour (GroupComponent::textColourId, Colour (0xffd2d2ed));
-
     addAndMakeVisible (pitchTempoGropu = new GroupComponent ("PitchTempo",
                                                              TRANS(" Pitch and Tempo")));
     pitchTempoGropu->setTextLabelPosition (Justification::centredRight);
@@ -139,16 +139,11 @@ AudioApp::AudioApp ()
     distortionSlider->addListener (this);
 
     addAndMakeVisible (reverbSlider = new Slider ("Reverb"));
-    reverbSlider->setRange (1, 5, 1);
+    reverbSlider->setRange (1, 5, 0.5);
     reverbSlider->setSliderStyle (Slider::LinearHorizontal);
     reverbSlider->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
     reverbSlider->setColour (Slider::backgroundColourId, Colour (0x00450707));
     reverbSlider->addListener (this);
-
-    addAndMakeVisible (reloopButton = new TextButton ("ResetLoops"));
-    reloopButton->setButtonText (TRANS("ReLoop"));
-    reloopButton->addListener (this);
-    reloopButton->setColour (TextButton::buttonColourId, Colour (0xff8181ab));
 
     addAndMakeVisible (distortionLabel = new Label ("Distortion Label",
                                                     TRANS("Distortion")));
@@ -213,6 +208,46 @@ AudioApp::AudioApp ()
     flangerButton->addListener (this);
     flangerButton->setColour (ToggleButton::textColourId, Colours::beige);
 
+    addAndMakeVisible (wetLabel = new Label ("wet label",
+                                             TRANS("WET")));
+    wetLabel->setFont (Font (15.00f, Font::plain));
+    wetLabel->setJustificationType (Justification::centredLeft);
+    wetLabel->setEditable (false, false, false);
+    wetLabel->setColour (Label::textColourId, Colours::aliceblue);
+    wetLabel->setColour (TextEditor::textColourId, Colours::black);
+    wetLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (dryLabel = new Label ("dry label",
+                                             TRANS("DRY")));
+    dryLabel->setFont (Font (15.00f, Font::plain));
+    dryLabel->setJustificationType (Justification::centred);
+    dryLabel->setEditable (false, false, false);
+    dryLabel->setColour (Label::textColourId, Colours::aliceblue);
+    dryLabel->setColour (TextEditor::textColourId, Colours::black);
+    dryLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (reverbButton = new ToggleButton ("reverb button"));
+    reverbButton->setButtonText (String::empty);
+    reverbButton->addListener (this);
+    reverbButton->setColour (ToggleButton::textColourId, Colours::aliceblue);
+
+    addAndMakeVisible (delaySlider = new Slider ("Delay"));
+    delaySlider->setRange (1, 5, 0.5);
+    delaySlider->setSliderStyle (Slider::LinearHorizontal);
+    delaySlider->setTextBoxStyle (Slider::TextBoxLeft, true, 60, 20);
+    delaySlider->setColour (Slider::backgroundColourId, Colour (0x00450707));
+    delaySlider->addListener (this);
+
+    addAndMakeVisible (delayLabel = new Label ("Delay Label",
+                                               TRANS("Delay")));
+    delayLabel->setFont (Font ("Arial Black", 22.30f, Font::plain));
+    delayLabel->setJustificationType (Justification::centred);
+    delayLabel->setEditable (false, false, false);
+    delayLabel->setColour (Label::textColourId, Colours::azure);
+    delayLabel->setColour (TextEditor::textColourId, Colours::black);
+    delayLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    delayLabel->setColour (TextEditor::highlightColourId, Colours::red);
+
 
     //[UserPreSize]
     backgroundImage = new ImageComponent();
@@ -242,11 +277,6 @@ AudioApp::AudioApp ()
     rateSlider->setEnabled(false);
     recordingButton->setEnabled(false);
 
-
-//    pitchSlider->setSkewFactorFromMidPoint(0.5);
-//    tempoSlider->setSkewFactorFromMidPoint(0.5);
-//    rateSlider->setSkewFactorFromMidPoint(0.5);
-
     //Audio device setup
     deviceManager.initialise(0, 2, nullptr, true);
     sourcePlayer.setSource(&bufferTransform);
@@ -259,6 +289,14 @@ AudioApp::AudioApp ()
     masterLogger = juce::Logger::getCurrentLogger();
     state = Stopped;
     gain = 1.0;
+    
+    rv_params.roomSize =
+    rv_params.damping  =
+    rv_params.wetLevel =
+    rv_params.dryLevel =
+    rv_params.width = 0;
+    
+    verb.setParameters(rv_params);
 
     if (DEBUG_THIS){
         auxFile = new File("/Users/milrob/Music/samples/conga.wav");
@@ -272,6 +310,7 @@ AudioApp::~AudioApp()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
+    effectsGroup = nullptr;
     infoLabel = nullptr;
     playButton = nullptr;
     stopButton = nullptr;
@@ -280,14 +319,12 @@ AudioApp::~AudioApp()
     gainSlider = nullptr;
     gainLabel = nullptr;
     shiftyLoopingButton = nullptr;
-    ostinatoGroup = nullptr;
     pitchTempoGropu = nullptr;
     rateSlider = nullptr;
     pitchSlider = nullptr;
     tempoSlider = nullptr;
     distortionSlider = nullptr;
     reverbSlider = nullptr;
-    reloopButton = nullptr;
     distortionLabel = nullptr;
     reverbLabel = nullptr;
     rateLabel = nullptr;
@@ -295,6 +332,11 @@ AudioApp::~AudioApp()
     tempoLabel = nullptr;
     chorusButton = nullptr;
     flangerButton = nullptr;
+    wetLabel = nullptr;
+    dryLabel = nullptr;
+    reverbButton = nullptr;
+    delaySlider = nullptr;
+    delayLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -333,6 +375,7 @@ void AudioApp::paint (Graphics& g)
 
 void AudioApp::resized()
 {
+    effectsGroup->setBounds (24, 248, 280, 336);
     infoLabel->setBounds (168, 608, 672, 56);
     playButton->setBounds (344, 536, 96, 32);
     stopButton->setBounds (438, 536, 96, 32);
@@ -341,21 +384,24 @@ void AudioApp::resized()
     gainSlider->setBounds (712, 448, 96, 96);
     gainLabel->setBounds (688, 568, 150, 24);
     shiftyLoopingButton->setBounds (504, 424, 112, 40);
-    ostinatoGroup->setBounds (40, 288, 280, 240);
     pitchTempoGropu->setBounds (536, 296, 320, 104);
     rateSlider->setBounds (568, 336, 64, 48);
     pitchSlider->setBounds (664, 336, 64, 48);
     tempoSlider->setBounds (760, 336, 64, 48);
-    distortionSlider->setBounds (160, 320, 136, 24);
-    reverbSlider->setBounds (160, 360, 136, 16);
-    reloopButton->setBounds (80, 448, 208, 32);
-    distortionLabel->setBounds (56, 320, 88, 24);
-    reverbLabel->setBounds (56, 352, 72, 24);
+    distortionSlider->setBounds (144, 272, 136, 24);
+    reverbSlider->setBounds (88, 352, 136, 16);
+    distortionLabel->setBounds (40, 272, 88, 24);
+    reverbLabel->setBounds (120, 320, 72, 24);
     rateLabel->setBounds (568, 312, 64, 24);
     pitchLabel->setBounds (664, 312, 64, 24);
     tempoLabel->setBounds (760, 312, 64, 24);
-    chorusButton->setBounds (64, 392, 80, 40);
-    flangerButton->setBounds (192, 392, 80, 40);
+    chorusButton->setBounds (48, 496, 80, 40);
+    flangerButton->setBounds (192, 496, 80, 40);
+    wetLabel->setBounds (232, 344, 40, 32);
+    dryLabel->setBounds (40, 344, 40, 32);
+    reverbButton->setBounds (104, 320, 24, 24);
+    delaySlider->setBounds (56, 440, 208, 24);
+    delayLabel->setBounds (120, 400, 72, 24);
     //[UserResized] Add your own custom resize handling here..
     backgroundImage->setBounds(0,0,getWidth(), getHeight());
     //[/UserResized]
@@ -419,29 +465,25 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_shiftyLoopingButton]
     }
-    else if (buttonThatWasClicked == reloopButton)
-    {
-        //[UserButtonCode_reloopButton] -- add your button handler code here..
-        //markov_chain = markov(*transMat, MarkovIterations, random.nextInt(crudeLoops.size()-1));
-        //[/UserButtonCode_reloopButton]
-    }
     else if (buttonThatWasClicked == chorusButton)
     {
         //[UserButtonCode_chorusButton] -- add your button handler code here..
-        Reverb::Parameters params;
-        params.wetLevel = 0.6;
-        params.roomSize = 0.5;
-        params.damping = 0.5;
-        verb.setParameters(params);
-        samples = bufferTransform.getBuffer().getData();
-        //std::cout << "Buffer Start: " << *bufferTransform.getBuffer().getData() << std::endl;
-        verb.processMono(samples, bufferTransform.getBuffer().getSize());
         //[/UserButtonCode_chorusButton]
     }
     else if (buttonThatWasClicked == flangerButton)
     {
         //[UserButtonCode_flangerButton] -- add your button handler code here..
         //[/UserButtonCode_flangerButton]
+    }
+    else if (buttonThatWasClicked == reverbButton)
+    {
+        //[UserButtonCode_reverbButton] -- add your button handler code here..
+            bufferTransform.setBypass(false);
+            verb.reset();
+            verb.setParameters(rv_params);
+            samples = bufferTransform.getBuffer().getData();
+            verb.processMono(samples, bufferTransform.getBuffer().getSize());
+        //[/UserButtonCode_reverbButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -492,15 +534,16 @@ void AudioApp::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == reverbSlider)
     {
         //[UserSliderCode_reverbSlider] -- add your slider handling code here..
-//        Reverb::Parameters params;
-//        //params.wetLevel = reverbSlider->getValue();
-//        params.roomSize = 0.5;
-//        params.damping = 0.5;
-//        verb.setParameters(params);
-//        ScopedPointer<float> samples = bufferTransform.getBuffer().getData();
-//        std::cout << "Buffer Size: " << bufferTransform.getBuffer().getSize() << std::endl;
-//        verb.processMono(samples, bufferTransform.getBuffer().getSize());
+        rv_params.wetLevel = reverbSlider->getValue();
+        verb.setParameters(rv_params);
+       // reverbButton->setToggleState(false, sendNotification);
+       // reverbButton->setToggleState(true, sendNotification);
         //[/UserSliderCode_reverbSlider]
+    }
+    else if (sliderThatWasMoved == delaySlider)
+    {
+        //[UserSliderCode_delaySlider] -- add your slider handling code here..
+        //[/UserSliderCode_delaySlider]
     }
 
     //[UsersliderValueChanged_Post]
@@ -542,9 +585,9 @@ void AudioApp::initialize(){
         currentLoop = &createdLoops[markov_chain[0]];
     } else
         progressWindow.threadComplete(true);
-    
-    verb.setSampleRate(44100.0f);
-    
+
+    verb.setSampleRate(44100.0);
+
     shiftyLooper.setShifting(true);
     shiftyLooper.setMarkov(markov_chain);
     shiftyLooper.setLoops(createdLoops);
@@ -558,9 +601,9 @@ void AudioApp::initialize(){
     tempoSlider->setEnabled(true);
     rateSlider->setEnabled(true);
     recordingButton->setEnabled(true);
-    
+
     drow::SoundTouchProcessor::PlaybackSettings settings(shiftyLooper.getPlaybackSettings());
-    
+
     pitchSlider->setRange(0, 2, 0.1);
     pitchSlider->setValue(settings.pitch);
     pitchSlider->setSkewFactorFromMidPoint(0.1);
@@ -791,6 +834,9 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="990" initialHeight="690">
   <BACKGROUND backgroundColour="ff0f0f0f"/>
+  <GROUPCOMPONENT name="Effects" id="9ab3a0160a4c89f8" memberName="effectsGroup"
+                  virtualName="" explicitFocusOrder="0" pos="24 248 280 336" outlinecol="66b8c1da"
+                  textcol="ffd2d2ed" title="Effects" textpos="36"/>
   <LABEL name="Info Label" id="2fc17cbb62c7782f" memberName="infoLabel"
          virtualName="" explicitFocusOrder="0" pos="168 608 672 56" bkgCol="ff0d0d0d"
          textCol="ff87ee20" edTextCol="ff000000" edBkgCol="0" labelText="Data..."
@@ -825,9 +871,6 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="504 424 112 40" txtcol="fff3f3f3"
                 buttonText="Shifty Looping" connectedEdges="15" needsCallback="1"
                 radioGroupId="0" state="0"/>
-  <GROUPCOMPONENT name="Affects" id="9ab3a0160a4c89f8" memberName="ostinatoGroup"
-                  virtualName="" explicitFocusOrder="0" pos="40 288 280 240" outlinecol="66b8c1da"
-                  textcol="ffd2d2ed" title="Ostinato" textpos="36"/>
   <GROUPCOMPONENT name="PitchTempo" id="6cbab5f86507196" memberName="pitchTempoGropu"
                   virtualName="" explicitFocusOrder="0" pos="536 296 320 104" outlinecol="66c9cee1"
                   textcol="ffd0d1df" title=" Pitch and Tempo" textpos="34"/>
@@ -847,24 +890,21 @@ BEGIN_JUCER_METADATA
           int="0.10000000000000000555" style="RotaryVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="Distortion" id="d028e9a4b754eaf9" memberName="distortionSlider"
-          virtualName="" explicitFocusOrder="0" pos="160 320 136 24" bkgcol="450707"
+          virtualName="" explicitFocusOrder="0" pos="144 272 136 24" bkgcol="450707"
           min="0" max="10" int="0" style="LinearHorizontal" textBoxPos="NoTextBox"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="Reverb" id="2783238b83d804ef" memberName="reverbSlider"
-          virtualName="" explicitFocusOrder="0" pos="160 360 136 16" bkgcol="450707"
-          min="1" max="5" int="1" style="LinearHorizontal" textBoxPos="NoTextBox"
+          virtualName="" explicitFocusOrder="0" pos="88 352 136 16" bkgcol="450707"
+          min="1" max="5" int="0.5" style="LinearHorizontal" textBoxPos="NoTextBox"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
-  <TEXTBUTTON name="ResetLoops" id="5c4e26e3e4d3321a" memberName="reloopButton"
-              virtualName="" explicitFocusOrder="0" pos="80 448 208 32" bgColOff="ff8181ab"
-              buttonText="ReLoop" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="Distortion Label" id="9fc482ae6cf6733f" memberName="distortionLabel"
-         virtualName="" explicitFocusOrder="0" pos="56 320 88 24" textCol="fff0ffff"
+         virtualName="" explicitFocusOrder="0" pos="40 272 88 24" textCol="fff0ffff"
          edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="Distortion"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
          italic="0" justification="36"/>
   <LABEL name="Reverb Label" id="17dc27f766753424" memberName="reverbLabel"
-         virtualName="" explicitFocusOrder="0" pos="56 352 72 24" textCol="fff0ffff"
+         virtualName="" explicitFocusOrder="0" pos="120 320 72 24" textCol="fff0ffff"
          edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="Reverb"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
@@ -888,13 +928,37 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Arial" fontsize="13" bold="0"
          italic="0" justification="36"/>
   <TOGGLEBUTTON name="Chorus Button" id="9c5fb254ae1ad576" memberName="chorusButton"
-                virtualName="" explicitFocusOrder="0" pos="64 392 80 40" txtcol="fff5f5dc"
+                virtualName="" explicitFocusOrder="0" pos="48 496 80 40" txtcol="fff5f5dc"
                 buttonText="Chorus" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="0"/>
   <TOGGLEBUTTON name="Flanger Button" id="ff4e94f2323581b0" memberName="flangerButton"
-                virtualName="" explicitFocusOrder="0" pos="192 392 80 40" txtcol="fff5f5dc"
+                virtualName="" explicitFocusOrder="0" pos="192 496 80 40" txtcol="fff5f5dc"
                 buttonText="Flanger" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="0"/>
+  <LABEL name="wet label" id="88f71dc07c75700c" memberName="wetLabel"
+         virtualName="" explicitFocusOrder="0" pos="232 344 40 32" textCol="fff0f8ff"
+         edTextCol="ff000000" edBkgCol="0" labelText="WET" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
+  <LABEL name="dry label" id="a2786c85e6b5303b" memberName="dryLabel"
+         virtualName="" explicitFocusOrder="0" pos="40 344 40 32" textCol="fff0f8ff"
+         edTextCol="ff000000" edBkgCol="0" labelText="DRY" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="36"/>
+  <TOGGLEBUTTON name="reverb button" id="d16187738595965b" memberName="reverbButton"
+                virtualName="" explicitFocusOrder="0" pos="104 320 24 24" txtcol="fff0f8ff"
+                buttonText="" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                state="0"/>
+  <SLIDER name="Delay" id="1030bbd022541e7a" memberName="delaySlider" virtualName=""
+          explicitFocusOrder="0" pos="56 440 208 24" bkgcol="450707" min="1"
+          max="5" int="0.5" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+          textBoxEditable="0" textBoxWidth="60" textBoxHeight="20" skewFactor="1"/>
+  <LABEL name="Delay Label" id="79d5c85507ea2eb5" memberName="delayLabel"
+         virtualName="" explicitFocusOrder="0" pos="120 400 72 24" textCol="fff0ffff"
+         edTextCol="ff000000" edBkgCol="0" hiliteCol="ffff0000" labelText="Delay"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Arial Black" fontsize="22.300000000000000711" bold="0"
+         italic="0" justification="36"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
