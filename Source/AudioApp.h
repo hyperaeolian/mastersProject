@@ -83,7 +83,6 @@ public:
     void timerCallback() override;
     void playerStoppedOrStarted(drow::AudioFilePlayer* player) override;
 
-    void shifty_looping();
 
 
     //Recording
@@ -96,6 +95,10 @@ public:
     void openAudioSettings();
     void showLoopTable();
     bool isTableEnabled(){ return tableEnabled; }
+    
+    //Table Button Operations
+    void removeLoop(int index);
+    void playLoop(int index);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -154,6 +157,7 @@ private:
     juce::Random random;
     juce::Logger* masterLogger;
     MemoryInputStream stream;
+    std::vector<Loop> deletedLoops;
 
 
     //Views

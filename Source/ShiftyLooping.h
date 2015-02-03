@@ -43,6 +43,7 @@ private:
     bool shifting;
     std::vector<Loop> _Loops;
     std::vector<int> markovChain;
+   
     
     ShiftyLooper(const ShiftyLooper&);
     ShiftyLooper(ShiftyLooper&&);

@@ -10,33 +10,36 @@
 
 #include "ShiftyLooping.h"
 
-ShiftyLooper::ShiftyLooper(){
+ShiftyLooper::ShiftyLooper() {
     shifting = false;
+    
 }
+
 
 void ShiftyLooper::shiftyLooping(){
     static int itr = 1;
-    Loop curr = _Loops[itr];
+    Loop curr;
     if (shifting){
-        this->setLoopBetweenTimes(false);
-        this->stop();
+        setLoopBetweenTimes(false);
+        stop();
         Loop old = _Loops[markovChain[itr-1]];
         curr = _Loops[markovChain[itr]];
-        if (old.start > curr.start){
-            this->setLoopTimes(curr.start, curr.end);
-            this->setNextPositionOverride(old.start * 44100);
-        } else {
-            this->setLoopTimes(curr.start, curr.end);
-            this->setNextPositionOverride(old.start * 44100);
-        }
-        this->setLoopBetweenTimes(true);
-        this->start();
-        int interval = (curr.end - curr.start)*1000;
-        startTimer(interval + interval * 0.5);
+       // if (old.start > curr.start){
+        setLoopTimes(curr.start, curr.end);
+        setNextPositionOverride(old.start * 44100);
+       // } else {
+       //     this->setLoopTimes(curr.start, curr.end);
+       //     this->setNextPositionOverride(old.start * 44100);
+       // }
+        setLoopBetweenTimes(true);
+        start();
+        //int interval = (curr.end - curr.start)*1000;
+        //startTimer(interval + interval * 0.5);
         if (itr+1 > markovChain.size()){
             shifting = false;
         } else {
             itr++;
+            startTimer(((curr.end - old.start) * 44100));
         }
     } else
         return;
@@ -45,8 +48,6 @@ void ShiftyLooper::shiftyLooping(){
 }
 
 void ShiftyLooper::timerCallback(){
-    shifting = !(shifting);
+    //shifting = !(shifting);
     shiftyLooping();
 }
-
-

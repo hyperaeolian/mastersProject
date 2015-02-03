@@ -468,6 +468,7 @@ void AudioApp::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == chorusButton)
     {
         //[UserButtonCode_chorusButton] -- add your button handler code here..
+        playLoop(3);
         //[/UserButtonCode_chorusButton]
     }
     else if (buttonThatWasClicked == flangerButton)
@@ -719,39 +720,6 @@ void AudioApp::changeState(TransportState newState){
 }
 
 
-void AudioApp::shifty_looping(){
-/*
-    static int itr = 1;
-    if (shifting){
-        shiftyLooper.setLoopBetweenTimes(false);
-    //if (shiftyLooper.hasStreamFinished()){
-      //  if (shifting){
-            shiftyLooper.stop();
-           // shiftyLooper.setPosition(0.0);
-            Loop old = createdLoops[markov_chain[itr-1]];
-            currentLoop = &createdLoops[markov_chain[itr]];
-            if (old.start > currentLoop->start){
-                cout << "Forward " << endl;
-                shiftyLooper.setLoopTimes(currentLoop->start, currentLoop->end);
-                shiftyLooper.setNextPositionOverride(old.start * 44100);
-            } else {
-                cout << "Back " << endl;
-                shiftyLooper.setLoopTimes(currentLoop->start, currentLoop->end);
-                shiftyLooper.setNextPositionOverride(old.start * 44100);
-            }
-            shiftyLooper.setLoopBetweenTimes(true);
-            shiftyLooper.start();
-        int interval = (currentLoop->end - currentLoop->start)*1000;
-        //std::cout << "Interval: " << interval << endl;
-        startTimer(interval+interval/50);
-            itr++;
-            shifting = false;
-        //}
-    //}
-    }
- */
-}
-
 //==============================================================================
 void AudioApp::playerStoppedOrStarted(drow::AudioFilePlayer* player){
     if (player == &shiftyLooper){
@@ -797,6 +765,21 @@ void AudioApp::showLoopTable(){
     if (tableEnabled){
         database = new LoopTableData(createdLoops);
     }
+}
+
+inline void AudioApp::removeLoop(int index){
+    deletedLoops.push_back(createdLoops[index]);
+    createdLoops.erase(createdLoops.begin() + index);
+}
+
+void AudioApp::playLoop(int index){
+    if (shiftyLooper.isPlaying() || shiftyLooper.isLooping())
+        shiftyLooper.stop();
+    int start_ = createdLoops[index].start * 44100;
+    int end_ = createdLoops[index].end * 44100;
+    shiftyLooper.setLoopTimes(createdLoops[index].start, createdLoops[index].end);
+    shiftyLooper.setPosition(createdLoops[index].start);
+    shiftyLooper.start();
 }
 
 //==============================================================================
